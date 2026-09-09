@@ -2,7 +2,7 @@
 
 Every interface (CLI / TUI / Web) calls ``Orchestrator.run()`` and consumes the
 shared ``EventBus``; no interface ever re-implements analysis logic
-(AGENTS.md rule #1).
+(PLAN.md §4.3).
 """
 
 from __future__ import annotations

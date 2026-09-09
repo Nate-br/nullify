@@ -1,6 +1,6 @@
 """Dynamic Analysis Agent — sandboxed detonation (opt-in, `--deep` only).
 
-SAFETY BOUNDARY (non-negotiable, see AGENTS.md):
+SAFETY BOUNDARY (non-negotiable, see docs/PLAN.md §12):
   * samples are NEVER executed on the host;
   * detonation happens only through the configured CAPEv2 sandbox
     (``NULLIFY_SANDBOX_URL``) and only in ScanMode.DEEP;

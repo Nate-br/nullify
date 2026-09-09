@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 class BaseAgent(ABC):
     """Base class for all pipeline agents.
 
-    Contract (see AGENTS.md):
+    Contract (see docs/PLAN.md §12 for safety rules):
       * never ``print()`` — emit progress on the bus;
       * never raise for soft failures — return ``status="skipped"/"failed"``;
       * return an :class:`AgentResult` no matter what.

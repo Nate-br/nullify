@@ -3,7 +3,7 @@
 Phase 0: transparent heuristic scorer over agent evidence (type votes from
 static imports, severity-weighted findings, triage entropy). Weeks 7–8 swap in
 an XGBoost model trained on EMBER behind the exact same ``classify()`` signature
-(see AGENTS.md) — the orchestrator and interfaces won't change.
+(see docs/PLAN.md §6.3) — the orchestrator and interfaces won't change.
 """
 
 from __future__ import annotations

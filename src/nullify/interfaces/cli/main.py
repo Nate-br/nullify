@@ -6,7 +6,7 @@ Commands:
     batch         scan every file in a directory, optional JSON report
 
 All commands call the shared Orchestrator — no analysis logic lives here
-(AGENTS.md rule #1).
+(PLAN.md §4.3).
 """
 
 from __future__ import annotations

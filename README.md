@@ -99,7 +99,8 @@ make format    # ruff format
 make test      # pytest
 ```
 
-Conventions and hard rules for agents/contributors: see [AGENTS.md](AGENTS.md).
+Conventions and hard rules: see [docs/PLAN.md](docs/PLAN.md) — §4.3 (one engine,
+three interfaces), §12 (safety, legal & ethical), §13 (milestone timeline).
 
 ## License
 
