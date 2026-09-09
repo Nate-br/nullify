@@ -3,87 +3,102 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nullify — Malware Analysis</title>
+<title>nullify — agentic malware analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="/static/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%2322d3ee' d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z'/></svg>">
 </head>
 <body>
-<div class="bg-grid" aria-hidden="true"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
 
-<header class="top">
-  <div class="brand">
-    <svg class="shield" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path class="shield-in" d="M9.2 12.2l2 2 3.6-4.4"/></svg>
-    <span class="wordmark">NULLIFY</span>
-    <span class="tagline">agentic malware analysis · local model</span>
-  </div>
-  <span class="health" id="health"><i></i>offline</span>
-</header>
-
-<main class="wrap">
-
-  <!-- Scan console -->
-  <section class="console">
-    <form id="scan-form" autocomplete="off">
-      <div class="scan-row">
-        <input id="path" type="text" spellcheck="false"
-               placeholder="Enter a file path to analyze  ·  e.g. C:\Windows\System32\notepad.exe"
-               aria-label="File path">
-        <button id="scan-btn" type="submit">
-          <span class="btn-label">Scan</span>
-          <span class="btn-spinner" hidden></span>
-        </button>
-      </div>
-      <p class="hint">Runs static analysis, YARA rules and the locally-trained EMBER XGBoost model.
-         Nothing leaves this machine.</p>
-    </form>
-  </section>
-
-  <!-- Idle state -->
-  <section id="intro" class="intro">
-    <div class="intro-card"><b>1 · Evidence</b><span>PE structure, imports, entropy and capa signatures</span></div>
-    <div class="intro-card"><b>2 · Rules</b><span>Self-authored YARA heuristics, MZ-gated, ATT&CK mapped</span></div>
-    <div class="intro-card"><b>3 · Model</b><span>XGBoost on 500k EMBER samples — 99.46% acc · 0.39% FPR</span></div>
-  </section>
-
-  <!-- Results -->
-  <section id="result" class="result" hidden>
-
-    <div id="verdict-card" class="verdict">
-      <div class="verdict-left">
-        <span id="verdict-word" class="verdict-word">—</span>
-        <span id="verdict-type" class="verdict-type"></span>
-      </div>
-      <div class="gauge">
-        <svg viewBox="0 0 84 84"><circle class="gauge-track" cx="42" cy="42" r="36"/>
-        <circle id="gauge-arc" class="gauge-arc" cx="42" cy="42" r="36"/></svg>
-        <div class="gauge-num"><b id="confidence">0</b><i>%</i></div>
+<div class="wrap">
+  <!-- header card -->
+  <header class="card head">
+    <div class="head-left">
+      <div class="head-id">
+        <span class="name">nullify</span>
+        <nav class="nav">
+          <a href="/" class="active">/scan</a>
+          <span class="hex">#86efac</span>
+        </nav>
       </div>
     </div>
+    <div class="head-right">
+      <span id="health" class="health"><i></i>checking…</span>
+      <a class="btn-ghost" href="https://github.com/Nate-br/nullify" target="_blank" rel="noopener">repo →</a>
+    </div>
+  </header>
 
-    <div class="meta-row" id="meta-row"></div>
+  <!-- main card -->
+  <main class="card">
+    <section class="mb-16">
+      <h2>scan</h2>
+      <form id="scan-form" class="scan-row">
+        <input id="path" type="text" spellcheck="false" autocomplete="off"
+               placeholder="/path/to/file.exe" aria-label="file path">
+        <button id="scan-btn" type="submit">
+          <span class="btn-spinner" hidden></span><span class="btn-label">scan →</span>
+        </button>
+      </form>
+      <p class="hint">static analysis, yara rules and a locally-trained ember xgboost model. nothing leaves this machine.</p>
+      <div id="error" class="error" hidden></div>
+    </section>
 
-    <h2 class="sec">Pipeline</h2>
-    <div id="agents" class="agents"></div>
+    <section id="result" hidden>
+      <!-- verdict -->
+      <div id="verdict-card" class="verdict">
+        <div class="verdict-left">
+          <span id="verdict-word">—</span>
+          <span id="verdict-type" class="verdict-type"></span>
+        </div>
+        <div class="verdict-right">
+          <pre id="conf-bar" class="conf-bar" aria-hidden="true"></pre>
+          <span class="conf-num"><b id="confidence">0</b>% confidence</span>
+        </div>
+      </div>
 
-    <h2 class="sec">Findings <span id="finding-count" class="count"></span></h2>
-    <div id="findings" class="findings"></div>
+      <!-- meta chips -->
+      <div id="meta-row" class="meta-row"></div>
 
-    <h2 class="sec">Why</h2>
-    <p id="explanation" class="explanation"></p>
+      <!-- pipeline -->
+      <section class="mb-16">
+        <div class="sec-row"><h2>pipeline</h2></div>
+        <div id="agents" class="rows"></div>
+      </section>
 
-    <details class="raw">
-      <summary>Raw JSON report</summary>
-      <pre id="raw-json"></pre>
-    </details>
-  </section>
+      <!-- findings -->
+      <section class="mb-16">
+        <div class="sec-row"><h2>findings <span id="finding-count" class="count"></span></h2></div>
+        <div id="findings" class="rows"></div>
+      </section>
 
-  <p id="error" class="error" hidden></p>
-</main>
+      <!-- why -->
+      <section class="mb-16">
+        <div class="sec-row"><h2>why</h2></div>
+        <div id="explanation" class="why"></div>
+      </section>
 
-<footer class="foot">
-  <span>Nullify v0.1.0 — capstone build</span>
-  <span class="foot-dim">synthetic targets only · no external APIs · verdicts are heuristic, not gospel</span>
-</footer>
+      <!-- raw -->
+      <section>
+        <button id="raw-toggle" class="btn-ghost" type="button">view raw report →</button>
+        <pre id="raw-json" class="raw" hidden></pre>
+      </section>
+    </section>
+
+    <!-- intro -->
+    <section id="intro" class="intro mb-0">
+      <div class="intro-item"><b>1 · evidence</b><span>pe structure, imports, entropy, capa signatures</span></div>
+      <div class="intro-item"><b>2 · rules</b><span>self-authored yara heuristics, mz-gated, attack mapped</span></div>
+      <div class="intro-item"><b>3 · model</b><span>xgboost on 500k ember samples — 99.46% acc · 0.39% fpr</span></div>
+    </section>
+
+    <footer class="foot">
+      <span>nullify v0.1.0 — capstone build</span>
+      <span>synthetic targets only · no external apis · verdicts are heuristic, not gospel</span>
+    </footer>
+  </main>
+</div>
 
 <script src="/static/app.js"></script>
 </body>

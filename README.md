@@ -69,9 +69,10 @@ uv run nullify batch ./samples/ -o report.json    # directory batch scan
 ```
 
 ### 2. Web UI
-A professional dark-themed analysis console: color-coded verdict banner with
-confidence gauge, numbered agent pipeline, severity-badged findings, and a
-plain-English rationale — all served locally, no build step.
+A terminal-core styled analysis console (pure black, monospace, single green
+accent): ascii confidence bar, color-coded verdict, list-style agent pipeline,
+severity-badged findings, and a plain-english rationale — all served locally,
+no build step.
 ```bash
 uv run nullify web                                # Starts the FastAPI backend
 # Navigate to http://127.0.0.1:8000

@@ -1,10 +1,62 @@
-/* Nullify web console — vanilla JS, no build step */
+/* nullify web console — vanilla js, no build step */
 "use strict";
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+/* ---------- ascii background canvas ---------- */
+function startBackground() {
+  const canvas = $("bg");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const glyphs = "+.:·≡░▒".split("");
+  let cols, rows, cell, field, anim;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cell = 18;
+    cols = Math.ceil(canvas.width / cell);
+    rows = Math.ceil(canvas.height / cell);
+    field = new Array(cols * rows);
+    for (let i = 0; i < field.length; i++) {
+      // sparse blob-ish density using layered value noise
+      const x = i % cols, y = (i / cols) | 0;
+      const n =
+        0.5 + 0.5 * Math.sin(x * 0.11 + Math.cos(y * 0.07) * 2.0) *
+        Math.cos(y * 0.09 + Math.sin(x * 0.05) * 1.7);
+      field[i] = n > 0.62 ? glyphs[(x * 7 + y * 13) % glyphs.length] : "";
+    }
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "13px 'Geist Mono', monospace";
+    for (let i = 0; i < field.length; i++) {
+      const g = field[i];
+      if (!g) continue;
+      const x = (i % cols) * cell;
+      const y = ((i / cols) | 0) * cell;
+      const flicker = 0.75 + 0.25 * Math.sin(t * 0.0011 + i * 0.7);
+      const alpha = 0.05 + 0.11 * flicker;
+      ctx.fillStyle = `rgba(134, 239, 172, ${alpha.toFixed(3)})`;
+      ctx.fillText(g, x, y);
+    }
+    anim = requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+  anim = requestAnimationFrame(draw);
+  // stop the loop when the tab is hidden — be a good citizen
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) cancelAnimationFrame(anim);
+    else anim = requestAnimationFrame(draw);
+  });
+}
 
 /* ---------- health probe ---------- */
 async function probeHealth() {
@@ -20,8 +72,6 @@ async function probeHealth() {
     el.innerHTML = "<i></i>offline";
   }
 }
-probeHealth();
-setInterval(probeHealth, 15000);
 
 /* ---------- scan ---------- */
 const form = $("scan-form");
@@ -53,13 +103,12 @@ form.addEventListener("submit", async (e) => {
     if (!r.ok) {
       throw new Error((data && (data.detail || data.error)) || `HTTP ${r.status}`);
     }
-    // small floor so the spinner never flashes imperceptibly
     const elapsed = performance.now() - t0;
     if (elapsed < 350) await new Promise((res) => setTimeout(res, 350 - elapsed));
     render(data);
   } catch (err) {
     const box = $("error");
-    box.textContent = "Scan failed: " + (err && err.message ? err.message : err);
+    box.textContent = "scan failed: " + (err && err.message ? err.message : err);
     box.hidden = false;
   } finally {
     setLoading(false);
@@ -69,108 +118,102 @@ form.addEventListener("submit", async (e) => {
 function setLoading(on) {
   btn.disabled = on;
   spinner.hidden = !on;
-  btnLabel.textContent = on ? "Scanning" : "Scan";
+  btnLabel.textContent = on ? "scanning" : "scan →";
   input.disabled = on;
 }
 
 /* ---------- rendering ---------- */
-const VERDICT_COLORS = { malicious: "#f87171", suspicious: "#fbbf24", benign: "#34d399" };
-const R = 36;                       // gauge radius
-const CIRC = 2 * Math.PI * R;       // gauge circumference
-
 function render(d) {
-  /* verdict card */
+  /* verdict */
   const v = (d.verdict || "unknown").toLowerCase();
   const card = $("verdict-card");
-  card.className = "verdict " + (VERDICT_COLORS[v] ? v : "");
-  $("verdict-word").textContent = v === "unknown" ? "Unknown" : v;
+  card.className = "verdict " + (["malicious", "suspicious", "benign"].includes(v) ? v : "");
+  $("verdict-word").textContent = v === "unknown" ? "unknown" : v;
   $("verdict-type").textContent = d.malware_type && d.malware_type !== v ? d.malware_type : "";
 
   const conf = Math.max(0, Math.min(1, Number(d.confidence) || 0));
   const pct = Math.round(conf * 100);
-  const arc = $("gauge-arc");
-  arc.style.strokeDasharray = String(CIRC);
-  requestAnimationFrame(() => {
-    arc.style.strokeDashoffset = String(CIRC * (1 - conf));
-  });
-  // count-up animation
-  const num = $("confidence");
-  animateCount(num, pct);
+  renderConfBar(pct);
+  animateCount($("confidence"), pct);
 
   /* meta chips */
   const chips = [];
   const t = d.target || {};
   const name = t.path ? String(t.path).replace(/[\\/]+$/, "").split(/[\\/]/).pop() : "—";
-  chips.push(chip("file", name, true));
+  chips.push(chip("file", name));
   if (t.size_bytes != null) chips.push(chip("size", fmtBytes(t.size_bytes)));
   if (t.hashes && t.hashes.sha256) chips.push(copyChip("sha256", t.hashes.sha256));
   chips.push(chip("mode", d.mode || "static"));
   chips.push(chip("time", (Number(d.duration_s) || 0).toFixed(2) + "s"));
   if (Array.isArray(d.mitre_ids) && d.mitre_ids.length) {
-    chips.push(chip("ATT&CK", d.mitre_ids.join(", ")));
+    chips.push(chip("attack", d.mitre_ids.join(", ")));
   }
   $("meta-row").innerHTML = chips.join("");
   bindCopyChips();
 
-  /* agents — numbered stage chips */
-  $("agents").innerHTML = (d.agents || []).map((a, i) => {
-    const st = esc((a.status || "unknown").toLowerCase());
+  /* pipeline — d1rshan-style rows: name … status · time · findings */
+  $("agents").innerHTML = (d.agents || []).map((a) => {
+    const st = (a.status || "unknown").toLowerCase();
     const nFind = (a.findings || []).length;
+    const detail = nFind ? `${nFind} finding${nFind > 1 ? "s" : ""}` : "";
     return `<div class="agent">
-      <span class="stage-no">0${i + 1}</span>
-      <div class="agent-top">
-        <span class="agent-name">${esc(a.agent)}</span>
-        <span class="agent-ms">${Number(a.duration_s || 0).toFixed(2)}s</span>
-      </div>
-      <span class="agent-status ${st === "ok" ? "completed" : st}">${st}</span>
-      <span class="agent-detail">${nFind ? nFind + " finding" + (nFind > 1 ? "s" : "") : ""}</span>
+      <span class="r-name">${esc(a.agent.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase())}</span>
+      <span class="r-desc">${esc(detail || "—")}</span>
+      <span class="r-tag agent-status ${st === "ok" ? "" : esc(st)}">${esc(st)}</span>
+      <span class="r-tag">${Number(a.duration_s || 0).toFixed(2)}s</span>
     </div>`;
   }).join("");
 
   /* findings */
   const all = (d.agents || []).flatMap((a) => (a.findings || []).map((f) => ({ ...f, agent: a.agent })));
-  const box = $("findings");
-  $("finding-count").textContent = all.length ? String(all.length) : "";
-  if (!all.length) {
-    box.innerHTML = `<p class="none">No findings.</p>`;
-  } else {
-    box.innerHTML = all.map((f) => {
-      const sev = esc((f.severity || "info").toLowerCase());
-      const tags = [
-        `<span class="badge sev sev-${sev}">${sev}</span>`,
-        ...(f.mitre_ids || []).map((m) => `<span class="badge mitre">${esc(m)}</span>`),
-        `<span class="badge src">${esc(f.agent)}</span>`,
-      ].join("");
-      const detail = f.detail ? `<div class="finding-detail">${esc(f.detail)}</div>` : "";
-      return `<div class="finding sev-${sev}">
-        <div class="finding-body">
-          <div class="finding-title">${esc(f.title)}</div>
+  $("finding-count").textContent = all.length ? `(${all.length})` : "";
+  $("findings").innerHTML = all.length
+    ? all.map((f) => {
+        const sev = esc((f.severity || "info").toLowerCase());
+        const tags = [
+          `<span class="badge sev-${sev}">${sev}</span>`,
+          ...(f.mitre_ids || []).map((m) => `<span class="badge mitre">${esc(m)}</span>`),
+          `<span class="badge">${esc(f.agent)}</span>`,
+        ].join("");
+        const detail = f.detail ? `<div class="finding-detail">${esc(f.detail)}</div>` : "";
+        return `<div class="finding sev-${sev}">
+          <div class="f-top">
+            <span class="r-name">${esc(f.title)}</span>
+            ${tags}
+          </div>
           ${detail}
-          <div class="finding-tags">${tags}</div>
-        </div>
-      </div>`;
-    }).join("");
-  }
+        </div>`;
+      }).join("")
+    : `<p class="r-desc">no findings.</p>`;
 
-  /* explanation + raw */
+  /* why + raw */
   $("explanation").textContent = d.explanation || "—";
   $("raw-json").textContent = JSON.stringify(d, null, 2);
 
   $("result").hidden = false;
 }
 
-function chip(label, value, strong) {
+/* ascii confidence bar — block characters, d1rshan green (25 cells = 4% steps) */
+function renderConfBar(pct) {
+  const width = 25;
+  const filled = Math.round((pct / 100) * width);
+  const full = "█".repeat(filled);
+  const empty = "░".repeat(width - filled);
+  $("conf-bar").textContent = `${full}${empty}`;
+}
+
+function chip(label, value) {
   return `<span class="chip">${esc(label)} <b>${esc(value)}</b></span>`;
 }
 
 function copyChip(label, value) {
-  return `<span class="chip copyable" data-copy="${esc(value)}" title="Click to copy full hash">${esc(label)} <b>${esc(String(value).slice(0, 16))}…</b></span>`;
+  return `<span class="chip copyable" data-copy="${esc(value)}" title="click to copy full hash">${esc(label)} <b>${esc(String(value).slice(0, 16))}…</b></span>`;
 }
 
 function bindCopyChips() {
   document.querySelectorAll(".chip.copyable").forEach((el) => {
     el.addEventListener("click", () => {
-      navigator.clipboard.writeText(el.dataset.copy).then(() => toast("Copied to clipboard"));
+      navigator.clipboard.writeText(el.dataset.copy).then(() => toast("copied to clipboard"));
     });
   });
 }
@@ -192,11 +235,10 @@ function toast(msg) {
 function animateCount(el, target) {
   const t0 = performance.now();
   const dur = 700;
-  const from = 0;
   function tick(t) {
     const p = Math.min(1, (t - t0) / dur);
     const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = String(Math.round(from + (target - from) * eased));
+    el.textContent = String(Math.round(target * eased));
     if (p < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -204,7 +246,7 @@ function animateCount(el, target) {
 
 function fmtBytes(n) {
   n = Number(n) || 0;
-  const units = ["B", "KB", "MB", "GB"];
+  const units = ["b", "kb", "mb", "gb"];
   let i = 0;
   while (n >= 1024 && i < units.length - 1) {
     n /= 1024;
@@ -213,7 +255,19 @@ function fmtBytes(n) {
   return (i === 0 ? n : n.toFixed(1)) + " " + units[i];
 }
 
-/* ---------- deep link: /?path=/some/file auto-scans ---------- */
+/* ---------- raw report toggle ---------- */
+$("raw-toggle").addEventListener("click", () => {
+  const raw = $("raw-json");
+  raw.hidden = !raw.hidden;
+  $("raw-toggle").textContent = raw.hidden ? "view raw report →" : "hide raw report →";
+});
+
+/* ---------- boot ---------- */
+startBackground();
+probeHealth();
+setInterval(probeHealth, 15000);
+
+/* deep link: /?path=/some/file auto-scans */
 const initial = new URLSearchParams(location.search).get("path");
 if (initial) {
   input.value = initial;
