@@ -20,7 +20,7 @@ when evidence warrants it.
 
 ## Architecture
 
-One engine, three interfaces — every interface calls the same orchestrator and
+One engine, two interfaces — every interface calls the same orchestrator and
 consumes the same streaming event bus; no analysis logic is duplicated.
 
 ```
@@ -44,12 +44,12 @@ Input (.exe / .dll / .evtx / .jsonl)
               ┌──────▼──────┐
               │ Reasoning   │  evidence-cited plain-English verdict
               └──────┬──────┘
-        CLI / TUI / Web UI  (shared event stream)
+        CLI / Web UI  (shared event stream)
 ```
 
 ## Locally-trained XGBoost EMBER Classifier
 
-The system features a custom classification agent using an XGBoost model trained on the EMBER dataset. Evaluated on a 500K-row balanced sample, the classifier achieved **99.46% accuracy** and a **0.39% False Positive Rate (FPR)**. This provides robust file-based confidence scores alongside the LLM's behavioral reasoning.
+The system features a custom classification agent using an XGBoost model trained on the EMBER dataset. Evaluated on a 500K-row balanced sample, the classifier achieved **99.46% accuracy** and a **0.39% False Positive Rate (FPR)**. This provides robust file-based confidence scores alongside static evidence and MITRE ATT&CK mapping.
 
 ## YARA Rules Summary
 
@@ -57,7 +57,7 @@ The static agent evaluates files against a suite of behavioral and structural YA
 
 ## Interfaces and Usage
 
-Nullify exposes three distinct interfaces for interacting with the single core engine:
+Nullify exposes two interfaces for interacting with the single core engine:
 
 ### 1. CLI (Command-Line Interface)
 Perfect for terminal users, scripting, and batch analysis.
@@ -68,15 +68,10 @@ uv run nullify analyze-log sysmon_export.jsonl    # behavioural log correlation
 uv run nullify batch ./samples/ -o report.json    # directory batch scan
 ```
 
-### 2. TUI (Terminal UI)
-An interactive terminal dashboard for live progress and deep-dive reporting.
-```bash
-uv run nullify scan path/to/sample.exe --tui
-uv run nullify tui                                # Open TUI and pick a file
-```
-
-### 3. Web UI
-A dashboard interface for visual, stakeholder-friendly reports.
+### 2. Web UI
+A professional dark-themed analysis console: color-coded verdict banner with
+confidence gauge, numbered agent pipeline, severity-badged findings, and a
+plain-English rationale — all served locally, no build step.
 ```bash
 uv run nullify web                                # Starts the FastAPI backend
 # Navigate to http://127.0.0.1:8000
@@ -106,10 +101,10 @@ src/nullify/
 │   ├── agents/          # triage, static, dynamic, log_correlation, classifier, reasoning
 │   ├── orchestrator.py  # pipeline + event streaming (the ONLY analysis entry point)
 │   ├── models.py        # Finding / AgentResult / AnalysisResult dataclasses
-│   └── events.py        # EventBus — one stream consumed by CLI, TUI, Web
+│   └── events.py        # EventBus — one stream consumed by CLI, Web
 ├── interfaces/
-│   ├── cli/             # typer app: scan, analyze-log, batch (+TUI stub)
-│   └── web/             # FastAPI app
+│   ├── cli/             # typer app: scan, analyze-log, batch
+│   └── web/             # FastAPI app + static frontend (index.html, style.css, app.js)
 docs/PLAN.md            # canonical capstone plan
 datasets/ sandbox_configs/ tests/
 ```

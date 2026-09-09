@@ -31,7 +31,7 @@ _TYPE_SENTENCES: dict[str, str] = {
             "APIs)",
     "rootkit": "behaviour is consistent with rootkit capability (driver loading and kernel "
                "object manipulation APIs)",
-    "benign": "no significant malicious indicators were found",
+    "benign": "behaviour shows no significant malicious indicators",
     "unknown": "evidence was inconclusive; treat as suspicious pending further analysis",
 }
 

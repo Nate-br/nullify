@@ -26,12 +26,11 @@ dependencies = [
 
 [project.optional-dependencies]
 logs = ["python-evtx>=0.7.4"]
-tui = ["textual>=0.60"]
 web = ["fastapi>=0.111", "uvicorn[standard]>=0.30", "python-multipart>=0.0.9"]
 static = ["pefile>=2023.2.7", "yara-python>=4.5", "flare-capa>=7.0.0"]
 ml = ["xgboost>=2.0", "scikit-learn>=1.5", "pandas>=2.2", "numpy>=1.26"]
 llm = ["anthropic>=0.34"]
-dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "pytest-asyncio>=0.23"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6"]
 
 [project.scripts]
 nullify = "nullify.interfaces.cli.main:app"

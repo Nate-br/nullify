@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nullify — Malware Analysis</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%2322d3ee' d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z'/></svg>">
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+
+<header class="top">
+  <div class="brand">
+    <svg class="shield" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path class="shield-in" d="M9.2 12.2l2 2 3.6-4.4"/></svg>
+    <span class="wordmark">NULLIFY</span>
+    <span class="tagline">agentic malware analysis · local model</span>
+  </div>
+  <span class="health" id="health"><i></i>offline</span>
+</header>
+
+<main class="wrap">
+
+  <!-- Scan console -->
+  <section class="console">
+    <form id="scan-form" autocomplete="off">
+      <div class="scan-row">
+        <input id="path" type="text" spellcheck="false"
+               placeholder="Enter a file path to analyze  ·  e.g. C:\Windows\System32\notepad.exe"
+               aria-label="File path">
+        <button id="scan-btn" type="submit">
+          <span class="btn-label">Scan</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+      </div>
+      <p class="hint">Runs static analysis, YARA rules and the locally-trained EMBER XGBoost model.
+         Nothing leaves this machine.</p>
+    </form>
+  </section>
+
+  <!-- Idle state -->
+  <section id="intro" class="intro">
+    <div class="intro-card"><b>1 · Evidence</b><span>PE structure, imports, entropy and capa signatures</span></div>
+    <div class="intro-card"><b>2 · Rules</b><span>Self-authored YARA heuristics, MZ-gated, ATT&CK mapped</span></div>
+    <div class="intro-card"><b>3 · Model</b><span>XGBoost on 500k EMBER samples — 99.46% acc · 0.39% FPR</span></div>
+  </section>
+
+  <!-- Results -->
+  <section id="result" class="result" hidden>
+
+    <div id="verdict-card" class="verdict">
+      <div class="verdict-left">
+        <span id="verdict-word" class="verdict-word">—</span>
+        <span id="verdict-type" class="verdict-type"></span>
+      </div>
+      <div class="gauge">
+        <svg viewBox="0 0 84 84"><circle class="gauge-track" cx="42" cy="42" r="36"/>
+        <circle id="gauge-arc" class="gauge-arc" cx="42" cy="42" r="36"/></svg>
+        <div class="gauge-num"><b id="confidence">0</b><i>%</i></div>
+      </div>
+    </div>
+
+    <div class="meta-row" id="meta-row"></div>
+
+    <h2 class="sec">Pipeline</h2>
+    <div id="agents" class="agents"></div>
+
+    <h2 class="sec">Findings <span id="finding-count" class="count"></span></h2>
+    <div id="findings" class="findings"></div>
+
+    <h2 class="sec">Why</h2>
+    <p id="explanation" class="explanation"></p>
+
+    <details class="raw">
+      <summary>Raw JSON report</summary>
+      <pre id="raw-json"></pre>
+    </details>
+  </section>
+
+  <p id="error" class="error" hidden></p>
+</main>
+
+<footer class="foot">
+  <span>Nullify v0.1.0 — capstone build</span>
+  <span class="foot-dim">synthetic targets only · no external APIs · verdicts are heuristic, not gospel</span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

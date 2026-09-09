@@ -1,4 +1,4 @@
-"""Event bus — the one stream consumed by CLI, TUI and Web UI alike.
+"""Event bus — the one stream consumed by CLI and Web UI alike.
 
 Agents publish progress here; interfaces subscribe. This is what makes
 "one engine, three interfaces" true in practice.

@@ -142,20 +142,10 @@ def _run_file_scan(path: Path, mode: ScanMode, stream: bool) -> AnalysisResult:
 def scan(
     path: Path = typer.Argument(..., exists=True, readable=True, help="File to scan"),
     deep: bool = typer.Option(False, "--deep", help="Opt-in sandbox detonation (never local execution)"),
-    tui: bool = typer.Option(False, "--tui", help="Interactive TUI mode (week 12)"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Stream agent progress"),
     json_out: bool = typer.Option(False, "--json", help="Machine-readable JSON output"),
 ) -> None:
     """Scan a file through the analysis pipeline."""
-    if tui:
-        try:
-            from nullify.interfaces.cli.tui.app import NullifyTUI
-
-            NullifyTUI(target_path=str(path), deep=deep).run()
-        except ModuleNotFoundError as exc:
-            err_console.print(f"[red]TUI requires the 'textual' extra:[/red] pip install 'nullify[tui]' ({exc})")
-        return
-
     if json_out:
         logging.disable(logging.CRITICAL)
     res = _run_file_scan(path, ScanMode.DEEP if deep else ScanMode.STATIC_ONLY,
@@ -164,20 +154,6 @@ def scan(
         console.print_json(res.to_json())
     else:
         _render_result(res)
-
-@app.command("tui")
-def tui_cmd(
-    path: str = typer.Argument("", help="Optional file to scan"),
-    deep: bool = typer.Option(False, "--deep", help="Opt-in sandbox detonation (never local execution)"),
-) -> None:
-    """Launch the interactive TUI."""
-    try:
-        from nullify.interfaces.cli.tui.app import NullifyTUI
-
-        NullifyTUI(target_path=path, deep=deep).run()
-    except ModuleNotFoundError as exc:
-        err_console.print(f"[red]TUI requires the 'textual' extra:[/red] pip install 'nullify[tui]' ({exc})")
-
 
 
 @app.command("analyze-log")

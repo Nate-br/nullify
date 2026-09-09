@@ -1,6 +1,6 @@
 """Orchestrator — the single analysis entry point.
 
-Every interface (CLI / TUI / Web) calls ``Orchestrator.run()`` and consumes the
+Every interface (CLI / Web) calls ``Orchestrator.run()`` and consumes the
 shared ``EventBus``; no interface ever re-implements analysis logic
 (PLAN.md §4.3).
 """

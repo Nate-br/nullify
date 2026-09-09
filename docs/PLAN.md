@@ -163,7 +163,7 @@ Example `--verbose` narration:
              ransomware or spyware.
 ```
 
-### 5.2 TUI (Terminal UI)
+### 5.2 TUI (Terminal UI) — REMOVED per user direction (superseded by the professional web UI)
 
 Built with **Textual** (Python), for interactive live-scan demos.
 

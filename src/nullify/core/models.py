@@ -1,7 +1,7 @@
 """Nullify core data models.
 
 Every agent returns an ``AgentResult``; the orchestrator folds them into a single
-``AnalysisResult`` that all three interfaces (CLI / TUI / Web) consume identically.
+``AnalysisResult`` that every interface (CLI / Web) consumes identically.
 """
 
 from __future__ import annotations

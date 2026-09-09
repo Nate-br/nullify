@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format clean run-web run-tui build
+.PHONY: install dev test lint format clean run-web build
 
 install:       ## Create .venv and install runtime dependencies
 	uv sync
@@ -17,9 +17,6 @@ format:        ## Ruff format
 
 run-web:       ## Run the Web UI
 	uv run nullify web
-
-run-tui:       ## Run the TUI
-	uv run nullify tui
 
 build:         ## Build wheel and sdist
 	uv build
