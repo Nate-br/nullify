@@ -99,6 +99,23 @@ class StaticAnalysisAgent(BaseAgent):
 
     name = "Static"
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.yara_rules = None
+        try:
+            from pathlib import Path
+
+            import yara
+            rule_dir = Path("rules")
+            if rule_dir.exists():
+                filepaths = {}
+                for p in rule_dir.glob("*.yar"):
+                    filepaths[p.stem] = str(p)
+                if filepaths:
+                    self.yara_rules = yara.compile(filepaths=filepaths)
+        except Exception as e:  # noqa: BLE001
+            log.debug("yara init failed (%s); continuing without YARA", e)
+
     def analyze(self, target: Target, mode: ScanMode) -> AgentResult:
         if isinstance(target, LogTarget):
             return AgentResult(agent=self.name, status=AgentStatus.SKIPPED,
@@ -209,6 +226,39 @@ class StaticAnalysisAgent(BaseAgent):
             else "heuristic-capa" if capa_success
             else "heuristic-phase0"
         )
+
+        yara_success = False
+        yara_matches_list = []
+        if self.yara_rules and is_pe:
+            try:
+                raw_bytes = target.path.open("rb").read(MAX_STRING_BYTES)
+                matches = self.yara_rules.match(data=raw_bytes)
+                for match in matches:
+                    yara_matches_list.append(match.rule)
+                    meta = match.meta
+                    severity_str = meta.get("severity", "HIGH").upper()
+                    try:
+                        severity = Severity[severity_str]
+                    except KeyError:
+                        severity = Severity.HIGH
+                    
+                    mitre_id = meta.get("att_and_ck_id")
+                    mitre_ids = (mitre_id,) if mitre_id else ()
+                    
+                    findings.append(Finding(
+                        agent=self.name,
+                        title=match.rule,
+                        detail=meta.get("description", "YARA rule matched"),
+                        severity=severity,
+                        mitre_ids=mitre_ids
+                    ))
+                yara_success = True
+            except Exception as e:  # noqa: BLE001
+                log.debug("yara match failed (%s)", e)
+                
+        if yara_success:
+            data["yara_matches"] = yara_matches_list
+            data["engine"] = "yara+" + data["engine"]
 
         data["findings_count"] = len(findings)
         if not findings:

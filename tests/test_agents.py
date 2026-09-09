@@ -166,3 +166,19 @@ def test_static_with_capa(trojan_like_file, monkeypatch) -> None:
     assert "capa" in res.data.get("engine", "")
     titles = [f.title for f in res.findings]
     assert any("capa: inject thread" in t for t in titles)
+
+def test_static_yara_matches_trojan(trojan_like_file) -> None:
+    res = StaticAnalysisAgent().run(trojan_like_file, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert "yara+" in res.data.get("engine", "")
+    assert "yara_matches" in res.data
+    titles = [f.title for f in res.findings]
+    assert any("Generic_Trojan_Dropper" in t for t in titles)
+
+def test_static_yara_skips_benign(benign_file) -> None:
+    res = StaticAnalysisAgent().run(benign_file, ScanMode.STATIC_ONLY)
+    assert res.ok
+    # Not a PE, so no yara matches
+    assert "yara+" not in res.data.get("engine", "")
+    titles = [f.title for f in res.findings]
+    assert not any("Generic_Trojan_Dropper" in t for t in titles)
