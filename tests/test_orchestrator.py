@@ -10,7 +10,7 @@ from nullify.core.orchestrator import Orchestrator
 def test_file_scan_pipeline_complete(benign_file) -> None:
     res = Orchestrator(bus=EventBus()).run(benign_file, ScanMode.STATIC_ONLY)
     names = [ar.agent for ar in res.agent_results]
-    assert names == ["Triage", "Static", "Classifier", "Reasoning"]
+    assert names == ["Triage", "Static", "LogAnalysis", "Classifier", "Reasoning"]
     assert res.verdict.value in ("benign", "suspicious")
     assert res.explanation  # reasoning produced a narration
 
@@ -34,7 +34,7 @@ def test_deep_mode_keeps_dynamic_stage(benign_file) -> None:
 def test_log_scan_pipeline(sysmon_log) -> None:
     res = Orchestrator().run(sysmon_log, ScanMode.STATIC_ONLY)
     names = [ar.agent for ar in res.agent_results]
-    assert names == ["LogCorrelation", "Classifier", "Reasoning"]
+    assert names == ["LogCorrelation", "LogAnalysis", "Classifier", "Reasoning"]
     assert res.verdict.value in ("suspicious", "malicious")
 
 

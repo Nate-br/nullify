@@ -13,6 +13,7 @@ from typing import Any
 from nullify.core.agents import (
     ClassificationAgent,
     DynamicAnalysisAgent,
+    LogAnalysisAgent,
     LogCorrelationAgent,
     ReasoningAgent,
     StaticAnalysisAgent,
@@ -43,9 +44,9 @@ class Orchestrator:
         result = AnalysisResult(target=target, mode=mode)
 
         if isinstance(target, LogTarget):
-            stages: list = [LogCorrelationAgent]
+            stages: list = [LogCorrelationAgent, LogAnalysisAgent]
         else:
-            stages = [TriageAgent, StaticAnalysisAgent]
+            stages = [TriageAgent, StaticAnalysisAgent, LogAnalysisAgent]
 
         if isinstance(target, FileTarget) and mode is ScanMode.DEEP:
             stages.append(DynamicAnalysisAgent)

@@ -25,6 +25,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+logs = ["python-evtx>=0.7.4"]
 tui = ["textual>=0.60"]
 web = ["fastapi>=0.111", "uvicorn[standard]>=0.30", "python-multipart>=0.0.9"]
 static = ["pefile>=2023.2.7", "yara-python>=4.5", "flare-capa>=7.0.0"]

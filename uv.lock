@@ -320,6 +320,12 @@ wheels = [
 ]
 
 [[package]]
+name = "hexdump"
+version = "3.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/b3/279b1d57fa3681725d0db8820405cdcb4e62a9239c205e4ceac4391c78e4/hexdump-3.3.zip", hash = "sha256:d781a43b0c16ace3f9366aade73e8ad3a7bd5137d58f0b45ab2d3f54876f20db", size = 12658, upload-time = "2016-01-22T14:40:19.589Z" }
+
+[[package]]
 name = "httpcore"
 version = "1.0.9"
 source = { registry = "https://pypi.org/simple" }
@@ -838,6 +844,9 @@ dev = [
 llm = [
     { name = "anthropic" },
 ]
+logs = [
+    { name = "python-evtx" },
+]
 ml = [
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
@@ -871,6 +880,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.23" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0" },
+    { name = "python-evtx", marker = "extra == 'logs'", specifier = ">=0.7.4" },
     { name = "python-multipart", marker = "extra == 'web'", specifier = ">=0.0.9" },
     { name = "rich", specifier = ">=13.7" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
@@ -881,7 +891,7 @@ requires-dist = [
     { name = "xgboost", marker = "extra == 'ml'", specifier = ">=2.0" },
     { name = "yara-python", marker = "extra == 'static'", specifier = ">=4.5" },
 ]
-provides-extras = ["tui", "web", "static", "ml", "llm", "dev"]
+provides-extras = ["logs", "tui", "web", "static", "ml", "llm", "dev"]
 
 [[package]]
 name = "numpy"
@@ -1420,6 +1430,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6a/53/ed9d74092561d4b01a2ef1349d52cdbc135e526c245f366b089cfca6de49/python_dotenv-1.2.3.tar.gz", hash = "sha256:a20a594dabeaa385725aa239d5244871c143ecb356add8a20fcf23773a6c3a35", size = 58945, upload-time = "2026-08-16T16:54:54.067Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0d/17/c5c6b53ddc18f297992099b3d9ec16c855c0ccc83263a21fe4d1c625ec6c/python_dotenv-1.2.3-py3-none-any.whl", hash = "sha256:904552145e8bfed22162c09dab1c2b9b54fefa7b23ba780f4f26ca0316b0f0d9", size = 22780, upload-time = "2026-08-16T16:54:52.473Z" },
+]
+
+[[package]]
+name = "python-evtx"
+version = "0.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "hexdump" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/34/44/e28f31531834b1cd93d14472ec84136dad565e9db0f7abcbae96176c1e65/python_evtx-0.8.1.tar.gz", hash = "sha256:e96cea25536a3de5074af7f1bdbf011084d09c2e00664ab754d979820ed75fea", size = 28324, upload-time = "2025-05-02T08:24:38Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/12/f16a7a2f118a07649633b8f72803b932c8d9f0d24a2822cc08a1879ddf6f/python_evtx-0.8.1-py3-none-any.whl", hash = "sha256:46336b854dbe0a1e75873ae30db5f583c9d2262ff1d21bdb6b1e624ecfa18ddb", size = 26725, upload-time = "2025-05-02T08:24:36.279Z" },
 ]
 
 [[package]]
