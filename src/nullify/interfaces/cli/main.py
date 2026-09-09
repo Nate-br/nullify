@@ -231,5 +231,23 @@ def batch(
         console.print(f"Report written to [bold]{output}[/bold]")
 
 
+@app.command("web")
+def web_cmd(
+    host: str = typer.Option("127.0.0.1", "--host", help="Host to bind to"),
+    port: int = typer.Option(8000, "--port", help="Port to bind to"),
+) -> None:
+    """Launch the Web UI backend."""
+    if host == "0.0.0.0":
+        err_console.print("[red]Never bind to 0.0.0.0 for safety reasons. Use 127.0.0.1.[/red]")
+        raise typer.Exit(1)
+        
+    try:
+        import uvicorn
+        
+        uvicorn.run("nullify.interfaces.web.backend:app", host=host, port=port)
+    except ModuleNotFoundError as exc:
+        err_console.print(f"[red]Web UI requires the 'web' extra:[/red] pip install 'nullify[web]' ({exc})")
+
+
 if __name__ == "__main__":
     app()
