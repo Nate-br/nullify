@@ -151,7 +151,7 @@ def scan(
         try:
             from nullify.interfaces.cli.tui.app import NullifyTUI
 
-            NullifyTUI().run()
+            NullifyTUI(target_path=str(path), deep=deep).run()
         except ModuleNotFoundError as exc:
             err_console.print(f"[red]TUI requires the 'textual' extra:[/red] pip install 'nullify[tui]' ({exc})")
         return
@@ -164,6 +164,20 @@ def scan(
         console.print_json(res.to_json())
     else:
         _render_result(res)
+
+@app.command("tui")
+def tui_cmd(
+    path: str = typer.Argument("", help="Optional file to scan"),
+    deep: bool = typer.Option(False, "--deep", help="Opt-in sandbox detonation (never local execution)"),
+) -> None:
+    """Launch the interactive TUI."""
+    try:
+        from nullify.interfaces.cli.tui.app import NullifyTUI
+
+        NullifyTUI(target_path=path, deep=deep).run()
+    except ModuleNotFoundError as exc:
+        err_console.print(f"[red]TUI requires the 'textual' extra:[/red] pip install 'nullify[tui]' ({exc})")
+
 
 
 @app.command("analyze-log")
