@@ -2,7 +2,7 @@
 
 Phase 0: deterministic template narration over structured evidence. Week 11
 adds the optional LLM path (Anthropic API) — it receives structured evidence
-JSON only, never raw binary content (hard rule, see AGENTS.md).
+JSON only, never raw binary content (hard rule, see docs/PLAN.md §12).
 """
 
 from __future__ import annotations

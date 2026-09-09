@@ -1,6 +1,6 @@
 """FastAPI backend — week 13 milestone stub.
 
-Must wrap the shared Orchestrator (AGENTS.md rule #1):
+Must wrap the shared Orchestrator (PLAN.md §4.3):
   * POST /scan      — file upload → AnalysisResult
   * WS   /ws/scan   — live agent-progress streaming (same EventBus)
 
