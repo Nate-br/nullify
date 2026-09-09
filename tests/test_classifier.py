@@ -55,7 +55,7 @@ def test_classifier_fallback(dummy_target):
     
     # Test agent
     agent = ClassificationAgent(config={"evidence": evidence}, model_path="non_existent_model.json")
-    agent_res = agent.analyze(dummy_target, ScanMode.QUICK)
+    agent_res = agent.analyze(dummy_target, ScanMode.STATIC_ONLY)
     
     assert agent_res.data["engine"] == "heuristic-phase0"
     assert agent_res.data["verdict"] == "malicious"
@@ -72,7 +72,7 @@ def test_classifier_xgboost(dummy_target, dummy_model_path):
     agent = ClassificationAgent(config={"evidence": evidence}, model_path=dummy_model_path)
     assert agent.model is not None
     
-    agent_res = agent.analyze(dummy_target, ScanMode.QUICK)
+    agent_res = agent.analyze(dummy_target, ScanMode.STATIC_ONLY)
     
     assert agent_res.data["engine"] == "xgboost-ember"
     assert "score" in agent_res.data

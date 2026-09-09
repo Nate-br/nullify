@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from nullify.core.agents.base import BaseAgent
+from nullify.core.events import EventBus
 from nullify.core.features import extract_features
 from nullify.core.models import (
     AgentResult,
@@ -158,8 +159,9 @@ class ClassificationAgent(BaseAgent):
 
     name = "Classifier"
     
-    def __init__(self, config: dict[str, Any] | None = None, model_path: str | Path | None = None):
-        super().__init__(config)
+    def __init__(self, bus: EventBus | None = None, config: dict[str, Any] | None = None,
+                 model_path: str | Path | None = None):
+        super().__init__(bus=bus, config=config)
         self.model = None
         
         if model_path is None:
