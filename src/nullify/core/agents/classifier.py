@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import Any
 
 from nullify.core.agents.base import BaseAgent
+from nullify.core.ember_features import ember_feature_vector_from_bytes
 from nullify.core.events import EventBus
-from nullify.core.features import extract_features
 from nullify.core.models import (
     AgentResult,
     AgentStatus,
@@ -57,7 +57,8 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
     # 1. Check if model is provided
     if model is not None and target_path is not None:
         import numpy as np
-        features = extract_features(target_path)
+        with open(target_path, "rb") as fh:
+            features = ember_feature_vector_from_bytes(fh.read(20_971_520))
         # Reshape for XGBoost
         dmatrix = np.array([features])
         prob = float(model.predict_proba(dmatrix)[0, 1])

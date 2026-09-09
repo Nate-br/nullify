@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 from nullify.core.agents.classifier import ClassificationAgent, classify
+from nullify.core.ember_features import EMBER_V2_DIM
 from nullify.core.models import FileTarget, ScanMode, Verdict
 
 try:
@@ -21,7 +22,7 @@ def dummy_model_path(tmp_path):
     
     # Train tiny model on 200 synthetic rows
     np.random.seed(42)
-    X_train = np.random.rand(200, 2351).astype(np.float32)
+    X_train = np.random.rand(200, EMBER_V2_DIM).astype(np.float32)
     # Give some predictable pattern: if feature 0 > 0.5, label 1, else 0
     y_train = (X_train[:, 0] > 0.5).astype(int)
     
