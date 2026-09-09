@@ -12,12 +12,15 @@ import os
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from nullify.core.agents.base import BaseAgent
 from nullify.core.ember_features import ember_feature_vector_from_bytes
 from nullify.core.events import EventBus
 from nullify.core.models import (
     AgentResult,
     AgentStatus,
+    FileTarget,
     Finding,
     ScanMode,
     Severity,
@@ -45,6 +48,33 @@ STRONG_TYPE_VOTES = 2
 MALICIOUS_SCORE_THRESHOLD = 6.0
 SUSPICIOUS_SCORE_THRESHOLD = 2.0
 
+# Severity ranking used to fuse model and evidence verdicts.
+_VERDICT_RANK: dict[Verdict, int] = {
+    Verdict.BENIGN: 0,
+    Verdict.SUSPICIOUS: 1,
+    Verdict.MALICIOUS: 2,
+}
+
+# Inference reads at most the first 20 MiB of the target (EMBER convention).
+_MAX_INFERENCE_BYTES = 20_971_520
+
+
+def _model_probability(model: Any, target_path: str | Path | None) -> float | None:
+    """Target bytes -> EMBER feature vector -> model P(malicious).
+
+    Returns None when the target cannot be read or the model cannot predict,
+    so callers fall back to evidence-only scoring instead of crashing.
+    """
+    if target_path is None:
+        return None
+    try:
+        with open(target_path, "rb") as fh:
+            features = ember_feature_vector_from_bytes(fh.read(_MAX_INFERENCE_BYTES))
+        proba = model.predict_proba(np.asarray([features], dtype=np.float32))
+        return float(proba[0, 1])
+    except Exception:  # noqa: BLE001 — any failure degrades to evidence-only verdict
+        return None
+
 
 def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Path | None = None) -> dict[str, Any]:
     """Pure function: evidence dict → verdict/type/confidence + reasons.
@@ -53,53 +83,15 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
     XGBoost swap only replaces this function's internals.
     """
     reasons: list[str] = []
-    
-    # 1. Check if model is provided
-    if model is not None and target_path is not None:
-        import numpy as np
-        with open(target_path, "rb") as fh:
-            features = ember_feature_vector_from_bytes(fh.read(20_971_520))
-        # Reshape for XGBoost
-        dmatrix = np.array([features])
-        prob = float(model.predict_proba(dmatrix)[0, 1])
-        
-        score = prob
-        
-        if prob >= 0.85:
-            verdict = Verdict.MALICIOUS
-        elif prob >= 0.4:
-            verdict = Verdict.SUSPICIOUS
-        else:
-            verdict = Verdict.BENIGN
-            
-        reasons.append(f"XGBoost EMBER model probability: {prob:.4f}")
-        
-        # Best effort to keep type logic
-        type_votes: dict[str, int] = dict(evidence.get("type_votes") or {})
-        best_type, best_votes = ("", 0)
-        for mal_type, votes in type_votes.items():
-            if votes > best_votes:
-                best_type, best_votes = mal_type, votes
-                
-        malware_type = "unknown"
-        if verdict is Verdict.BENIGN:
-            malware_type = "benign"
-        elif best_votes >= STRONG_TYPE_VOTES and best_type:
-            malware_type = best_type
-            
-        # Confidence
-        confidence = prob if verdict is Verdict.MALICIOUS else (1.0 - prob if verdict is Verdict.BENIGN else prob)
-        
-        return {
-            "verdict": verdict,
-            "malware_type": malware_type,
-            "confidence": round(confidence, 3),
-            "score": round(score, 4),
-            "reasons": reasons,
-            "engine": "xgboost-ember"
-        }
 
-    # 2. Heuristic fallback
+    # 1. Optional model path: EMBER features -> P(malicious). Fused with the
+    #    evidence score below — the more severe verdict wins, and the model
+    #    can escalate (never downgrade) the evidence-only verdict.
+    prob: float | None = None
+    if model is not None and target_path is not None:
+        prob = _model_probability(model, target_path)
+
+    # 2. Evidence score (always computed — also drives skip logic upstream).
     score = 0.0
 
     reputation = evidence.get("reputation") or {}
@@ -133,6 +125,28 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
     elif score >= SUSPICIOUS_SCORE_THRESHOLD:
         verdict = Verdict.SUSPICIOUS
 
+    # 3. Fusion: the model's verdict is combined with the evidence verdict —
+    #    the more severe of the two wins, so the model can escalate a
+    #    suspicious-looking binary but never wash out real static evidence.
+    engine = "heuristic-phase0"
+    if prob is not None:
+        model_verdict = (
+            Verdict.MALICIOUS
+            if prob >= 0.85
+            else Verdict.SUSPICIOUS
+            if prob >= 0.4
+            else Verdict.BENIGN
+        )
+        reasons.append(f"XGBoost EMBER model probability: {prob:.4f}")
+        if _VERDICT_RANK[model_verdict] > _VERDICT_RANK[verdict]:
+            verdict = model_verdict
+            reasons.append("model verdict overrides evidence-only score")
+        engine = "xgboost-ember"
+        if score == 0.0:
+            # Pure-model verdicts keep the calibrated probability as the score
+            # so the reported number stays comparable across engines.
+            score = prob
+
     malware_type = "unknown"
     if verdict is Verdict.BENIGN:
         malware_type = "benign"
@@ -151,7 +165,7 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
         "confidence": round(confidence, 3),
         "score": round(score, 2),
         "reasons": reasons,
-        "engine": "heuristic-phase0"
+        "engine": engine
     }
 
 
@@ -181,11 +195,16 @@ class ClassificationAgent(BaseAgent):
         from nullify.core.models import AnalysisResult  # noqa: F401  (typing hook)
 
         evidence = self.config.get("evidence", {})
-        if not evidence and not self.model:
+        # The EMBER model is a PE classifier — it only applies to file targets.
+        # Log targets and other target kinds always go through evidence scoring.
+        model_applies = self.model is not None and isinstance(target, FileTarget)
+        if not evidence and not model_applies:
             return AgentResult(agent=self.name, status=AgentStatus.SKIPPED,
                                data={"reason": "no upstream evidence provided"})
 
-        result = classify(evidence, model=self.model, target_path=target.path)
+        target_path = target.path if model_applies else None
+        result = classify(evidence, model=self.model if model_applies else None,
+                          target_path=target_path)
         
         title_prefix = "XGBoost score" if self.model else "Heuristic score"
         

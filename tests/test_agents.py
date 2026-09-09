@@ -90,7 +90,11 @@ def test_classifier_evidence_flow(trojan_like_file) -> None:
 
 
 def test_classifier_without_evidence_skips(pe_like_file) -> None:
-    res = ClassificationAgent().run(pe_like_file, ScanMode.STATIC_ONLY)
+    # Force no-model mode so the test is hermetic even when the real
+    # models/malware_xgb.json exists — the skip contract is about evidence.
+    res = ClassificationAgent(model_path="/nonexistent/model.json").run(
+        pe_like_file, ScanMode.STATIC_ONLY
+    )
     assert res.status.value == "skipped"
 
 
