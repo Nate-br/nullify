@@ -7,6 +7,7 @@ the same interface.
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
@@ -90,6 +91,8 @@ SUSPICIOUS_PATTERNS: tuple[tuple[str, re.Pattern[str], Severity], ...] = (
 SCRIPT_EXTENSIONS: frozenset[str] = frozenset({".ps1", ".bat", ".cmd", ".vbs", ".js", ".hta"})
 MAX_STRING_BYTES = 4 * 1024 * 1024  # scan first 4 MiB of strings
 
+log = logging.getLogger(__name__)
+
 
 class StaticAnalysisAgent(BaseAgent):
     """Non-executing inspection: imports, strings, patterns."""
@@ -102,7 +105,7 @@ class StaticAnalysisAgent(BaseAgent):
                                data={"reason": "log target — static analysis not applicable"})
 
         findings: list[Finding] = []
-        data: dict[str, Any] = {"engine": "heuristic-phase0"}
+        data: dict[str, Any] = {}
 
         blob = self._read_strings(target)
         is_pe = self._is_pe(target)
@@ -112,9 +115,28 @@ class StaticAnalysisAgent(BaseAgent):
         #    as innocuous strings inside ELF/Linux binaries (e.g. libc symbols),
         #    which caused false positives before this gate.
         type_votes: dict[str, int] = {}
+        pe_imports = None
+
         if is_pe:
+            # 1. Real import-table parsing via pefile, fallback to heuristics
+            try:
+                import pefile
+                pe = pefile.PE(target.path)
+                if hasattr(pe, "DIRECTORY_ENTRY_IMPORT"):
+                    pe_imports = set()
+                    for entry in pe.DIRECTORY_ENTRY_IMPORT:
+                        for imp in entry.imports:
+                            if imp.name:
+                                pe_imports.add(imp.name.decode("ascii", errors="ignore"))
+            except Exception as e:  # noqa: BLE001 — any parse failure falls back
+                log.debug("pefile parse failed (%s); using raw-string heuristics", e)
+
             for mal_type, apis in IMPORT_HINTS.items():
-                hits = [api for api in apis if api.encode() in blob]
+                if pe_imports is not None:
+                    hits = [api for api in apis if api in pe_imports]
+                else:
+                    hits = [api for api in apis if api.encode() in blob]
+                
                 if hits:
                     data[f"imports_{mal_type}"] = hits
                     for api in hits:
@@ -130,19 +152,63 @@ class StaticAnalysisAgent(BaseAgent):
                     type_votes[mal_type] = len(hits)
         data["type_votes"] = type_votes
 
-        # 2. Behavioural string patterns.
-        try:
-            text = blob.decode("utf-8", errors="ignore")
-        except Exception:  # noqa: BLE001 — decode is best-effort
-            text = ""
-        for title, pattern, severity in SUSPICIOUS_PATTERNS:
-            match = pattern.search(text)
-            if match:
-                findings.append(Finding(
-                    agent=self.name, title=title,
-                    detail=f"matched: …{match.group(0)[:80]}…",
-                    severity=severity,
-                ))
+        # 2. Capability detection via flare-capa, fallback to behavioral string patterns
+        capa_success = False
+        if is_pe:
+            try:
+                import json
+                import subprocess
+
+                import capa  # noqa: F401 - verify it's installed
+                
+                res = subprocess.run(
+                    ["capa", "-j", str(target.path)],
+                    capture_output=True, text=True, check=False, timeout=90,
+                )
+                if res.returncode == 0:
+                    capa_doc = json.loads(res.stdout)
+                    rules = capa_doc.get("rules", {})
+                    for rule_name, rule_data in rules.items():
+                        meta = rule_data.get("meta", {})
+                        if meta.get("lib") or meta.get("is_subscope"):
+                            continue
+                        
+                        attack = meta.get("att&ck", [])
+                        mitre_ids = [m.get("id") for m in attack if "id" in m]
+                        
+                        findings.append(Finding(
+                            agent=self.name,
+                            title=f"capa: {rule_name}",
+                            detail=meta.get("description", "Capability detected"),
+                            severity=Severity.HIGH,
+                            mitre_ids=tuple(mitre_ids)
+                        ))
+                    capa_success = True
+                    data["engine"] = "pefile-capa" if pe_imports is not None else "heuristic-capa"
+            except Exception as e:  # noqa: BLE001 — capa is optional; degrade gracefully
+                log.debug("capa unavailable/failed (%s); using string patterns", e)
+
+        if not capa_success:
+            # Fallback to suspicious patterns
+            try:
+                text = blob.decode("utf-8", errors="ignore")
+            except Exception:  # noqa: BLE001 — decode is best-effort
+                text = ""
+            for title, pattern, severity in SUSPICIOUS_PATTERNS:
+                match = pattern.search(text)
+                if match:
+                    findings.append(Finding(
+                        agent=self.name, title=title,
+                        detail=f"matched: …{match.group(0)[:80]}…",
+                        severity=severity,
+                    ))
+
+        data["engine"] = (
+            "pefile-capa" if capa_success and pe_imports is not None
+            else "pefile-heuristic" if pe_imports is not None
+            else "heuristic-capa" if capa_success
+            else "heuristic-phase0"
+        )
 
         data["findings_count"] = len(findings)
         if not findings:

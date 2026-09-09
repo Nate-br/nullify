@@ -115,3 +115,54 @@ def test_reasoning_requests_deep_when_unconfident(pe_like_file) -> None:
                 "reasons": [], "findings": [], "mode": "static"}
     res = ReasoningAgent(config={"evidence": evidence}).run(pe_like_file, ScanMode.STATIC_ONLY)
     assert res.data["requests_deep_analysis"] is True
+
+def test_static_with_pefile(trojan_like_file, monkeypatch) -> None:
+    import pefile
+
+    class MockImp:
+        name = b"CreateRemoteThread"
+
+    class MockEntry:
+        def __init__(self) -> None:
+            self.imports = [MockImp()]
+
+    class MockPE:
+        def __init__(self, path):
+            self.DIRECTORY_ENTRY_IMPORT = [MockEntry()]
+
+    monkeypatch.setattr(pefile, "PE", MockPE)
+    res = StaticAnalysisAgent().run(trojan_like_file, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert "pefile" in res.data.get("engine", "")
+    titles = [f.title for f in res.findings]
+    assert any("CreateRemoteThread" in t for t in titles)
+
+
+def test_static_with_capa(trojan_like_file, monkeypatch) -> None:
+    import json
+    import subprocess
+
+    orig_run = subprocess.run
+    def mock_run(cmd, *args, **kwargs):
+        if cmd and cmd[0] == "capa":
+            class MockRes:
+                returncode = 0
+                stdout = json.dumps({
+                    "rules": {
+                        "inject thread": {
+                            "meta": {
+                                "description": "injects a thread",
+                                "att&ck": [{"id": "T1055.003"}]
+                            }
+                        }
+                    }
+                })
+            return MockRes()
+        return orig_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run)
+    res = StaticAnalysisAgent().run(trojan_like_file, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert "capa" in res.data.get("engine", "")
+    titles = [f.title for f in res.findings]
+    assert any("capa: inject thread" in t for t in titles)
