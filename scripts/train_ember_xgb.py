@@ -32,7 +32,6 @@ def main() -> int:
         precision_score,
         recall_score,
     )
-    from sklearn.model_selection import train_test_split
 
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--vectors", type=Path, default=Path("datasets/ember/ember_vectors.npz"))
@@ -43,17 +42,27 @@ def main() -> int:
     ap.add_argument("--learning-rate", type=float, default=0.1)
     args = ap.parse_args()
 
-    if not args.vectors.exists():
-        print(f"ERROR: {args.vectors} not found — run vectorize_ember.py first", file=sys.stderr)
+    x_path = args.vectors.with_name(args.vectors.stem + "_X.npy")
+    y_path = args.vectors.with_name(args.vectors.stem + "_y.npy")
+    if not x_path.exists():
+        print(f"ERROR: {x_path} not found — run vectorize_ember.py first", file=sys.stderr)
         return 1
 
-    data = np.load(args.vectors)
-    X, y = data["X"], data["y"]
+    # mmap the raw .npy pair (written by vectorize_ember.py) — only the shuffle
+    # result is materialized, one 4.8 GB copy at float32.
+    X_all = np.load(x_path, mmap_mode="r")
+    y_all = np.load(y_path, mmap_mode="r")
+    idx = np.arange(X_all.shape[0])
+    np.random.seed(42)
+    np.random.shuffle(idx)
+    X = np.asarray(X_all[idx], dtype=np.float32)
+    y = np.asarray(y_all[idx], dtype=np.float32)
     print(f"loaded {X.shape[0]} rows x {X.shape[1]} dims "
           f"(malicious={int(y.sum())}, benign={int((y == 0).sum())})", flush=True)
 
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=args.test_size, random_state=42, stratify=y)
+    n_test = max(1, int(X.shape[0] * args.test_size))
+    X_te, y_te = X[:n_test], y[:n_test]
+    X_tr, y_tr = X[n_test:], y[n_test:]
     print(f"train={len(y_tr)} test={len(y_te)}", flush=True)
 
     model = xgb.XGBClassifier(

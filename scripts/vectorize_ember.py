@@ -24,7 +24,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from nullify.core.ember_features import ember_feature_vector_from_raw
+from nullify.core.ember_features import EMBER_V2_DIM, ember_feature_vector_from_raw
 
 
 def main() -> int:
@@ -40,12 +40,16 @@ def main() -> int:
         print(f"ERROR: no train_features_*.jsonl under {args.shard_dir}", file=sys.stderr)
         return 1
 
-    xs: list[np.ndarray] = []
-    ys: list[np.ndarray] = []
     counts = {0: 0, 1: 0}
     skipped = {-1: 0, 0: 0, 1: 0}
     t0 = time.time()
     total = 0
+
+    # Preallocate once (500K x 2381 float32 = 4.8 GB) — no list-append + vstack
+    # double copy, which OOM-killed the first attempt on a 14 GB box.
+    X = np.empty((args.max_benign + args.max_malicious, EMBER_V2_DIM), dtype=np.float32)
+    y = np.empty(args.max_benign + args.max_malicious, dtype=np.float32)
+    n = 0
 
     for shard in shards:
         print(f"[{time.time() - t0:7.0f}s] {shard.name} ...", flush=True)
@@ -63,22 +67,27 @@ def main() -> int:
                 if label == 1 and counts[1] >= args.max_malicious:
                     skipped[1] += 1
                     continue
-                vec = ember_feature_vector_from_raw(rec)
-                xs.append(vec)
-                ys.append(np.float32(label))
+                X[n] = ember_feature_vector_from_raw(rec)
+                y[n] = label
+                n += 1
                 counts[label] += 1
         print(f"    kept so far: benign={counts[0]} malicious={counts[1]}", flush=True)
 
-    X = np.vstack(xs).astype(np.float32)
-    y = np.asarray(ys, dtype=np.float32)
+    X = X[:n]
+    y = y[:n]
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(args.out, X=X, y=y)
+    # Raw .npy pairs (not .npz): .npy supports mmap in the trainer, .npz does not.
+    x_path = args.out.with_name(args.out.stem + "_X.npy")
+    y_path = args.out.with_name(args.out.stem + "_y.npy")
+    np.save(x_path, X)
+    np.save(y_path, y)
 
     print(f"\nrows kept: {len(y)} (benign={counts[0]}, malicious={counts[1]})")
     print(f"skipped: unlabeled={skipped[-1]}, benign-over-cap={skipped[0]}, mal-over-cap={skipped[1]}")
     print(f"total lines scanned: {total}")
     print(f"dims: {X.shape[1]}")
-    print(f"saved: {args.out} ({args.out.stat().st_size / 1e6:.0f} MB), {time.time() - t0:.0f}s")
+    print(f"saved: {x_path} ({x_path.stat().st_size / 1e6:.0f} MB) + {y_path.name}, "
+          f"{time.time() - t0:.0f}s")
     return 0
 
 
