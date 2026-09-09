@@ -8,9 +8,12 @@ an XGBoost model trained on EMBER behind the exact same ``classify()`` signature
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any
 
 from nullify.core.agents.base import BaseAgent
+from nullify.core.features import extract_features
 from nullify.core.models import (
     AgentResult,
     AgentStatus,
@@ -20,6 +23,13 @@ from nullify.core.models import (
     Target,
     Verdict,
 )
+
+try:
+    import xgboost as xgb
+    XGB_AVAILABLE = True
+except ImportError:
+    XGB_AVAILABLE = False
+
 
 SEVERITY_WEIGHTS: dict[Severity, float] = {
     Severity.INFO: 0.0,
@@ -35,22 +45,66 @@ MALICIOUS_SCORE_THRESHOLD = 6.0
 SUSPICIOUS_SCORE_THRESHOLD = 2.0
 
 
-def classify(evidence: dict[str, Any]) -> dict[str, Any]:
+def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Path | None = None) -> dict[str, Any]:
     """Pure function: evidence dict → verdict/type/confidence + reasons.
 
     Kept side-effect-free so it is trivially testable and so the weeks 7–8
     XGBoost swap only replaces this function's internals.
     """
     reasons: list[str] = []
+    
+    # 1. Check if model is provided
+    if model is not None and target_path is not None:
+        import numpy as np
+        features = extract_features(target_path)
+        # Reshape for XGBoost
+        dmatrix = np.array([features])
+        prob = float(model.predict_proba(dmatrix)[0, 1])
+        
+        score = prob
+        
+        if prob >= 0.85:
+            verdict = Verdict.MALICIOUS
+        elif prob >= 0.4:
+            verdict = Verdict.SUSPICIOUS
+        else:
+            verdict = Verdict.BENIGN
+            
+        reasons.append(f"XGBoost EMBER model probability: {prob:.4f}")
+        
+        # Best effort to keep type logic
+        type_votes: dict[str, int] = dict(evidence.get("type_votes") or {})
+        best_type, best_votes = ("", 0)
+        for mal_type, votes in type_votes.items():
+            if votes > best_votes:
+                best_type, best_votes = mal_type, votes
+                
+        malware_type = "unknown"
+        if verdict is Verdict.BENIGN:
+            malware_type = "benign"
+        elif best_votes >= STRONG_TYPE_VOTES and best_type:
+            malware_type = best_type
+            
+        # Confidence
+        confidence = prob if verdict is Verdict.MALICIOUS else (1.0 - prob if verdict is Verdict.BENIGN else prob)
+        
+        return {
+            "verdict": verdict,
+            "malware_type": malware_type,
+            "confidence": round(confidence, 3),
+            "score": round(score, 4),
+            "reasons": reasons,
+            "engine": "xgboost-ember"
+        }
+
+    # 2. Heuristic fallback
     score = 0.0
 
-    # 1. Known-bad reputation is dominant evidence.
     reputation = evidence.get("reputation") or {}
     if reputation.get("known_malicious"):
         score += 10.0
         reasons.append("hash has known-bad reputation")
 
-    # 2. Type votes from static import hints.
     type_votes: dict[str, int] = dict(evidence.get("type_votes") or {})
     best_type, best_votes = ("", 0)
     for mal_type, votes in type_votes.items():
@@ -60,7 +114,6 @@ def classify(evidence: dict[str, Any]) -> dict[str, Any]:
         score += min(best_votes * 1.5, 6.0)
         reasons.append(f"static imports suggest {best_type} ({best_votes} API hits)")
 
-    # 3. Severity-weighted findings.
     for f in evidence.get("findings", []):
         try:
             sev = Severity(f.get("severity", "info"))
@@ -68,7 +121,6 @@ def classify(evidence: dict[str, Any]) -> dict[str, Any]:
             sev = Severity.INFO
         score += SEVERITY_WEIGHTS.get(sev, 0.0)
 
-    # 4. Packing raises suspicion but is not proof.
     if evidence.get("packed"):
         score += 2.0
         reasons.append("binary appears packed (high entropy)")
@@ -85,7 +137,6 @@ def classify(evidence: dict[str, Any]) -> dict[str, Any]:
     elif best_votes >= STRONG_TYPE_VOTES and best_type:
         malware_type = best_type
 
-    # Confidence: saturating mapping of score; type confidence needs votes.
     confidence = min(score / 15.0, 0.99) if verdict is not Verdict.BENIGN else max(
         0.5, min(0.9, 0.9 - score / 10.0)
     )
@@ -98,6 +149,7 @@ def classify(evidence: dict[str, Any]) -> dict[str, Any]:
         "confidence": round(confidence, 3),
         "score": round(score, 2),
         "reasons": reasons,
+        "engine": "heuristic-phase0"
     }
 
 
@@ -105,20 +157,39 @@ class ClassificationAgent(BaseAgent):
     """Folds evidence from prior agents into a verdict + malware type."""
 
     name = "Classifier"
+    
+    def __init__(self, config: dict[str, Any] | None = None, model_path: str | Path | None = None):
+        super().__init__(config)
+        self.model = None
+        
+        if model_path is None:
+            model_path = os.environ.get("NULLIFY_MODEL_PATH", "models/malware_xgb.json")
+            
+        self.model_path = Path(model_path)
+        
+        if XGB_AVAILABLE and self.model_path.exists():
+            try:
+                self.model = xgb.XGBClassifier()
+                self.model.load_model(self.model_path)
+            except Exception:  # noqa: BLE001
+                self.model = None
 
     def analyze(self, target: Target, mode: ScanMode) -> AgentResult:
         from nullify.core.models import AnalysisResult  # noqa: F401  (typing hook)
 
         evidence = self.config.get("evidence", {})
-        if not evidence:
+        if not evidence and not self.model:
             return AgentResult(agent=self.name, status=AgentStatus.SKIPPED,
                                data={"reason": "no upstream evidence provided"})
 
-        result = classify(evidence)
+        result = classify(evidence, model=self.model, target_path=target.path)
+        
+        title_prefix = "XGBoost score" if self.model else "Heuristic score"
+        
         findings = [
             Finding(
                 agent=self.name,
-                title=f"Heuristic score {result['score']}",
+                title=f"{title_prefix} {result['score']}",
                 detail="; ".join(result["reasons"]) or "no aggravating evidence",
                 severity=_verdict_severity(result["verdict"]),
                 metadata={"score": result["score"]},
@@ -130,7 +201,7 @@ class ClassificationAgent(BaseAgent):
             status=AgentStatus.COMPLETED,
             findings=findings,
             data={
-                "engine": "heuristic-phase0",
+                "engine": result.get("engine", "heuristic-phase0"),
                 "verdict": result["verdict"].value,
                 "malware_type": result["malware_type"],
                 "confidence": result["confidence"],
