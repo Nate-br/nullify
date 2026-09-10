@@ -4,7 +4,7 @@ import threading
 from pathlib import Path
 from typing import Any
 
-MODELS_DIR = Path(__file__).resolve().parents[3] / "models" / "llm"
+MODELS_DIR = Path(__file__).resolve().parents[4] / "models" / "llm"
 last_report: dict[str, Any] | None = None
 
 class ChatEngine:

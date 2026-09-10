@@ -131,7 +131,18 @@ h2 {
 }
 #path:focus { border-color: var(--accent-dim); }
 #path::placeholder { color: var(--faint); }
-#scan-btn {
+.scan-row input:not(#path),
+.scan-row input:not(#path):focus {
+  flex: 1;
+  font-family: var(--mono); font-size: 14.5px;
+  color: var(--text); background: #0a0a0a;
+  border: 1px solid var(--line2); border-radius: 4px;
+  padding: 10px 14px;
+  outline: none;
+}
+.scan-row input:not(#path):focus { border-color: var(--accent-dim); }
+.scan-row input:not(#path)::placeholder { color: var(--faint); }
+.scan-row button {
   font-family: var(--mono); font-size: 14.5px;
   color: var(--accent); background: none;
   border: 1px solid var(--accent-dim); border-radius: 4px;
@@ -139,8 +150,8 @@ h2 {
   display: inline-flex; align-items: center; gap: 8px;
   white-space: nowrap;
 }
-#scan-btn:hover { background: rgba(134, 239, 172, 0.08); }
-#scan-btn:disabled { opacity: 0.5; cursor: wait; }
+.scan-row button:hover, #scan-btn:hover { background: rgba(134, 239, 172, 0.08); }
+.scan-row button:disabled, #scan-btn:disabled { opacity: 0.5; cursor: wait; }
 .btn-spinner {
   width: 12px; height: 12px; flex: none;
   border: 1.5px solid var(--accent-dim); border-top-color: var(--accent);
