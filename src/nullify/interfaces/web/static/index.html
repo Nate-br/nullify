@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23050505'/><rect x='2' y='2' width='28' height='28' fill='none' stroke='%2386efac' stroke-width='2'/><text x='16' y='22' font-family='monospace' font-size='20' fill='%2386efac' text-anchor='middle'>n</text></svg>">
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -41,7 +42,7 @@
           <span class="btn-spinner" hidden></span><span class="btn-label">scan →</span>
         </button>
       </form>
-      <p class="hint">static analysis, yara rules and a locally-trained ember xgboost model. nothing leaves this machine.</p>
+      <p class="hint">static analysis, yara rules and a locally-trained ember xgboost model. press <kbd>/</kbd> to focus, <kbd>esc</kbd> to clear.</p>
       <div id="error" class="error" hidden></div>
     </section>
 
@@ -80,8 +81,11 @@
       </section>
 
       <!-- raw -->
-      <section>
-        <button id="raw-toggle" class="btn-ghost" type="button">view raw report →</button>
+      <section id="raw-sec" class="mb-16">
+        <div class="sec-row">
+          <button id="raw-toggle" class="btn-ghost" type="button">view raw report →</button>
+          <button id="raw-copy" class="btn-ghost" type="button" hidden>copy</button>
+        </div>
         <pre id="raw-json" class="raw" hidden></pre>
       </section>
     </section>

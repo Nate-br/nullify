@@ -88,9 +88,6 @@ form.addEventListener("submit", async (e) => {
     return;
   }
   setLoading(true);
-  $("intro").hidden = true;
-  $("result").hidden = true;
-  $("error").hidden = true;
 
   const t0 = performance.now();
   try {
@@ -110,6 +107,7 @@ form.addEventListener("submit", async (e) => {
     const box = $("error");
     box.textContent = "scan failed: " + (err && err.message ? err.message : err);
     box.hidden = false;
+    $("result").hidden = true;
   } finally {
     setLoading(false);
   }
@@ -120,10 +118,39 @@ function setLoading(on) {
   spinner.hidden = !on;
   btnLabel.textContent = on ? "scanning" : "scan →";
   input.disabled = on;
+  if (on) {
+    $("intro").hidden = true;
+    $("error").hidden = true;
+    $("result").hidden = false;
+    $("verdict-card").hidden = true;
+    $("meta-row").hidden = true;
+    if ($("findings") && $("findings").parentElement) $("findings").parentElement.hidden = true;
+    if ($("explanation") && $("explanation").parentElement) $("explanation").parentElement.hidden = true;
+    if ($("raw-json") && $("raw-json").parentElement) $("raw-json").parentElement.hidden = true;
+    if ($("raw-sec")) $("raw-sec").hidden = true;
+    if ($("agents") && $("agents").parentElement) $("agents").parentElement.hidden = false;
+    
+    $("agents").innerHTML = Array.from({length: 4}).map((_, i) => `
+      <div class="skeleton-row" style="opacity: ${1 - i * 0.15}">
+        <div class="skeleton" style="width: ${Math.random() * 40 + 40}%"></div>
+        <div class="skeleton" style="width: ${Math.random() * 40 + 20}%"></div>
+        <div class="skeleton" style="width: ${Math.random() * 40 + 40}%"></div>
+        <div class="skeleton" style="width: 100%"></div>
+      </div>
+    `).join("");
+  }
 }
 
 /* ---------- rendering ---------- */
 function render(d) {
+  /* restore visibility */
+  $("verdict-card").hidden = false;
+  $("meta-row").hidden = false;
+  if ($("findings") && $("findings").parentElement) $("findings").parentElement.hidden = false;
+  if ($("explanation") && $("explanation").parentElement) $("explanation").parentElement.hidden = false;
+  if ($("raw-json") && $("raw-json").parentElement) $("raw-json").parentElement.hidden = false;
+  if ($("raw-sec")) $("raw-sec").hidden = false;
+
   /* verdict */
   const v = (d.verdict || "unknown").toLowerCase();
   const card = $("verdict-card");
@@ -152,14 +179,16 @@ function render(d) {
   bindCopyChips();
 
   /* pipeline — d1rshan-style rows: name … status · time · findings */
-  $("agents").innerHTML = (d.agents || []).map((a) => {
+  $("agents").innerHTML = (d.agents || []).map((a, i) => {
     const st = (a.status || "unknown").toLowerCase();
     const nFind = (a.findings || []).length;
-    const detail = nFind ? `${nFind} finding${nFind > 1 ? "s" : ""}` : "";
-    return `<div class="agent">
-      <span class="r-name">${esc(a.agent.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase())}</span>
-      <span class="r-desc">${esc(detail || "—")}</span>
-      <span class="r-tag agent-status ${st === "ok" ? "" : esc(st)}">${esc(st)}</span>
+    const isSkipped = st === "skipped";
+    const detail = nFind ? `${nFind} finding${nFind > 1 ? "s" : ""}` : (isSkipped && a.error ? a.error : "");
+    const titleAttr = isSkipped && a.error ? ` title="${esc(a.error)}"` : "";
+    return `<div class="agent" style="animation-delay: ${i * 0.05}s">
+      <span class="r-name"${titleAttr}>${esc(a.agent.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase())}</span>
+      <span class="r-desc"${titleAttr}>${esc(detail || "—")}</span>
+      <span class="r-tag agent-status ${st === "ok" ? "" : esc(st)}"${titleAttr}>${esc(st)}</span>
       <span class="r-tag">${Number(a.duration_s || 0).toFixed(2)}s</span>
     </div>`;
   }).join("");
@@ -168,7 +197,7 @@ function render(d) {
   const all = (d.agents || []).flatMap((a) => (a.findings || []).map((f) => ({ ...f, agent: a.agent })));
   $("finding-count").textContent = all.length ? `(${all.length})` : "";
   $("findings").innerHTML = all.length
-    ? all.map((f) => {
+    ? all.map((f, i) => {
         const sev = esc((f.severity || "info").toLowerCase());
         const tags = [
           `<span class="badge sev-${sev}">${sev}</span>`,
@@ -176,7 +205,7 @@ function render(d) {
           `<span class="badge">${esc(f.agent)}</span>`,
         ].join("");
         const detail = f.detail ? `<div class="finding-detail">${esc(f.detail)}</div>` : "";
-        return `<div class="finding sev-${sev}">
+        return `<div class="finding sev-${sev}" style="animation-delay: ${i * 0.05}s">
           <div class="f-top">
             <span class="r-name">${esc(f.title)}</span>
             ${tags}
@@ -260,7 +289,14 @@ $("raw-toggle").addEventListener("click", () => {
   const raw = $("raw-json");
   raw.hidden = !raw.hidden;
   $("raw-toggle").textContent = raw.hidden ? "view raw report →" : "hide raw report →";
+  if ($("raw-copy")) $("raw-copy").hidden = raw.hidden;
 });
+
+if ($("raw-copy")) {
+  $("raw-copy").addEventListener("click", () => {
+    navigator.clipboard.writeText($("raw-json").textContent).then(() => toast("copied raw report"));
+  });
+}
 
 /* ---------- boot ---------- */
 startBackground();
@@ -275,3 +311,14 @@ if (initial) {
 } else {
   input.focus();
 }
+
+/* ---------- keybindings ---------- */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "/" && document.activeElement !== input) {
+    e.preventDefault();
+    input.focus();
+  } else if (e.key === "Escape" && document.activeElement === input) {
+    input.value = "";
+    input.blur();
+  }
+});

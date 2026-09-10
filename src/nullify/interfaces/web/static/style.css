@@ -19,6 +19,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 html, body { background: var(--bg); }
 
 body {
@@ -214,7 +219,12 @@ h2 {
   grid-template-columns: 16ch 1fr 12ch 7ch;
   gap: 14px;
   align-items: baseline;
+  padding: 6px 8px;
+  margin: -6px -8px;
+  border-radius: 4px;
+  transition: background 0.15s;
 }
+.agent:hover { background: rgba(134, 239, 172, 0.05); }
 .agent .r-name { font-size: 16px; text-transform: lowercase; }
 .agent .r-desc { color: var(--dim); font-size: 13.5px; }
 .agent .r-tag { font-size: 12.5px; text-align: right; }
@@ -224,7 +234,14 @@ h2 {
 .agent-status.running { color: var(--warn); }
 
 /* findings rows */
-.finding { display: flex; flex-direction: column; gap: 6px; }
+.finding {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.finding:hover { background: rgba(134, 239, 172, 0.05); }
 .finding .f-top { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
 .finding .r-name { font-size: 15.5px; }
 .badge {
@@ -295,4 +312,35 @@ h2 {
   .conf-bar { text-align: left; }
   .conf-num { text-align: left; }
   .row, .agent { flex-wrap: wrap; }
+}
+/* ---------- skeleton ---------- */
+@keyframes shimmer {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.2; }
+}
+.skeleton {
+  animation: shimmer 1.5s infinite;
+  background: var(--line2);
+  border-radius: 4px;
+  height: 16px;
+}
+.skeleton-row {
+  display: grid;
+  grid-template-columns: 16ch 1fr 12ch 7ch;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 8px;
+  margin: -6px -8px;
+}
+
+/* ---------- animations ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes slideFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .verdict, .agent, .finding {
+    animation: slideFadeIn 0.3s ease-out both;
+  }
 }
