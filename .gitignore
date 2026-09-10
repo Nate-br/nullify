@@ -32,3 +32,4 @@ models/*.joblib
 # OS
 .DS_Store
 Thumbs.db
+models/llm/*.gguf

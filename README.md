@@ -73,6 +73,7 @@ A terminal-core styled analysis console (pure black, monospace, single green
 accent): ascii confidence bar, color-coded verdict, list-style agent pipeline,
 severity-badged findings, and a plain-english rationale — all served locally,
 no build step.
+nIncludes an offline AI chat assistant to explain verdicts and findings. To use the chat feature, you must install the `llm` dependencies (`uv sync --extra llm`) and place the `qwen2.5-3b-instruct-q4_k_m.gguf` model in `models/llm/`.
 ```bash
 uv run nullify web                                # Starts the FastAPI backend
 # Navigate to http://127.0.0.1:8000

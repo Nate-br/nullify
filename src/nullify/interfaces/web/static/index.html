@@ -88,6 +88,21 @@
         </div>
         <pre id="raw-json" class="raw" hidden></pre>
       </section>
+
+      <!-- chat -->
+      <section id="chat-sec" class="mb-16 card">
+        <div class="sec-row"><h2>chat</h2></div>
+        <div id="chat-msgs" class="chat-msgs"></div>
+        <form id="chat-form" class="scan-row mt-12">
+          <input id="chat-input" type="text" spellcheck="false" autocomplete="off"
+                 placeholder="ask about findings..." aria-label="chat input">
+          <button id="chat-btn" type="submit">
+            <span class="btn-spinner" hidden></span><span class="btn-label">send &rarr;</span>
+          </button>
+        </form>
+        <p class="hint">offline model &middot; grounded in your latest scan</p>
+        <div id="chat-error" class="error" hidden></div>
+      </section>
     </section>
 
     <!-- intro -->

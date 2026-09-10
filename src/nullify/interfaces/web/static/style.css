@@ -344,3 +344,25 @@ h2 {
     animation: slideFadeIn 0.3s ease-out both;
   }
 }
+
+/* ---------- chat ---------- */
+.chat-msgs {
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 400px; overflow-y: auto;
+}
+.chat-msgs:not(:empty) { margin-bottom: 16px; }
+.msg {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.015);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.msg-bot { border-left: 2px solid var(--accent); }
+.msg-user { border-left: 2px solid var(--line2); color: var(--dim); }
+.msg-prefix { font-weight: 700; font-size: 13px; display: block; margin-bottom: 4px; }
+.msg-bot .msg-prefix { color: var(--accent); }
+.msg-user .msg-prefix { color: var(--dim); }
+.mt-12 { margin-top: 12px; }
