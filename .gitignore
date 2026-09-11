@@ -32,3 +32,6 @@ models/*.joblib
 # OS
 .DS_Store
 Thumbs.db
+
+# LibreOffice
+.~lock.*#
