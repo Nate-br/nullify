@@ -1,0 +1,16 @@
+# Nullify offline IOC watch list
+# One hash per line: md5 (32), sha1 (40) or sha256 (64 hex chars).
+# Everything after '#' is a comment/note. No network is used — this file is
+# checked on every scan by the Triage agent.
+#
+# Example lines:
+#   44d88612fea8a8f36de82e1278abb02f                  # eicar md5
+#   <sha256> family=emotet source=internal-ir-2026-01  # note travels with the finding
+#
+# Starter entries below are the EICAR test file (industry-standard, harmless):
+# scanning the string EICAR-STANDARD-ANTIVIRUS-TEST-FILE as a .com/.exe will
+# now trip a CRITICAL IOC finding and force a MALICIOUS verdict.
+
+3395856ce81f2b7382dee72602f798b642f14140   # eicar standard test file (sha1)
+275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f   # eicar standard test file (sha256)
+44d88612fea8a8f36de82e1278abb02f   # eicar standard test file (md5)

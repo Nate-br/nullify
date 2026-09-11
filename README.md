@@ -74,7 +74,7 @@ accent): ascii confidence bar, color-coded verdict, list-style agent pipeline,
 severity-badged findings, and a plain-english rationale — all served locally,
 no build step.
 
-Includes an offline AI chat assistant to explain verdicts and findings. To use the chat feature, install all extras (`uv sync --all-extras` — a plain `uv sync --extra llm` would *remove* your other dependency groups) and place the `qwen2.5-3b-instruct-q4_k_m.gguf` model in `models/llm/`.
+Includes an offline-capable analysis engine — no cloud services, no external APIs.
 ```bash
 uv run nullify web                                # Starts the FastAPI backend
 # Navigate to http://127.0.0.1:8000
