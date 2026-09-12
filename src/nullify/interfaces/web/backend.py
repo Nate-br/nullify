@@ -1,11 +1,10 @@
-import os
 import shutil
 import tempfile
 import time
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -38,7 +37,7 @@ class RuleGenRequest(BaseModel):
 def _ensure_synthetic_samples() -> dict[str, str]:
     """Ensure safe synthetic sample fixtures exist for one-click testing."""
     samples = {}
-    
+
     # 1. Trojan Dropper
     p_trojan = SAMPLES_DIR / "synthetic_trojan_dropper.exe"
     if not p_trojan.exists():
@@ -89,8 +88,8 @@ def _ensure_synthetic_samples() -> dict[str, str]:
 
 
 @app.get("/api/health")
-def health() -> dict[str, Any]:
-    return {"status": "ok", "version": API_VERSION, "engine": "XGBoost EMBER + YARA"}
+def health() -> dict[str, str]:
+    return {"status": "ok"}
 
 
 @app.get("/api/samples")
@@ -137,7 +136,7 @@ def scan(req: ScanRequest) -> dict:
     path = Path(req.path)
     if not path.is_file():
         raise FileNotFoundError(str(path))
-        
+
     mode = ScanMode.DEEP if req.mode == "deep" else ScanMode.STATIC_ONLY
 
     # Detect log targets
@@ -152,13 +151,13 @@ def scan(req: ScanRequest) -> dict:
 
 
 @app.post("/api/upload")
-async def upload(file: UploadFile = File(...), mode: str = "static") -> dict:
+def upload(file: UploadFile, mode: str = "static") -> dict:
     """Upload a file directly to scan."""
     safe_name = Path(file.filename or "uploaded_sample.bin").name
     dest_path = UPLOAD_DIR / f"{time.time_ns()}_{safe_name}"
     with open(dest_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    
+
     scan_req = ScanRequest(path=str(dest_path), mode=mode)
     return scan(scan_req)
 
@@ -179,7 +178,9 @@ def generate_rule(req: RuleGenRequest) -> dict[str, str]:
 
 @app.exception_handler(FileNotFoundError)
 def not_found(_req, exc: FileNotFoundError) -> JSONResponse:
-    return JSONResponse(status_code=404, content={"error": f"file not found: {exc.filename or exc}"})
+    return JSONResponse(
+        status_code=404, content={"error": f"file not found: {exc.filename or exc}"}
+    )
 
 
 @app.exception_handler(PermissionError)
@@ -193,4 +194,3 @@ def index() -> FileResponse:
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-
