@@ -343,93 +343,34 @@
       <p class="section-desc">Run Nullify programmatically in your CI/CD pipelines, automated malware sandboxes, or directly via the interactive CLI console.</p>
     </div>
 
-    <!-- Interactive Terminal Simulator -->
-    <div class="terminal-interactive-card" id="interactive-terminal">
-      <!-- Window Chrome Bar -->
+    <!-- Animated Pipeline Terminal -->
+    <div class="terminal-showcase-card" id="pipeline-terminal">
+      <!-- Minimalist Chrome Header -->
       <div class="terminal-chrome">
         <div class="terminal-controls">
-          <span class="term-dot term-dot-close" title="Close"></span>
-          <span class="term-dot term-dot-min" title="Minimize"></span>
-          <span class="term-dot term-dot-max" title="Expand"></span>
+          <span class="term-dot term-dot-close" aria-hidden="true"></span>
+          <span class="term-dot term-dot-min" aria-hidden="true"></span>
+          <span class="term-dot term-dot-max" aria-hidden="true"></span>
         </div>
-
-        <!-- File Tabs -->
-        <div class="terminal-tabs-bar" role="tablist">
-          <button type="button" class="term-tab active" data-tab="python" role="tab" aria-selected="true">
-            <svg class="tab-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-            <span>pipeline.py</span>
-          </button>
-          <button type="button" class="term-tab" data-tab="cli" role="tab" aria-selected="false">
-            <svg class="tab-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="4 17 10 11 4 5"></polyline>
-              <line x1="12" y1="19" x2="20" y2="19"></line>
-            </svg>
-            <span>nullify-cli.sh</span>
-          </button>
-          <button type="button" class="term-tab" data-tab="json" role="tab" aria-selected="false">
-            <svg class="tab-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            <span>telemetry.json</span>
-          </button>
-        </div>
-
-        <!-- Toolbar Actions -->
-        <div class="terminal-toolbar-actions">
-          <button type="button" id="term-run-btn" class="term-btn-run" title="Run Pipeline Simulation">
-            <svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span class="run-text">Run</span>
-          </button>
-
-          <button type="button" id="term-copy-btn" class="term-btn-copy" title="Copy Code">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-            <span class="copy-text">Copy</span>
-          </button>
+        <div class="terminal-title">pipeline.py — nullify runtime</div>
+        <div class="terminal-status-indicator">
+          <span class="pulse-status-dot"></span>
+          <span class="status-label" id="term-status-label">Autonomous Pipeline</span>
         </div>
       </div>
 
-      <!-- Target Scenario Selector Ribbon -->
-      <div class="terminal-target-bar">
-        <span class="target-label">Target Scenario:</span>
-        <button type="button" class="term-target-pill active" data-target-case="elf">
-          <span class="target-indicator benign"></span> sample.elf (Linux)
-        </button>
-        <button type="button" class="term-target-pill" data-target-case="trojan">
-          <span class="target-indicator malicious"></span> trojan_dropper.exe (PE)
-        </button>
-        <button type="button" class="term-target-pill" data-target-case="sysmon">
-          <span class="target-indicator suspicious"></span> sysmon_event.jsonl (Log)
-        </button>
-      </div>
-
-      <!-- Code Editor Canvas -->
+      <!-- Editor Canvas -->
       <div class="terminal-editor-body">
         <div class="editor-gutters" aria-hidden="true" id="term-gutters">
-          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
         </div>
         <div class="editor-code-pane" id="term-code-pane"></div>
       </div>
 
       <!-- Live Execution Output Console -->
-      <div class="terminal-console-output" id="term-output-console">
-        <div class="console-output-header">
-          <div class="console-output-label">
-            <span class="pulse-status-dot"></span>
-            <span>Agent Pipeline Stream · stdout</span>
-          </div>
-          <span class="console-timing" id="term-timing-badge">3.47s duration · offline-first</span>
-        </div>
-
-        <div class="console-stream-lines" id="term-stream-lines"></div>
+      <div class="terminal-runtime-drawer" id="term-runtime-drawer">
+        <div class="runtime-log-stream" id="term-log-stream"></div>
+        <div class="runtime-verdict-line" id="term-verdict-line"></div>
       </div>
     </div>
   </div>

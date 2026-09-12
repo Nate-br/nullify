@@ -619,318 +619,223 @@ function initNavigation() {
   );
 }
 
-/* ---------- Interactive Pipeline Terminal Simulator ---------- */
+/* ---------- Minimalist Cinematic Pipeline Terminal Showcase ---------- */
 function initPipelineTerminal() {
-  const terminal = $("interactive-terminal");
+  const terminal = $("pipeline-terminal") || $("interactive-terminal");
   if (!terminal) return;
 
   const codePane = $("term-code-pane");
   const gutters = $("term-gutters");
-  const streamLines = $("term-stream-lines");
-  const timingBadge = $("term-timing-badge");
-  const runBtn = $("term-run-btn");
-  const copyBtn = $("term-copy-btn");
-  const tabBtns = terminal.querySelectorAll(".term-tab");
-  const targetPills = terminal.querySelectorAll(".term-target-pill");
+  const logStream = $("term-log-stream");
+  const verdictLine = $("term-verdict-line");
+  const statusLabel = $("term-status-label");
 
-  let activeTab = "python";
-  let activeScenario = "elf";
-  let isRunning = false;
-  let hasAutoRun = false;
+  if (!codePane) return;
 
-  const scenarios = {
-    elf: {
-      target: "/opt/bin/sample.elf",
-      mode: "static",
-      timing: "3.47s duration · offline-first",
-      verdictClass: "benign",
-      verdictText: "BENIGN",
-      verdictDetail: "90% confidence · 3.47s duration · offline-first",
-      steps: [
-        { tag: "[agent:mesh]", msg: "Autonomous pipeline initialized · 6 cooperating workers online" },
-        { tag: "[agent:static]", msg: "ELF header: x86-64 LSB executable · Shannon entropy: 7.912" },
-        { tag: "[agent:classifier]", msg: "XGBoost on EMBER evaluated 2,381 features · model confidence: 90.0%" },
-        { tag: "[agent:mitre]", msg: "0 ATT&CK techniques detected · Clean telemetry baseline verified" },
-      ],
-      python: [
-        { num: 1, html: '<span class="tok-cm"># initialize nullify autonomous threat pipeline</span>' },
-        { num: 2, html: '<span class="tok-kw">import</span> nullify' },
-        { num: 3, html: '' },
-        { num: 4, html: '<span class="tok-var">analysis</span> <span class="tok-op">=</span> nullify.<span class="tok-fn">scan</span>(target=<span class="tok-str">"/opt/bin/sample.elf"</span>, mode=<span class="tok-str">"static"</span>)' },
-        { num: 5, html: '' },
-        { num: 6, html: '<span class="tok-cm"># synthesize explainable verdict and MITRE telemetry</span>' },
-        { num: 7, html: '<span class="tok-var">verdict</span> <span class="tok-op">=</span> analysis.<span class="tok-var">verdict</span>' },
-        { num: 8, html: '<span class="tok-var">reasons</span> <span class="tok-op">=</span> analysis.<span class="tok-var">explanation</span>' },
-        { num: 9, html: '' },
-        { num: 10, html: '<span class="tok-fn">print</span>(<span class="tok-str">f"→ verdict: {verdict} · {analysis.confidence}% · offline-first"</span>)' },
-      ],
-      cli: [
-        { num: 1, html: '<span class="tok-cm"># execute air-gapped threat inspection in CLI</span>' },
-        { num: 2, html: '<span class="tok-op">$</span> nullify scan /opt/bin/sample.elf --mode static' },
-        { num: 3, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 4, html: '<span class="tok-var">[agent:triage]</span>     ELF 64-bit LSB executable, x86-64, dynamic' },
-        { num: 5, html: '<span class="tok-var">[agent:entropy]</span>    Shannon entropy: 7.912 (non-packed)' },
-        { num: 6, html: '<span class="tok-var">[agent:ember]</span>      XGBoost ML model: 90.0% confidence' },
-        { num: 7, html: '<span class="tok-var">[agent:mitre]</span>      0 MITRE ATT&CK techniques detected' },
-        { num: 8, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 9, html: '<span class="tok-fn">→ verdict:</span> <span class="tok-str">BENIGN · 90% confidence · 3.47s duration · offline-first</span>' },
-      ],
-      json: [
-        { num: 1, html: '{' },
-        { num: 2, html: '  <span class="tok-str">"target"</span>: <span class="tok-str">"/opt/bin/sample.elf"</span>,' },
-        { num: 3, html: '  <span class="tok-str">"format"</span>: <span class="tok-str">"ELF"</span>,' },
-        { num: 4, html: '  <span class="tok-str">"verdict"</span>: <span class="tok-str">"BENIGN"</span>,' },
-        { num: 5, html: '  <span class="tok-str">"confidence"</span>: <span class="tok-num">0.90</span>,' },
-        { num: 6, html: '  <span class="tok-str">"features_evaluated"</span>: <span class="tok-num">2381</span>,' },
-        { num: 7, html: '  <span class="tok-str">"execution_time_ms"</span>: <span class="tok-num">3470</span>,' },
-        { num: 8, html: '  <span class="tok-str">"offline_first"</span>: <span class="tok-kw">true</span>' },
-        { num: 9, html: '}' },
-      ],
-    },
-    trojan: {
-      target: "/var/quarantine/trojan_dropper.exe",
-      mode: "deep",
-      timing: "5.12s duration · CAPEv2 detonation",
-      verdictClass: "malicious",
-      verdictText: "MALICIOUS",
-      verdictDetail: "99.46% confidence · Trojan.Dropper · Run-key persistence",
-      steps: [
-        { tag: "[agent:mesh]", msg: "Autonomous pipeline initialized · Detonation sandbox armed" },
-        { tag: "[agent:triage]", msg: "PE32+ executable · Section anomaly in .rsrc (Entropy: 7.98)" },
-        { tag: "[agent:detonate]", msg: "CAPEv2: WinExec spawn, CreateRemoteThread, Registry Run-key" },
-        { tag: "[agent:classifier]", msg: "XGBoost EMBER: 99.46% malware probability · Trojan.Dropper" },
-      ],
-      python: [
-        { num: 1, html: '<span class="tok-cm"># initialize nullify autonomous threat pipeline</span>' },
-        { num: 2, html: '<span class="tok-kw">import</span> nullify' },
-        { num: 3, html: '' },
-        { num: 4, html: '<span class="tok-var">analysis</span> <span class="tok-op">=</span> nullify.<span class="tok-fn">scan</span>(target=<span class="tok-str">"/var/quarantine/trojan_dropper.exe"</span>, mode=<span class="tok-str">"deep"</span>)' },
-        { num: 5, html: '' },
-        { num: 6, html: '<span class="tok-cm"># synthesize explainable verdict and MITRE telemetry</span>' },
-        { num: 7, html: '<span class="tok-var">verdict</span> <span class="tok-op">=</span> analysis.<span class="tok-var">verdict</span>' },
-        { num: 8, html: '<span class="tok-var">reasons</span> <span class="tok-op">=</span> analysis.<span class="tok-var">explanation</span>' },
-        { num: 9, html: '' },
-        { num: 10, html: '<span class="tok-fn">print</span>(<span class="tok-str">f"→ verdict: {verdict} · {analysis.confidence}% · {analysis.family}"</span>)' },
-      ],
-      cli: [
-        { num: 1, html: '<span class="tok-cm"># execute sandboxed detonation inspection in CLI</span>' },
-        { num: 2, html: '<span class="tok-op">$</span> nullify scan /var/quarantine/trojan_dropper.exe --mode deep' },
-        { num: 3, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 4, html: '<span class="tok-var">[agent:triage]</span>     PE32+ executable, WinExec + CreateRemoteThread' },
-        { num: 5, html: '<span class="tok-var">[agent:detonate]</span>   Sandbox spawn verified · HKCU\\Run persistence' },
-        { num: 6, html: '<span class="tok-var">[agent:ember]</span>      XGBoost ML model: 99.46% malware probability' },
-        { num: 7, html: '<span class="tok-var">[agent:mitre]</span>      T1059 (Command Execution), T1547 (Run-Key)' },
-        { num: 8, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 9, html: '<span class="tok-fn">→ verdict:</span> <span class="tok-str">MALICIOUS · 99.46% confidence · Trojan.Dropper</span>' },
-      ],
-      json: [
-        { num: 1, html: '{' },
-        { num: 2, html: '  <span class="tok-str">"target"</span>: <span class="tok-str">"/var/quarantine/trojan_dropper.exe"</span>,' },
-        { num: 3, html: '  <span class="tok-str">"format"</span>: <span class="tok-str">"PE"</span>,' },
-        { num: 4, html: '  <span class="tok-str">"verdict"</span>: <span class="tok-str">"MALICIOUS"</span>,' },
-        { num: 5, html: '  <span class="tok-str">"confidence"</span>: <span class="tok-num">0.9946</span>,' },
-        { num: 6, html: '  <span class="tok-str">"family"</span>: <span class="tok-str">"Trojan.Dropper"</span>,' },
-        { num: 7, html: '  <span class="tok-str">"mitre_attack"</span>: [<span class="tok-str">"T1059"</span>, <span class="tok-str">"T1547"</span>],' },
-        { num: 8, html: '  <span class="tok-str">"execution_time_ms"</span>: <span class="tok-num">5120</span>' },
-        { num: 9, html: '}' },
-      ],
-    },
-    sysmon: {
-      target: "/var/log/sysmon_event.jsonl",
-      mode: "static",
-      timing: "2.18s duration · Behavioral correlation",
-      verdictClass: "suspicious",
-      verdictText: "SUSPICIOUS",
-      verdictDetail: "88.2% confidence · T1059 Command & Scripting · T1053 Schtasks",
-      steps: [
-        { tag: "[agent:mesh]", msg: "Autonomous pipeline initialized · Ingesting log event stream" },
-        { tag: "[agent:log]", msg: "5 events correlated · Temp path execution cmd.exe /c dropper.exe" },
-        { tag: "[agent:mitre]", msg: "T1059.003 Command-Line Interface · T1053 Scheduled Task created" },
-        { tag: "[agent:reasoning]", msg: "High-risk chain: Temp process spawn + LSASS memory query" },
-      ],
-      python: [
-        { num: 1, html: '<span class="tok-cm"># initialize nullify autonomous threat pipeline</span>' },
-        { num: 2, html: '<span class="tok-kw">import</span> nullify' },
-        { num: 3, html: '' },
-        { num: 4, html: '<span class="tok-var">analysis</span> <span class="tok-op">=</span> nullify.<span class="tok-fn">scan</span>(target=<span class="tok-str">"/var/log/sysmon_event.jsonl"</span>, mode=<span class="tok-str">"static"</span>)' },
-        { num: 5, html: '' },
-        { num: 6, html: '<span class="tok-cm"># synthesize explainable verdict and MITRE telemetry</span>' },
-        { num: 7, html: '<span class="tok-var">verdict</span> <span class="tok-op">=</span> analysis.<span class="tok-var">verdict</span>' },
-        { num: 8, html: '<span class="tok-var">reasons</span> <span class="tok-op">=</span> analysis.<span class="tok-var">explanation</span>' },
-        { num: 9, html: '' },
-        { num: 10, html: '<span class="tok-fn">print</span>(<span class="tok-str">f"→ verdict: {verdict} · {analysis.confidence}% · MITRE mapped"</span>)' },
-      ],
-      cli: [
-        { num: 1, html: '<span class="tok-cm"># correlate behavioral Sysmon logs in CLI</span>' },
-        { num: 2, html: '<span class="tok-op">$</span> nullify scan /var/log/sysmon_event.jsonl' },
-        { num: 3, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 4, html: '<span class="tok-var">[agent:log]</span>        5 events parsed · EventID 1 (ProcessCreate)' },
-        { num: 5, html: '<span class="tok-var">[agent:behavior]</span>   Temp path execution detected · schtasks /create' },
-        { num: 6, html: '<span class="tok-var">[agent:reasoning]</span>  Privilege escalation chain identified' },
-        { num: 7, html: '<span class="tok-var">[agent:mitre]</span>      T1059.003, T1053, T1003 mapped' },
-        { num: 8, html: '<span class="tok-cm">─────────────────────────────────────────────────────────────────</span>' },
-        { num: 9, html: '<span class="tok-fn">→ verdict:</span> <span class="tok-str">SUSPICIOUS · 88.2% confidence · 2.18s duration</span>' },
-      ],
-      json: [
-        { num: 1, html: '{' },
-        { num: 2, html: '  <span class="tok-str">"target"</span>: <span class="tok-str">"/var/log/sysmon_event.jsonl"</span>,' },
-        { num: 3, html: '  <span class="tok-str">"format"</span>: <span class="tok-str">"JSONL_SYSMON"</span>,' },
-        { num: 4, html: '  <span class="tok-str">"verdict"</span>: <span class="tok-str">"SUSPICIOUS"</span>,' },
-        { num: 5, html: '  <span class="tok-str">"confidence"</span>: <span class="tok-num">0.882</span>,' },
-        { num: 6, html: '  <span class="tok-str">"events_correlated"</span>: <span class="tok-num">5</span>,' },
-        { num: 7, html: '  <span class="tok-str">"mitre_techniques"</span>: [<span class="tok-str">"T1059.003"</span>, <span class="tok-str">"T1053"</span>, <span class="tok-str">"T1003"</span>]' },
-        { num: 8, html: '}' },
-      ],
-    },
-  };
+  const codeLinesData = [
+    { num: 1, html: '<span class="tok-cm"># initialize nullify autonomous threat pipeline</span>' },
+    { num: 2, html: '<span class="tok-kw">import</span> <span class="tok-var">nullify</span>' },
+    { num: 3, html: '<span class="tok-var">analysis</span> <span class="tok-op">=</span> nullify.<span class="tok-fn">scan</span>(target=<span class="tok-str">"/opt/bin/sample.elf"</span>, mode=<span class="tok-str">"static"</span>)' },
+    { num: 4, html: '&nbsp;' },
+    { num: 5, html: '<span class="tok-cm"># synthesize explainable verdict and MITRE telemetry</span>' },
+    { num: 6, html: '<span class="tok-var">verdict</span> <span class="tok-op">=</span> analysis.<span class="tok-var">verdict</span>' },
+    { num: 7, html: '<span class="tok-var">reasons</span> <span class="tok-op">=</span> analysis.<span class="tok-var">explanation</span>' },
+  ];
 
-  function renderCode() {
-    const sc = scenarios[activeScenario];
-    const lines = sc[activeTab] || sc.python;
+  const telemetrySteps = [
+    { tag: "[agent:triage]", msg: "ELF 64-bit LSB executable · x86-64 · Dynamic symbols" },
+    { tag: "[agent:classifier]", msg: "XGBoost on EMBER evaluated 2,381 features (99.46% acc)" },
+    { tag: "[agent:mitre]", msg: "0 ATT&CK techniques · Heuristic baseline verified" },
+  ];
 
-    gutters.innerHTML = lines.map((l) => `<span>${l.num}</span>`).join("");
-    codePane.innerHTML = lines
-      .map((l) => `<span class="code-line" data-line="${l.num}">${l.html || "&nbsp;"}</span>`)
+  let loopTimeout = null;
+  let isHovered = false;
+  let isVisible = true;
+  let isCycleRunning = false;
+
+  // Render gutters
+  if (gutters) {
+    gutters.innerHTML = codeLinesData.map((l) => `<span>${l.num}</span>`).join("");
+  }
+
+  function setStatus(text) {
+    if (statusLabel) {
+      statusLabel.textContent = text;
+    }
+  }
+
+  function clearAll() {
+    clearTimeout(loopTimeout);
+    codePane.innerHTML = codeLinesData
+      .map((l) => `<div class="code-line" data-line="${l.num}">${l.html}</div>`)
       .join("");
-    timingBadge.textContent = sc.timing;
+    if (logStream) logStream.innerHTML = "";
+    if (verdictLine) {
+      verdictLine.classList.remove("revealed");
+      verdictLine.innerHTML = "";
+    }
   }
 
-  function getRawCodeText() {
-    const sc = scenarios[activeScenario];
-    const lines = sc[activeTab] || sc.python;
-    return lines
-      .map((l) => {
-        const tmp = document.createElement("div");
-        tmp.innerHTML = l.html;
-        return tmp.textContent || "";
-      })
-      .join("\n");
-  }
+  function playCycle() {
+    if (!isVisible || isCycleRunning) return;
+    isCycleRunning = true;
 
-  function runSimulation() {
-    if (isRunning) return;
-    isRunning = true;
-    runBtn.classList.add("running");
-    runBtn.querySelector(".run-text").textContent = "Running...";
+    clearAll();
+    setStatus("Autonomous Pipeline");
 
-    const sc = scenarios[activeScenario];
-    streamLines.innerHTML = "";
+    const lineElements = Array.from(codePane.querySelectorAll(".code-line"));
 
-    const codeLines = codePane.querySelectorAll(".code-line");
-    codeLines.forEach((l) => l.classList.remove("active-executing"));
+    // Step 1: Reveal code lines sequentially with sleek staggered timing
+    let lineIdx = 0;
+    function revealNextLine() {
+      if (lineIdx < lineElements.length) {
+        const el = lineElements[lineIdx];
+        el.classList.add("revealed");
 
-    const totalSteps = sc.steps.length;
-    let stepIdx = 0;
+        if (lineIdx === 2) {
+          setStatus("Executing nullify.scan()...");
+        }
 
-    function step() {
-      if (stepIdx < totalSteps) {
-        const s = sc.steps[stepIdx];
-
-        // Highlight active executing line in code
-        codeLines.forEach((l) => l.classList.remove("active-executing"));
-        const targetLineNum = stepIdx === 0 ? 2 : stepIdx === 1 ? 4 : stepIdx === 2 ? 7 : 8;
-        const lineEl = codePane.querySelector(`[data-line="${targetLineNum}"]`);
-        if (lineEl) lineEl.classList.add("active-executing");
-
-        // Add stream line with smooth entrance
-        const div = document.createElement("div");
-        div.className = "stream-line";
-        div.innerHTML = `<span class="stream-tag">${esc(s.tag)}</span><span class="stream-msg">${esc(s.msg)}</span>`;
-        streamLines.appendChild(div);
-
-        stepIdx++;
-        setTimeout(step, 300);
+        lineIdx++;
+        setTimeout(revealNextLine, 140);
       } else {
-        // Final verdict line
-        codeLines.forEach((l) => l.classList.remove("active-executing"));
-        const lastLine = codePane.querySelector(`[data-line="10"]`) || codePane.querySelector(`[data-line="9"]`);
-        if (lastLine) lastLine.classList.add("active-executing");
-
-        const vDiv = document.createElement("div");
-        vDiv.className = "stream-line final-verdict-line";
-        vDiv.innerHTML = `
-          <span class="verdict-arrow">→</span>
-          <span class="term-verdict-badge ${sc.verdictClass}">${sc.verdictText}</span>
-          <span class="term-verdict-detail">${esc(sc.verdictDetail)}</span>
-        `;
-        streamLines.appendChild(vDiv);
-
-        setTimeout(() => {
-          if (lastLine) lastLine.classList.remove("active-executing");
-          runBtn.classList.remove("running");
-          runBtn.querySelector(".run-text").textContent = "Replay";
-          isRunning = false;
-        }, 500);
+        // Step 2: Highlight scan execution
+        setTimeout(runTelemetryStream, 350);
       }
     }
 
-    step();
-  }
+    revealNextLine();
 
-  // Copy button handler
-  if (copyBtn) {
-    copyBtn.addEventListener("click", async () => {
-      try {
-        const text = getRawCodeText();
-        await navigator.clipboard.writeText(text);
-        const copyTextEl = copyBtn.querySelector(".copy-text");
-        const originalText = copyTextEl.textContent;
-        copyTextEl.textContent = "Copied!";
-        setTimeout(() => {
-          copyTextEl.textContent = originalText;
-        }, 1800);
-      } catch (err) {
-        showToast("Copied code to clipboard");
+    // Step 3: Stream runtime telemetry steps
+    function runTelemetryStream() {
+      const scanLine = lineElements.find((el) => el.getAttribute("data-line") === "3");
+      if (scanLine) scanLine.classList.add("active-executing");
+      setStatus("Autonomous Triage & ML...");
+
+      let stepIdx = 0;
+      function streamNextStep() {
+        if (!logStream) {
+          showVerdict();
+          return;
+        }
+
+        if (stepIdx < telemetrySteps.length) {
+          const s = telemetrySteps[stepIdx];
+          const div = document.createElement("div");
+          div.className = "runtime-step";
+          div.innerHTML = `<span class="runtime-tag">${esc(s.tag)}</span><span class="runtime-msg">${esc(s.msg)}</span>`;
+          logStream.appendChild(div);
+
+          // Force reflow for smooth slide-in
+          void div.offsetWidth;
+          div.classList.add("revealed");
+
+          stepIdx++;
+          setTimeout(streamNextStep, 380);
+        } else {
+          // Highlight verdict synthesis lines
+          if (scanLine) scanLine.classList.remove("active-executing");
+          const vLine1 = lineElements.find((el) => el.getAttribute("data-line") === "6");
+          const vLine2 = lineElements.find((el) => el.getAttribute("data-line") === "7");
+          if (vLine1) vLine1.classList.add("active-executing");
+          if (vLine2) vLine2.classList.add("active-executing");
+
+          setStatus("Synthesizing verdict & telemetry...");
+          setTimeout(() => {
+            if (vLine1) vLine1.classList.remove("active-executing");
+            if (vLine2) vLine2.classList.remove("active-executing");
+            showVerdict();
+          }, 450);
+        }
       }
-    });
+
+      setTimeout(streamNextStep, 250);
+    }
+
+    // Step 4: Reveal verdict with glowing badge
+    function showVerdict() {
+      if (verdictLine) {
+        verdictLine.innerHTML = `
+          <span class="verdict-arrow">→</span>
+          <span class="verdict-label-txt">verdict:</span>
+          <span class="verdict-badge">BENIGN</span>
+          <span class="verdict-meta">· 90% confidence · 3.47s duration · offline-first</span>
+        `;
+        verdictLine.classList.add("revealed");
+      }
+
+      setStatus("Verdict Synthesized");
+
+      // Step 5: Rest state before repeating
+      scheduleNextCycle(6000);
+    }
+
+    function scheduleNextCycle(delayMs) {
+      loopTimeout = setTimeout(() => {
+        if (isHovered) {
+          // If user is hovering/reading, hold until they leave
+          const checkHover = setInterval(() => {
+            if (!isHovered) {
+              clearInterval(checkHover);
+              fadeOutAndRestart();
+            }
+          }, 500);
+        } else {
+          fadeOutAndRestart();
+        }
+      }, delayMs);
+    }
+
+    function fadeOutAndRestart() {
+      // Graceful fade out
+      const allLines = codePane.querySelectorAll(".code-line");
+      allLines.forEach((l) => {
+        l.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+        l.classList.remove("revealed", "active-executing");
+      });
+
+      if (verdictLine) {
+        verdictLine.classList.remove("revealed");
+      }
+
+      const steps = logStream ? logStream.querySelectorAll(".runtime-step") : [];
+      steps.forEach((s) => s.classList.remove("revealed"));
+
+      setTimeout(() => {
+        isCycleRunning = false;
+        allLines.forEach((l) => {
+          l.style.transition = "";
+        });
+        playCycle();
+      }, 450);
+    }
   }
 
-  // Run button handler
-  if (runBtn) {
-    runBtn.addEventListener("click", () => {
-      runSimulation();
-    });
-  }
-
-  // Tab switching
-  tabBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      tabBtns.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeTab = btn.getAttribute("data-tab");
-      renderCode();
-    });
+  // Hover detection to pause resting cycle when user inspects
+  terminal.addEventListener("mouseenter", () => {
+    isHovered = true;
   });
 
-  // Target scenario switching
-  targetPills.forEach((pill) => {
-    pill.addEventListener("click", () => {
-      targetPills.forEach((p) => p.classList.remove("active"));
-      pill.classList.add("active");
-      activeScenario = pill.getAttribute("data-target-case");
-      renderCode();
-      runSimulation();
-    });
+  terminal.addEventListener("mouseleave", () => {
+    isHovered = false;
   });
 
-  // Initial render
-  renderCode();
-  runSimulation();
-
-  // Auto-run when scrolled into view
+  // IntersectionObserver to only animate when visible
   if ("IntersectionObserver" in window) {
-    const termObserver = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAutoRun) {
-            hasAutoRun = true;
-            runSimulation();
+          isVisible = entry.isIntersecting;
+          if (isVisible && !isCycleRunning) {
+            playCycle();
           }
         });
       },
-      { threshold: 0.3 }
+      { threshold: 0.25 }
     );
-    termObserver.observe(terminal);
+    observer.observe(terminal);
+  } else {
+    playCycle();
   }
 }
 
