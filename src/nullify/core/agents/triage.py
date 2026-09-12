@@ -71,6 +71,12 @@ class TriageAgent(BaseAgent):
                 agent=self.name, title="Windows PE executable",
                 detail="MZ header detected", severity=Severity.INFO,
             ))
+        elif magic == "elf":
+            looks_executable = True
+            findings.append(Finding(
+                agent=self.name, title="Linux ELF executable",
+                detail="ELF header detected (non-Windows target)", severity=Severity.INFO,
+            ))
 
         entropy = target.entropy()
         data["entropy"] = entropy
@@ -114,12 +120,12 @@ class TriageAgent(BaseAgent):
     def _sniff_magic(target: FileTarget) -> str | None:
         try:
             with target.path.open("rb") as fh:
-                head = fh.read(2)
+                head = fh.read(4)
         except OSError:
             return None
-        if head == b"MZ":
+        if head[:2] == b"MZ":
             return "pe"
-        if head == b"\x7fELF":
+        if head[:4] == b"\x7fELF":
             return "elf"
         return None
 

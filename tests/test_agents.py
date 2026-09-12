@@ -9,7 +9,7 @@ from nullify.core.agents import (
     StaticAnalysisAgent,
     TriageAgent,
 )
-from nullify.core.models import ScanMode
+from nullify.core.models import FileTarget, ScanMode
 
 
 def test_triage_pe_detection(pe_like_file) -> None:
@@ -119,6 +119,30 @@ def test_reasoning_requests_deep_when_unconfident(pe_like_file) -> None:
                 "reasons": [], "findings": [], "mode": "static"}
     res = ReasoningAgent(config={"evidence": evidence}).run(pe_like_file, ScanMode.STATIC_ONLY)
     assert res.data["requests_deep_analysis"] is True
+
+
+def test_reasoning_malicious_unknown_type(pe_like_file) -> None:
+    evidence = {
+        "verdict": "malicious", "malware_type": "unknown", "confidence": 0.85,
+        "reasons": ["heuristic findings exceed threshold"],
+        "findings": [], "mode": "static",
+    }
+    res = ReasoningAgent(config={"evidence": evidence}).run(pe_like_file, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert "MALICIOUS" in res.data["explanation"]
+    assert "exhibits malicious characteristics" in res.data["explanation"]
+    assert "inconclusive" not in res.data["explanation"]
+
+
+def test_triage_detects_elf(tmp_path) -> None:
+    elf = tmp_path / "sample.bin"
+    elf.write_bytes(b"\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00")
+    target = FileTarget(path=str(elf))
+    res = TriageAgent().run(target, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert res.data["file_magic"] == "elf"
+    assert any("Linux ELF" in f.title for f in res.findings)
+
 
 def test_static_with_pefile(trojan_like_file, monkeypatch) -> None:
     import pefile

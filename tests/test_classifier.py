@@ -79,3 +79,32 @@ def test_classifier_xgboost(dummy_target, dummy_model_path):
     assert "score" in agent_res.data
     assert "verdict" in agent_res.data
 
+
+def test_classifier_bypasses_model_for_elf(tmp_path, dummy_model_path):
+    """Non-PE (e.g. Linux ELF) files must not be processed by the Windows PE EMBER model."""
+    elf_file = tmp_path / "sample_elf"
+    elf_file.write_bytes(b"\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x3e\x00")
+    elf_target = FileTarget(path=str(elf_file))
+
+    agent = ClassificationAgent(config={"evidence": {"findings": []}}, model_path=dummy_model_path)
+    agent_res = agent.analyze(elf_target, ScanMode.STATIC_ONLY)
+
+    # Must fall back to heuristic and not invoke EMBER
+    assert agent_res.data["engine"] == "heuristic-phase0"
+    assert agent_res.data["verdict"] == "benign"
+    assert "Heuristic score" in agent_res.findings[0].title
+
+
+def test_classifier_model_confidence(dummy_target):
+    """Ensure high model probability translates to high confidence, not prob/15."""
+    class MockModel:
+        def predict_proba(self, _features):
+            # Returns P(benign)=0.1, P(malicious)=0.9
+            return np.array([[0.1, 0.9]], dtype=np.float32)
+
+    result = classify(evidence={}, model=MockModel(), target_path=dummy_target.path)
+    assert result["verdict"] == Verdict.MALICIOUS
+    assert result["confidence"] >= 0.85
+    assert result["engine"] == "xgboost-ember"
+
+

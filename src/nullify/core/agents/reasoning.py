@@ -32,13 +32,17 @@ _TYPE_SENTENCES: dict[str, str] = {
     "rootkit": "behaviour is consistent with rootkit capability (driver loading and kernel "
                "object manipulation APIs)",
     "benign": "behaviour shows no significant malicious indicators",
-    "unknown": "evidence was inconclusive; treat as suspicious pending further analysis",
 }
 
 
 def build_explanation(evidence: dict[str, Any]) -> str:
     """Pure function: evidence dict → plain-English explanation."""
     verdict = evidence.get("verdict", Verdict.UNKNOWN)
+    if isinstance(verdict, str):
+        try:
+            verdict = Verdict(verdict)
+        except ValueError:
+            verdict = Verdict.UNKNOWN
     mal_type = evidence.get("malware_type", "unknown")
     confidence = float(evidence.get("confidence", 0.0))
     reasons: list[str] = list(evidence.get("reasons", []))
@@ -55,6 +59,17 @@ def build_explanation(evidence: dict[str, Any]) -> str:
 
     if mal_type in _TYPE_SENTENCES:
         lines.append(f"This sample's {_TYPE_SENTENCES[mal_type]}.")
+    elif mal_type == "unknown":
+        if verdict is Verdict.MALICIOUS:
+            lines.append(
+                "This sample exhibits malicious characteristics, though a specific malware family could not be determined."
+            )
+        elif verdict is Verdict.SUSPICIOUS:
+            lines.append("This sample's evidence was inconclusive; treat as suspicious pending further analysis.")
+        elif verdict is Verdict.BENIGN:
+            lines.append("This sample's behaviour shows no significant malicious indicators.")
+        else:
+            lines.append("This sample's evidence was insufficient to reach a conclusive verdict.")
 
     if reasons:
         lines.append("Key evidence: " + "; ".join(reasons[:4]) + ".")

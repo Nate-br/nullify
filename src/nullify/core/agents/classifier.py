@@ -59,13 +59,25 @@ _VERDICT_RANK: dict[Verdict, int] = {
 _MAX_INFERENCE_BYTES = 20_971_520
 
 
+def _is_pe(path: str | Path | None) -> bool:
+    """Check if file starts with Windows PE magic bytes (MZ)."""
+    if path is None:
+        return False
+    try:
+        with open(path, "rb") as fh:
+            return fh.read(2) == b"MZ"
+    except OSError:
+        return False
+
+
 def _model_probability(model: Any, target_path: str | Path | None) -> float | None:
     """Target bytes -> EMBER feature vector -> model P(malicious).
 
-    Returns None when the target cannot be read or the model cannot predict,
-    so callers fall back to evidence-only scoring instead of crashing.
+    Returns None when the target cannot be read, is not a Windows PE file,
+    or the model cannot predict, so callers fall back to evidence-only scoring
+    instead of crashing or misclassifying non-PE binaries.
     """
-    if target_path is None:
+    if target_path is None or not _is_pe(target_path):
         return None
     try:
         with open(target_path, "rb") as fh:
@@ -153,9 +165,19 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
     elif best_votes >= STRONG_TYPE_VOTES and best_type:
         malware_type = best_type
 
-    confidence = min(score / 15.0, 0.99) if verdict is not Verdict.BENIGN else max(
-        0.5, min(0.9, 0.9 - score / 10.0)
-    )
+    if prob is not None and engine == "xgboost-ember":
+        if verdict is Verdict.MALICIOUS:
+            evidence_conf = min(score / 15.0, 0.99) if score != prob else 0.0
+            confidence = max(prob, evidence_conf)
+        elif verdict is Verdict.SUSPICIOUS:
+            evidence_conf = min(score / 15.0, 0.99) if score != prob else 0.0
+            confidence = max(prob, evidence_conf, 0.5)
+        else:
+            confidence = max(0.5, min(0.99, 1.0 - prob))
+    else:
+        confidence = min(score / 15.0, 0.99) if verdict is not Verdict.BENIGN else max(
+            0.5, min(0.9, 0.9 - score / 10.0)
+        )
     if malware_type not in ("unknown", "benign"):
         confidence = max(confidence, min(0.6 + 0.1 * best_votes, 0.95))
 
@@ -165,7 +187,7 @@ def classify(evidence: dict[str, Any], model: Any = None, target_path: str | Pat
         "confidence": round(confidence, 3),
         "score": round(score, 2),
         "reasons": reasons,
-        "engine": engine
+        "engine": engine,
     }
 
 
@@ -195,18 +217,22 @@ class ClassificationAgent(BaseAgent):
         from nullify.core.models import AnalysisResult  # noqa: F401  (typing hook)
 
         evidence = self.config.get("evidence", {})
-        # The EMBER model is a PE classifier — it only applies to file targets.
-        # Log targets and other target kinds always go through evidence scoring.
-        model_applies = self.model is not None and isinstance(target, FileTarget)
+        # The EMBER model is a Windows PE classifier — it only applies to PE file targets.
+        # Log targets, ELF binaries, scripts, etc. always go through evidence scoring.
+        target_path = target.path if isinstance(target, FileTarget) else None
+        model_applies = (
+            self.model is not None
+            and target_path is not None
+            and _is_pe(target_path)
+        )
         if not evidence and not model_applies:
             return AgentResult(agent=self.name, status=AgentStatus.SKIPPED,
                                data={"reason": "no upstream evidence provided"})
 
-        target_path = target.path if model_applies else None
         result = classify(evidence, model=self.model if model_applies else None,
-                          target_path=target_path)
+                          target_path=target_path if model_applies else None)
         
-        title_prefix = "XGBoost score" if self.model else "Heuristic score"
+        title_prefix = "XGBoost score" if result.get("engine") == "xgboost-ember" else "Heuristic score"
         
         findings = [
             Finding(
