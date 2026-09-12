@@ -3,314 +3,400 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nullify — Agentic Threat Intelligence & Malware Detection</title>
+<title>Nullify — Lightning-fast threat intelligence for binaries & logs.</title>
+<meta name="description" content="Autonomous threat analysis runtime. Cooperating agents for triage, static inspection, sandboxed detonation, and XGBoost classification on EMBER.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 4H14L26 20V28H18L6 12V4Z' fill='%2300D9F5'/><path d='M18 4H26V16L18 8V4Z' fill='%230066FF'/><path d='M6 16L14 24V28H6V16Z' fill='%236366F1'/></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="icon" type="image/svg+xml" href="/static/assets/icon.svg">
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<!-- Ambient Framer Canvas Background & Mesh -->
-<div class="ambient-mesh" aria-hidden="true">
-  <div class="mesh-orb orb-1"></div>
-  <div class="mesh-orb orb-2"></div>
-  <div class="mesh-orb orb-3"></div>
-</div>
-<div class="ambient-grid" aria-hidden="true"></div>
-
-<div class="canvas-wrap">
-  <!-- Framer Dynamic Island Navbar -->
-  <header class="navbar-floating">
-    <div class="brand-group">
-      <!-- Framer-style geometric logo for Nullify -->
-      <svg class="brand-logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M6 4H14L26 20V28H18L6 12V4Z" fill="url(#navLogoG1)"/>
-        <path d="M18 4H26V16L18 8V4Z" fill="url(#navLogoG2)"/>
-        <path d="M6 16L14 24V28H6V16Z" fill="url(#navLogoG2)"/>
-        <defs>
-          <linearGradient id="navLogoG1" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#00D9F5"/>
-            <stop offset="0.5" stop-color="#0066FF"/>
-            <stop offset="1" stop-color="#A855F7"/>
-          </linearGradient>
-          <linearGradient id="navLogoG2" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#0066FF"/>
-            <stop offset="1" stop-color="#6366F1"/>
-          </linearGradient>
-        </defs>
-      </svg>
-      <span class="brand-title">nullify <span class="brand-pill">AGENT v0.1.0</span></span>
-    </div>
-
-    <nav class="nav-links">
-      <a href="#canvas" class="nav-link active">Canvas</a>
-      <a href="#pipeline" class="nav-link">Pipeline</a>
-      <a href="#intelligence" class="nav-link">Intelligence</a>
-      <a href="/api/docs" target="_blank" class="nav-link">API Docs</a>
-    </nav>
-
-    <div class="nav-right">
-      <span id="health" class="engine-status on">
-        <i class="status-beacon"></i><span id="health-text">Engine Ready</span>
-      </span>
-      <a class="btn-framer-cta" href="https://github.com/Nate-br/nullify" target="_blank" rel="noopener">
-        <span>GitHub</span> <span>→</span>
-      </a>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <a href="#canvas" class="announcement-pill">
-      <span class="announcement-sparkle">✦</span>
-      <span>Autonomous Threat Intelligence Agent · EMBER XGBoost</span>
-      <span class="announcement-arrow">→</span>
+<!-- Signature RAVN Top-Pinned Floating Tab Navbar -->
+<header class="ravn-navbar-wrapper">
+  <div class="ravn-navbar-tab">
+    <span class="ravn-ear-left" aria-hidden="true"></span>
+    <span class="ravn-ear-right" aria-hidden="true"></span>
+    
+    <a href="/" class="nav-brand" aria-label="Nullify Home">
+      <img src="/static/assets/logo.svg" alt="Nullify" class="nav-logo-icon">
+      <span class="nav-brand-text">NULLIFY</span>
     </a>
 
-    <!-- ASCII Art Banner from ascii-art-fateget.png -->
-    <div class="hero-ascii-banner">
-      <img src="/static/ascii-art-fateget.png" alt="Nullify ASCII Art" class="ascii-art-img">
+    <nav class="nav-menu" aria-label="Primary Navigation">
+      <a href="#canvas" class="nav-item active">Platform</a>
+      <a href="#pipeline" class="nav-item">Pipeline</a>
+      <a href="#intelligence" class="nav-item">Intelligence</a>
+      <a href="#manifesto" class="nav-item">Manifesto</a>
+      <a href="/api/docs" target="_blank" class="nav-item">API Docs</a>
+    </nav>
+
+    <div class="nav-right-actions">
+      <span id="health" class="engine-status-pill on" title="Orchestration status">
+        <span class="status-dot"></span>
+        <span id="health-text">Online</span>
+      </span>
+      <a href="#canvas" class="btn-nav-action">Quick Scan</a>
     </div>
-    
+  </div>
+</header>
+
+<!-- Hero Section (Directly mirroring useravn.com) -->
+<section class="hero-wrapper">
+  <!-- Halftone Robots Art (Michelangelo Creation of Adam) -->
+  <div class="hero-art-layer" aria-hidden="true">
+    <div class="hero-art-inner">
+      <img src="/static/assets/bg.svg" alt="" class="hero-bg-art">
+      <div class="hero-dot-grid"></div>
+    </div>
+  </div>
+
+  <!-- Corner Engraving Flourishes -->
+  <div class="hero-flourishes" aria-hidden="true">
+    <div class="flourishes-container">
+      <img src="/static/assets/top-left.svg" alt="" class="flourish flourish-tl">
+      <img src="/static/assets/top-right.svg" alt="" class="flourish flourish-tr">
+      <img src="/static/assets/bottom-left.svg" alt="" class="flourish flourish-bl">
+      <img src="/static/assets/bottom-right.svg" alt="" class="flourish flourish-br">
+
+      <span class="crosshair bottom-left"></span>
+      <span class="crosshair bottom-right"></span>
+    </div>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="page-container hero-content">
     <h1 class="hero-headline">
-      <span class="headline-gradient">The AI Threat Agent</span>
+      Lightning-fast threat intelligence<br>for binaries & logs.
     </h1>
-    
+
     <p class="hero-subtext">
-      Cooperating agents for triage, static inspection, sandboxed detonation, and XGBoost classification on EMBER. Synthesizes explainable verdicts with MITRE ATT&CK correlation.
+      Modern threat actors and exploits are getting stronger. But running automated triage, reverse-engineering malware, and evaluating zero-days across different architectures remains painful. Nullify is the real-time agentic runtime and inspection engine for modern threat defense.
     </p>
-  </section>
 
-  <!-- Framer Agent Interactive Command Bar (Prompt Area) -->
-  <main id="canvas" class="canvas-command-card">
-    <form id="scan-form" class="command-form">
-      <!-- Drag & Drop Zone -->
-      <div id="drop-zone" class="drag-drop-zone">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        <span class="drag-text">Drop executable or log file here, or <b>click to browse</b></span>
-      </div>
-
-      <!-- Command Search Input Row -->
-      <div class="command-input-container">
-        <div class="command-prefix-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </div>
-        
-        <input id="path" class="scan-input" type="text" spellcheck="false" autocomplete="off"
-               placeholder="Target path or upload sample (e.g. /home/nate/sample.exe)..." aria-label="file path">
-        
-        <div class="command-actions">
-          <!-- File Input trigger -->
-          <button id="file-trigger" type="button" class="file-upload-trigger">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            <span>Upload</span>
-          </button>
-          <input id="file-input" class="hidden-file-input" type="file">
-
-          <!-- Scan Mode Toggle -->
-          <div class="mode-toggle-group">
-            <button id="mode-static" type="button" class="mode-btn active" title="Non-executing static & ML analysis">Static</button>
-            <button id="mode-deep" type="button" class="mode-btn" title="Opt-in sandboxed detonation (--deep)">Deep</button>
-          </div>
-
-          <!-- Main Scan Button -->
-          <button id="scan-btn" type="submit" class="btn-scan-main">
-            <span class="btn-spinner" hidden></span>
-            <span class="btn-label">Run Agent →</span>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Quick Demo Samples Selector -->
-    <div class="quick-samples-row">
-      <span class="samples-label">Try synthetic samples:</span>
-      <button type="button" class="sample-chip" data-sample="trojan">
-        <span class="sample-dot trojan"></span> Trojan Dropper
-      </button>
-      <button type="button" class="sample-chip" data-sample="ransomware">
-        <span class="sample-dot ransom"></span> Ransomware
-      </button>
-      <button type="button" class="sample-chip" data-sample="benign">
-        <span class="sample-dot benign"></span> Benign Clean
-      </button>
-      <button type="button" class="sample-chip" data-sample="sysmon">
-        <span class="sample-dot log"></span> Sysmon Log
-      </button>
+    <div class="hero-cta-group">
+      <a href="#canvas" class="btn-primary-pill">Launch Scan</a>
+      <a href="#pipeline" class="btn-secondary-pill">Explore the pipeline</a>
     </div>
+  </div>
+</section>
 
-    <div class="command-hints">
-      <span>Press <kbd>/</kbd> to focus prompt · <kbd>Esc</kbd> to clear</span>
-      <span>XGBoost on EMBER · 99.46% Accuracy · 0.39% FPR</span>
-    </div>
-
-    <div id="error" class="error-box" hidden></div>
-  </main>
-
-  <!-- Bento Grid Scan Results Area -->
-  <section id="result" class="bento-grid" hidden>
-    <!-- Card 1: Verdict Showcase & Radial Gauge (Span 7) -->
-    <div id="verdict-card" class="bento-card bento-verdict">
-      <div class="verdict-aura"></div>
-      
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">✦</span> Detection Verdict
-        </span>
-        <span id="verdict-type" class="verdict-family-pill"></span>
-      </div>
-
-      <div class="verdict-main-row">
-        <div class="verdict-text-block">
-          <span class="verdict-label">Analysis Result</span>
-          <span id="verdict-word" class="verdict-word">—</span>
-        </div>
-
-        <!-- Animated SVG Radial Meter -->
-        <div class="radial-meter-box">
-          <svg class="gauge-svg" viewBox="0 0 140 140">
-            <circle class="gauge-track" cx="70" cy="70" r="60"/>
-            <circle id="gauge-circle" class="gauge-progress" cx="70" cy="70" r="60"/>
-          </svg>
-          <div class="gauge-center-text">
-            <span id="confidence" class="gauge-number">0%</span>
-            <span class="gauge-caption">Confidence</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Target Metadata Chips Row -->
-      <div id="meta-row" class="target-meta-row"></div>
-    </div>
-
-    <!-- Card 2: AI Reasoning Synthesis (Span 5) -->
-    <div class="bento-card bento-reasoning">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">◈</span> Reasoning Agent Rationale
-        </span>
-      </div>
-      <div id="explanation" class="reasoning-body">Waiting for analysis...</div>
-    </div>
-
-    <!-- Card 3: 6-Agent Pipeline Flow (Span 12) -->
-    <div id="pipeline" class="bento-card bento-pipeline">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">⟐</span> Cooperating Agent Pipeline
-        </span>
-        <span class="agent-idx">6 Specialized Stages</span>
-      </div>
-      <div id="agents" class="agents-grid"></div>
-    </div>
-
-    <!-- Card 4: MITRE ATT&CK Matrix (Span 6) -->
-    <div id="intelligence" class="bento-card bento-mitre">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">⬡</span> MITRE ATT&CK Mapping
-        </span>
-        <span id="mitre-count" class="brand-pill">0 mapped</span>
-      </div>
-      <div id="mitre-list" class="mitre-tags-list"></div>
-    </div>
-
-    <!-- Card 5: Instant YARA Rule Synthesis (Span 6) -->
-    <div class="bento-card bento-yara">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">⚡</span> Auto-Generated YARA Rule
-        </span>
-      </div>
-      <pre id="yara-rule-preview" class="yara-preview-box">// Click below to derive a YARA rule from this sample's findings</pre>
-      <div class="yara-actions-row">
-        <button id="btn-gen-yara" type="button" class="btn-secondary-pill">Generate Rule</button>
-        <button id="btn-copy-yara" type="button" class="btn-secondary-pill" hidden>Copy YARA</button>
-      </div>
-    </div>
-
-    <!-- Card 6: Findings Deep Dive (Span 12) -->
-    <div class="bento-card bento-findings">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">≡</span> Findings Deep Dive <span id="finding-count" class="brand-pill"></span>
-        </span>
-      </div>
-
-      <div class="findings-filter-bar">
-        <button type="button" class="filter-pill active" data-filter="all">All</button>
-        <button type="button" class="filter-pill" data-filter="critical">Critical</button>
-        <button type="button" class="filter-pill" data-filter="high">High</button>
-        <button type="button" class="filter-pill" data-filter="medium">Medium</button>
-        <button type="button" class="filter-pill" data-filter="low">Low</button>
-        <button type="button" class="filter-pill" data-filter="info">Info</button>
-      </div>
-
-      <div id="findings" class="findings-list"></div>
-    </div>
-
-    <!-- Card 7: Raw JSON Report (Span 12) -->
-    <div class="bento-card bento-raw">
-      <div class="card-header-row">
-        <span class="card-title">
-          <span class="card-title-icon">{ }</span> Raw Intelligence Report
-        </span>
-        <div style="display: flex; gap: 8px;">
-          <button id="raw-toggle" class="btn-secondary-pill" type="button">View Raw Report</button>
-          <button id="raw-copy" class="btn-secondary-pill" type="button" hidden>Copy JSON</button>
-        </div>
-      </div>
-      <pre id="raw-json" class="raw-json-container" hidden></pre>
-    </div>
-  </section>
-
-  <!-- Intro Empty State (3 Framer Pillars) -->
-  <section id="intro" class="intro-cards-row">
-    <div class="intro-card">
-      <span class="intro-step">01 · Multi-Layer Evidence</span>
-      <h3 class="intro-title">Static & Dynamic Inspection</h3>
-      <p class="intro-desc">PE headers, Shannon entropy calculation, import-table heuristics via pefile, capa capability detection, and opt-in CAPEv2 sandbox detonation.</p>
-    </div>
-
-    <div class="intro-card">
-      <span class="intro-step">02 · Behavioral Rules</span>
-      <h3 class="intro-title">YARA & ATT&CK Taxonomy</h3>
-      <p class="intro-desc">Self-authored YARA rules mapped to MITRE ATT&CK techniques, correlated with endpoint event logs (Sysmon / EVTX) to detect lateral movement.</p>
-    </div>
-
-    <div class="intro-card">
-      <span class="intro-step">03 · Locally-Trained ML</span>
-      <h3 class="intro-title">XGBoost on EMBER Dataset</h3>
-      <p class="intro-desc">Trained on 500,000 balanced EMBER PE vectors with 2,381 dimensions, delivering 99.46% accuracy and 0.39% False Positive Rate with zero cloud dependencies.</p>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="canvas-footer">
-    <div class="footer-left">
-      <span>Nullify Capstone System</span>
-      <span>·</span>
-      <span>One Engine, Shared Event Stream</span>
-    </div>
-    <div class="footer-right">
-      <a href="https://github.com/Nate-br/nullify" target="_blank" rel="noopener" class="footer-link">Repository</a>
-      <a href="/api/docs" target="_blank" class="footer-link">API Specification</a>
-      <a href="/?path=/dev/null" class="footer-link">Reset</a>
-    </div>
-  </footer>
+<!-- Capability Ticker Ribbon -->
+<div class="capability-ticker" aria-hidden="true">
+  <div class="page-container ticker-content">
+    <span class="ticker-label">Every millisecond, accounted for:</span>
+    <span class="ticker-item">Perception & Triage</span>
+    <span class="ticker-item">Shannon Entropy Calculation</span>
+    <span class="ticker-item">XGBoost on EMBER (99.46% acc)</span>
+    <span class="ticker-item">YARA Pattern Generation</span>
+    <span class="ticker-item">CAPEv2 Sandboxed Detonation</span>
+    <span class="ticker-item">Sysmon Behavioral Correlation</span>
+    <span class="ticker-item">MITRE ATT&CK Matrix</span>
+  </div>
 </div>
+
+<!-- Main Workspace & Interactive Console -->
+<main id="canvas" class="console-section">
+  <div class="page-container">
+    <div class="console-card">
+      <form id="scan-form" class="scan-form">
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone" class="drag-drop-zone">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <span class="drag-text">Drop executable or behavioral log file here, or <b>browse target</b></span>
+        </div>
+
+        <!-- Search / Path Row -->
+        <div class="command-input-container">
+          <div class="command-prefix-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+
+          <input id="path" class="scan-input" type="text" spellcheck="false" autocomplete="off"
+                 placeholder="Target path (e.g. /home/nate/sample.elf, sample.exe)..." aria-label="file path">
+
+          <div class="command-actions">
+            <!-- File Picker Trigger -->
+            <button id="file-trigger" type="button" class="file-upload-trigger">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span>Upload</span>
+            </button>
+            <input id="file-input" class="hidden-file-input" type="file">
+
+            <!-- Scan Mode Switch -->
+            <div class="mode-toggle-group">
+              <button id="mode-static" type="button" class="mode-btn active" title="Static & ML analysis">Static</button>
+              <button id="mode-deep" type="button" class="mode-btn" title="Sandboxed Detonation (--deep)">Deep</button>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="scan-btn" type="submit" class="btn-scan-main">
+              <span class="btn-spinner" hidden></span>
+              <span class="btn-label">Run Agent →</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Quick Samples Row -->
+      <div class="quick-samples-row">
+        <span class="samples-label">Synthetic Demos:</span>
+        <button type="button" class="sample-chip" data-sample="trojan">
+          <span class="sample-dot trojan"></span> Trojan Dropper
+        </button>
+        <button type="button" class="sample-chip" data-sample="ransomware">
+          <span class="sample-dot ransom"></span> Ransomware
+        </button>
+        <button type="button" class="sample-chip" data-sample="benign">
+          <span class="sample-dot benign"></span> Benign Clean
+        </button>
+        <button type="button" class="sample-chip" data-sample="sysmon">
+          <span class="sample-dot log"></span> Sysmon Log
+        </button>
+      </div>
+
+      <div class="command-hints">
+        <span>Press <kbd>/</kbd> to focus prompt · <kbd>Esc</kbd> to reset</span>
+        <span>XGBoost on EMBER · 2,381 Features · 99.46% Accuracy</span>
+      </div>
+
+      <div id="error" class="error-box" hidden></div>
+    </div>
+
+    <!-- Bento Grid Scan Results Area -->
+    <section id="result" class="bento-grid" hidden>
+      <!-- Card 1: Verdict Showcase (Span 7) -->
+      <div id="verdict-card" class="bento-card bento-verdict">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">✦</span> Detection Verdict
+          </span>
+          <span id="verdict-type" class="verdict-family-pill"></span>
+        </div>
+
+        <div class="verdict-main-row">
+          <div class="verdict-text-block">
+            <span class="verdict-label">Analysis Result</span>
+            <span id="verdict-word" class="verdict-word">—</span>
+          </div>
+
+          <!-- SVG Radial Meter -->
+          <div class="radial-meter-box">
+            <svg class="gauge-svg" viewBox="0 0 140 140">
+              <circle class="gauge-track" cx="70" cy="70" r="60"/>
+              <circle id="gauge-circle" class="gauge-progress" cx="70" cy="70" r="60"/>
+            </svg>
+            <div class="gauge-center-text">
+              <span id="confidence" class="gauge-number">0%</span>
+              <span class="gauge-caption">Confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Metadata Row -->
+        <div id="meta-row" class="target-meta-row"></div>
+      </div>
+
+      <!-- Card 2: AI Reasoning Rationale (Span 5) -->
+      <div class="bento-card bento-reasoning">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">◈</span> Reasoning Agent Rationale
+          </span>
+        </div>
+        <div id="explanation" class="reasoning-body">Waiting for analysis...</div>
+      </div>
+
+      <!-- Card 3: 6-Agent Pipeline Flow (Span 12) -->
+      <div id="pipeline" class="bento-card bento-pipeline">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">⟐</span> Cooperating Agent Pipeline
+          </span>
+          <span class="brand-pill">6 Specialized Stages</span>
+        </div>
+        <div id="agents" class="agents-grid"></div>
+      </div>
+
+      <!-- Card 4: MITRE ATT&CK Matrix (Span 6) -->
+      <div id="intelligence" class="bento-card bento-mitre">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">⬡</span> MITRE ATT&CK Mapping
+          </span>
+          <span id="mitre-count" class="brand-pill">0 mapped</span>
+        </div>
+        <div id="mitre-list" class="mitre-tags-list"></div>
+      </div>
+
+      <!-- Card 5: YARA Rule Synthesis (Span 6) -->
+      <div class="bento-card bento-yara">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon" style="color: #4ade80;">⚡</span> Auto-Generated YARA Rule
+          </span>
+        </div>
+        <pre id="yara-rule-preview" class="yara-preview-box">// Click below to derive an actionable YARA rule from findings</pre>
+        <div class="yara-actions-row">
+          <button id="btn-gen-yara" type="button" class="btn-secondary-pill" style="color: #fafafa; border-color: #333; background: #222;">Generate Rule</button>
+          <button id="btn-copy-yara" type="button" class="btn-secondary-pill" style="color: #fafafa; border-color: #333; background: #222;" hidden>Copy YARA</button>
+        </div>
+      </div>
+
+      <!-- Card 6: Findings Deep Dive (Span 12) -->
+      <div class="bento-card bento-findings">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">≡</span> Findings Deep Dive <span id="finding-count" class="brand-pill"></span>
+          </span>
+        </div>
+
+        <div class="findings-filter-bar">
+          <button type="button" class="filter-pill active" data-filter="all">All</button>
+          <button type="button" class="filter-pill" data-filter="critical">Critical</button>
+          <button type="button" class="filter-pill" data-filter="high">High</button>
+          <button type="button" class="filter-pill" data-filter="medium">Medium</button>
+          <button type="button" class="filter-pill" data-filter="low">Low</button>
+          <button type="button" class="filter-pill" data-filter="info">Info</button>
+        </div>
+
+        <div id="findings" class="findings-list"></div>
+      </div>
+
+      <!-- Card 7: Raw JSON Report (Span 12) -->
+      <div class="bento-card bento-raw">
+        <div class="card-header-row">
+          <span class="card-title">
+            <span class="card-title-icon">{ }</span> Raw Intelligence Report
+          </span>
+          <div style="display: flex; gap: 8px;">
+            <button id="raw-toggle" class="btn-secondary-pill" type="button" style="color: #fafafa; border-color: #333; background: #222;">View Raw Report</button>
+            <button id="raw-copy" class="btn-secondary-pill" type="button" style="color: #fafafa; border-color: #333; background: #222;" hidden>Copy JSON</button>
+          </div>
+        </div>
+        <pre id="raw-json" class="raw-json-container" hidden></pre>
+      </div>
+    </section>
+
+    <!-- Initial Empty State / Architectural Pillars -->
+    <section id="intro" class="pillars-grid" style="margin-top: 2rem;">
+      <div class="pillar-card">
+        <span class="pillar-step">01 · Autonomous Inspection</span>
+        <h3 class="pillar-title">Static & Dynamic Telemetry</h3>
+        <p class="pillar-desc">MZ/ELF header sniffing, Shannon entropy calculations, pefile import heuristics, capa capability extraction, and optional CAPEv2 sandboxed detonation.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-step">02 · Explainable Machine Learning</span>
+        <h3 class="pillar-title">XGBoost on EMBER Dataset</h3>
+        <p class="pillar-desc">Evaluates 2,381-dimensional feature vectors trained on 500,000 EMBER samples with 99.46% accuracy, calibrated confidence, and non-PE graceful bypass.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-step">03 · Behavioral Correlation</span>
+        <h3 class="pillar-title">MITRE ATT&CK & YARA Synthesis</h3>
+        <p class="pillar-desc">Translates indicators directly into MITRE ATT&CK techniques, parses Sysmon / EVTX event logs, and synthesizes instant YARA detection rules.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Code Showcase Section (Matching RAVN's python deployment card) -->
+<section class="code-showcase-section">
+  <div class="page-container">
+    <div class="section-header">
+      <span class="section-tag">Python SDK & CLI Runtime</span>
+      <h2 class="section-title">One runtime. Every binary. Every environment.</h2>
+      <p class="section-desc">Run Nullify programmatically in your CI/CD pipelines, automated malware sandboxes, or directly via the interactive CLI console.</p>
+    </div>
+
+    <div class="code-card-container">
+      <div class="code-header">
+        <div class="code-dots">
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+          <span class="code-dot"></span>
+        </div>
+        <span class="code-title">pipeline.py — nullify runtime</span>
+      </div>
+      <div class="code-content"><span class="code-comment"># initialize nullify autonomous threat pipeline</span>
+<span class="code-keyword">import</span> nullify
+analysis = nullify.<span class="code-string">scan</span>(target=<span class="code-string">"/opt/bin/sample.elf"</span>, mode=<span class="code-string">"static"</span>)
+
+<span class="code-comment"># synthesize explainable verdict and MITRE telemetry</span>
+verdict = analysis.<span class="code-string">verdict</span>
+reasons = analysis.<span class="code-string">explanation</span>
+
+<span class="code-result">→ verdict: BENIGN · 90% confidence · 3.47s duration · offline-first</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Manifesto Section (Matching RAVN's Manifesto) -->
+<section id="manifesto" class="manifesto-section">
+  <div class="page-container">
+    <div class="section-header">
+      <span class="section-tag">Our Manifesto</span>
+      <h2 class="section-title">Built for security teams moving from detection to autonomous defense.</h2>
+      <p class="section-desc">Traditional antivirus relies on static signatures that break the moment malware is packed or recompiled. We built Nullify to unify heuristic triage, high-dimensional machine learning, and transparent reasoning into one coherent engine.</p>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <span class="pillar-step">Architecture 01</span>
+        <h3 class="pillar-title">Cooperating Agents</h3>
+        <p class="pillar-desc">Independent specialized agents collaborate over a shared event bus, communicating structured telemetry without blind black-box decisions.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-step">Architecture 02</span>
+        <h3 class="pillar-title">100% Air-Gapped Capable</h3>
+        <p class="pillar-desc">Run completely offline. No telemetry leaves your enclave, ensuring sovereign analysis of proprietary binaries and sensitive incident logs.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-step">Architecture 03</span>
+        <h3 class="pillar-title">Actionable Signatures</h3>
+        <p class="pillar-desc">Every detection automatically synthesizes production-ready YARA rules and MITRE ATT&CK classifications ready for immediate EDR deployment.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Page Footer with Architectural Watermark (footer.svg) -->
+<footer class="page-footer">
+  <div class="page-container">
+    <div class="footer-bottom-row">
+      <div>
+        <p style="font-weight: 550; color: var(--foreground);">© 2026 Nullify. All rights reserved.</p>
+        <p style="font-size: 0.8125rem; color: var(--foreground-subtle); margin-top: 2px;">Built for teams moving threat analysis from reactive to autonomous.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="https://github.com/Nate-br/nullify" target="_blank" rel="noopener" class="footer-link">GitHub</a>
+        <a href="/api/docs" target="_blank" class="footer-link">API Specification</a>
+        <a href="/api/health" target="_blank" class="footer-link">Health Probe</a>
+        <a href="/?path=/dev/null" class="footer-link">Reset Console</a>
+      </div>
+    </div>
+
+    <!-- Footer Watermark Engraving (footer.svg) -->
+    <div class="footer-watermark-wrapper" aria-hidden="true">
+      <img src="/static/assets/footer.svg" alt="" class="footer-watermark">
+    </div>
+  </div>
+</footer>
 
 <div id="toast">Copied to clipboard</div>
 
