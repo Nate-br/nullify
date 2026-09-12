@@ -1460,15 +1460,17 @@ input, pre, code {
   pointer-events: none;
   width: 100%;
   overflow: hidden;
-  height: clamp(5rem, 18vw, 14rem);
-  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
 }
 
 .footer-watermark {
   display: block;
-  margin: 0 auto;
-  width: clamp(18rem, 62vw, 46rem);
-  opacity: 0.22;
+  width: clamp(20rem, 72vw, 52rem);
+  height: auto;
+  opacity: 0.25;
   user-select: none;
 }
 
