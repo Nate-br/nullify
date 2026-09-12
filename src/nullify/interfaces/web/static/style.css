@@ -368,6 +368,34 @@ body {
   color: var(--text-primary);
 }
 
+/* ASCII Art Banner (Framer Glowing Frame) */
+.hero-ascii-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0 4px;
+}
+
+.ascii-art-img {
+  max-width: 92%;
+  width: 680px;
+  height: auto;
+  border-radius: 14px;
+  background: rgba(4, 4, 8, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 102, 255, 0.28);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ascii-art-img:hover {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 50px -8px rgba(0, 0, 0, 0.9), 0 0 50px rgba(0, 102, 255, 0.45);
+}
+
 /* Hero Typography */
 .hero-headline {
   font-family: var(--font-display);
