@@ -1468,9 +1468,9 @@ input, pre, code {
 
 .footer-watermark {
   display: block;
-  width: clamp(20rem, 72vw, 52rem);
+  width: clamp(22rem, 76vw, 56rem);
   height: auto;
-  opacity: 0.25;
+  opacity: 0.28;
   user-select: none;
 }
 

@@ -188,9 +188,15 @@ def not_permitted(_req, exc: PermissionError) -> JSONResponse:
     return JSONResponse(status_code=403, content={"error": f"permission denied: {exc}"})
 
 
+@app.api_route("/favicon.ico", methods=["GET", "HEAD"], include_in_schema=False)
+def favicon() -> FileResponse:
+    return FileResponse(STATIC_DIR / "assets" / "favicon.ico")
+
+
 @app.get("/", response_class=HTMLResponse)
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
 
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
