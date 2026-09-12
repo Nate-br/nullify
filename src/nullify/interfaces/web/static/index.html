@@ -23,16 +23,16 @@
     <span class="ravn-ear-left" aria-hidden="true"></span>
     <span class="ravn-ear-right" aria-hidden="true"></span>
     
-    <a href="/" class="nav-brand" aria-label="Nullify Home">
+    <a href="#hero" class="nav-brand" id="nav-brand-logo" aria-label="Nullify Home">
       <img src="/static/assets/logo.svg" alt="Nullify" class="nav-logo-icon">
       <span class="nav-brand-text">NULLIFY</span>
     </a>
 
-    <nav class="nav-menu" aria-label="Primary Navigation">
-      <a href="#canvas" class="nav-item active">Platform</a>
-      <a href="#pipeline" class="nav-item">Pipeline</a>
-      <a href="#intelligence" class="nav-item">Intelligence</a>
-      <a href="#manifesto" class="nav-item">Manifesto</a>
+    <nav class="nav-menu" id="nav-menu-links" aria-label="Primary Navigation">
+      <a href="#canvas" class="nav-item" data-section="canvas">Platform</a>
+      <a href="#intelligence" class="nav-item" data-section="intelligence">Intelligence</a>
+      <a href="#pipeline" class="nav-item" data-section="pipeline">Pipeline</a>
+      <a href="#manifesto" class="nav-item" data-section="manifesto">Manifesto</a>
       <a href="/api/docs" target="_blank" class="nav-item">API Docs</a>
     </nav>
 
@@ -47,7 +47,7 @@
 </header>
 
 <!-- Hero Section (Directly mirroring useravn.com) -->
-<section class="hero-wrapper">
+<section id="hero" class="hero-wrapper">
   <!-- Halftone Robots Art (Michelangelo Creation of Adam) -->
   <div class="hero-art-layer" aria-hidden="true">
     <div class="hero-art-inner">
@@ -223,7 +223,7 @@
       </div>
 
       <!-- Card 3: 6-Agent Pipeline Flow (Span 12) -->
-      <div id="pipeline" class="bento-card bento-pipeline">
+      <div class="bento-card bento-pipeline">
         <div class="card-header-row">
           <span class="card-title">
             <span class="card-title-icon">⟐</span> Cooperating Agent Pipeline
@@ -234,7 +234,7 @@
       </div>
 
       <!-- Card 4: MITRE ATT&CK Matrix (Span 6) -->
-      <div id="intelligence" class="bento-card bento-mitre">
+      <div class="bento-card bento-mitre">
         <div class="card-header-row">
           <span class="card-title">
             <span class="card-title-icon">⬡</span> MITRE ATT&CK Mapping
@@ -293,8 +293,26 @@
       </div>
     </section>
 
-    <!-- Initial Empty State / Architectural Pillars -->
-    <section id="intro" class="pillars-grid" style="margin-top: 2rem;">
+    <!-- Initial Empty State inside Console -->
+    <div id="intro" class="canvas-empty-state">
+      <div class="empty-state-banner">
+        <span class="empty-state-badge">Engine Ready</span>
+        <span class="empty-state-text">Select any synthetic demo above or drop a binary to begin real-time agentic inspection.</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Threat Intelligence Architecture Section -->
+<section id="intelligence" class="intelligence-section">
+  <div class="page-container">
+    <div class="section-header">
+      <span class="section-tag">Machine-Speed Threat Intelligence</span>
+      <h2 class="section-title">Telemetry, EMBER Machine Learning & ATT&CK Matrix</h2>
+      <p class="section-desc">From Shannon entropy calculations to 2,381-dimensional ML classification and instant YARA rule synthesis.</p>
+    </div>
+
+    <div class="pillars-grid">
       <div class="pillar-card">
         <span class="pillar-step">01 · Autonomous Inspection</span>
         <h3 class="pillar-title">Static & Dynamic Telemetry</h3>
@@ -312,12 +330,12 @@
         <h3 class="pillar-title">MITRE ATT&CK & YARA Synthesis</h3>
         <p class="pillar-desc">Translates indicators directly into MITRE ATT&CK techniques, parses Sysmon / EVTX event logs, and synthesizes instant YARA detection rules.</p>
       </div>
-    </section>
+    </div>
   </div>
-</main>
+</section>
 
-<!-- Code Showcase Section (Matching RAVN's python deployment card) -->
-<section class="code-showcase-section">
+<!-- Agentic Pipeline & Code Showcase Section -->
+<section id="pipeline" class="code-showcase-section">
   <div class="page-container">
     <div class="section-header">
       <span class="section-tag">Python SDK & CLI Runtime</span>
@@ -404,6 +422,6 @@ reasons = analysis.<span class="code-string">explanation</span>
 
 <div id="toast">Copied to clipboard</div>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=20260912"></script>
 </body>
 </html>

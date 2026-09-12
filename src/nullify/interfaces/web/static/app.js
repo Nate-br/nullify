@@ -543,10 +543,87 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+/* ---------- Navbar Active Spy & Smooth Navigation ---------- */
+function initNavigation() {
+  const brandLink = $("nav-brand-logo");
+  const navLinks = Array.from(document.querySelectorAll("#nav-menu-links .nav-item[data-section]"));
+  const sectionIds = ["canvas", "intelligence", "pipeline", "manifesto"];
+  const sections = sectionIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+
+  function setActive(activeId) {
+    navLinks.forEach((link) => {
+      const match = link.getAttribute("data-section") === activeId;
+      link.classList.toggle("active", match);
+    });
+  }
+
+  // Smooth scroll for brand logo (scrolls to top hero, clears active nav items)
+  if (brandLink) {
+    brandLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (location.hash) {
+        history.pushState(null, "", window.location.pathname);
+      }
+      setActive(null);
+    });
+  }
+
+  // Smooth scroll & instant active state on nav item click
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      const targetId = link.getAttribute("data-section");
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: "smooth" });
+        history.pushState(null, "", `#${targetId}`);
+        setActive(targetId);
+      }
+    });
+  });
+
+  // ScrollSpy with IntersectionObserver & scroll fallback
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (window.scrollY < 250) {
+          setActive(null);
+          return;
+        }
+        const visible = entries.filter((entry) => entry.isIntersecting);
+        if (visible.length > 0) {
+          visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          setActive(visible[0].target.id);
+        }
+      },
+      {
+        rootMargin: "-25% 0px -55% 0px",
+        threshold: [0, 0.25, 0.5],
+      }
+    );
+
+    sections.forEach((sec) => observer.observe(sec));
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (window.scrollY < 250) {
+        setActive(null);
+      }
+    },
+    { passive: true }
+  );
+}
+
 /* ---------- Init & Boot ---------- */
 probeHealth();
 setInterval(probeHealth, 15000);
 loadSamplesCatalog();
+initNavigation();
 
 // Auto-scan if deep link has ?path=...
 const initial = new URLSearchParams(location.search).get("path");
@@ -556,3 +633,4 @@ if (initial && initial !== "/dev/null") {
 } else {
   input.focus();
 }
+
