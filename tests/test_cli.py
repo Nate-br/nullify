@@ -34,8 +34,9 @@ def test_scan_missing_file_errors() -> None:
 
 
 def test_batch_directory(benign_file, tmp_path) -> None:
-    out = runner.invoke(app, ["batch", str(benign_file.path.parent),
-                              "-o", str(tmp_path / "report.json")])
+    out = runner.invoke(
+        app, ["batch", str(benign_file.path.parent), "-o", str(tmp_path / "report.json")]
+    )
     assert out.exit_code == 0, out.output
     report = json.loads((tmp_path / "report.json").read_text())
     assert len(report["results"]) >= 1
@@ -47,3 +48,16 @@ def test_analyze_log_json(sysmon_log) -> None:
     start = out.output.index("{")
     data = json.loads(out.output[start:])
     assert "T1053" in data["mitre_ids"]
+
+
+def test_interactive_menu_exit() -> None:
+    out = runner.invoke(app, [], input="0\n")
+    assert out.exit_code == 0
+    assert "Nullify Interactive Threat Analysis Console" in out.output
+    assert "Exiting Nullify" in out.output
+
+
+def test_interactive_menu_demo() -> None:
+    out = runner.invoke(app, [], input="6\n1\n")
+    assert out.exit_code == 0
+    assert "Verdict: MALICIOUS" in out.output or "Verdict: SUSPICIOUS" in out.output
