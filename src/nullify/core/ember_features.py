@@ -273,6 +273,11 @@ class ByteEntropyHistogram(FeatureType):
         return Hbin, c
 
     def raw_features(self, bytez, lief_binary):
+        from nullify.core.c_engine import fast_byte_entropy_histogram
+        c_res = fast_byte_entropy_histogram(bytez, self.step, self.window)
+        if c_res is not None:
+            return c_res
+
         output = np.zeros((16, 16), dtype=np.int64)  # np.int is dead in numpy>=1.24
         a = np.frombuffer(bytez, dtype=np.uint8)
         if a.shape[0] < self.window:
@@ -304,6 +309,11 @@ class StringExtractor(FeatureType):
         self._mz = re.compile(b"MZ")
 
     def raw_features(self, bytez, lief_binary):
+        from nullify.core.c_engine import fast_extract_strings
+        c_res = fast_extract_strings(bytez)
+        if c_res is not None:
+            return c_res
+
         allstrings = self._allstrings.findall(bytez)
         if allstrings:
             string_lengths = [len(s) for s in allstrings]

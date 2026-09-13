@@ -62,6 +62,15 @@ class TriageAgent(BaseAgent):
         data["extension"] = suffix
         looks_executable = suffix in EXECUTABLE_EXTENSIONS
 
+        from nullify.core.c_engine import fast_triage_file, is_c_accelerated
+        c_res = fast_triage_file(target.path) if is_c_accelerated() else None
+        if c_res:
+            data["c_accelerated"] = True
+            if c_res.get("architecture"):
+                data["architecture"] = c_res["architecture"]
+            if c_res.get("num_sections", 0) > 0:
+                data["num_sections"] = c_res["num_sections"]
+
         # Magic-byte sniff for extension-less or mislabelled files.
         magic = self._sniff_magic(target)
         data["file_magic"] = magic

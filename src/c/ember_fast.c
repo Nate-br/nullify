@@ -90,7 +90,7 @@ void nullify_extract_strings(
     /* Single pass over the data */
     for (size_t i = 0; i <= len; ++i) {
         uint8_t b = (i < len) ? data[i] : 0;
-        int is_printable = (b >= 0x20 && b <= 0x7E);
+        int is_printable = (i < len && b >= 0x20 && b <= 0x7F);
 
         if (is_printable) {
             current_len++;

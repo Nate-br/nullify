@@ -105,21 +105,14 @@ class FileTarget:
 
     def entropy(self, sample_size: int = 1_048_576) -> float | None:
         """Shannon entropy over up to ``sample_size`` bytes; None if unreadable."""
-        import math
-
         try:
             data = self.path.open("rb").read(sample_size)
         except OSError:
             return None
         if not data:
             return 0.0
-        freq = [0] * 256
-        for byte in data:
-            freq[byte] += 1
-        n = len(data)
-        return round(
-            -sum((c / n) * math.log2(c / n) for c in freq if c), 3
-        )
+        from nullify.core.c_engine import fast_entropy
+        return round(fast_entropy(data), 3)
 
     def to_dict(self) -> dict[str, Any]:
         info: dict[str, Any] = {"path": str(self.path), "size_bytes": self.size_bytes}

@@ -15,6 +15,10 @@ venv/
 .coverage
 htmlcov/
 
+# Compiled C objects
+*.o
+src/c/*.o
+
 # Environment & secrets
 .env
 .env.local
