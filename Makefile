@@ -1,25 +1,44 @@
-.PHONY: install dev test lint format clean run-web build
+CC ?= gcc
+CFLAGS ?= -O3 -Wall -Wextra -pedantic -std=c11 -fPIC -Isrc/c/include
+LDFLAGS ?= -shared
+LDLIBS ?= -lm
 
-install:       ## Create .venv and install runtime dependencies
-	uv sync
+SRC_DIR = src/c
+INCLUDE_DIR = src/c/include
+LIB_DIR = lib
+BIN_DIR = bin
 
-dev:           ## Install runtime + all extras for dev and testing
-	uv sync --all-extras
+LIB_SRCS = $(SRC_DIR)/entropy.c $(SRC_DIR)/ember_fast.c $(SRC_DIR)/hash.c $(SRC_DIR)/pe_elf.c
+LIB_OBJS = $(LIB_SRCS:.c=.o)
+TARGET_LIB = $(LIB_DIR)/libnullify.so
 
-test:          ## Run the test suite
-	uv run pytest
+CLI_SRCS = $(SRC_DIR)/main_core.c
+CLI_OBJS = $(CLI_SRCS:.c=.o)
+TARGET_CLI = $(BIN_DIR)/nullify-core
 
-lint:          ## Ruff lint
-	uv run ruff check src tests scripts
+.PHONY: all clean test-c
 
-format:        ## Ruff format
-	uv run ruff format src tests scripts
+all: $(TARGET_LIB) $(TARGET_CLI)
 
-run-web:       ## Run the Web UI
-	uv run nullify web
+$(LIB_DIR):
+	mkdir -p $(LIB_DIR)
 
-build:         ## Build wheel and sdist
-	uv build
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
-clean:         ## Remove caches and build artifacts
-	rm -rf .pytest_cache .ruff_cache .venv dist build src/nullify.egg-info
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(TARGET_LIB): $(LIB_OBJS) | $(LIB_DIR)
+	$(CC) $(LDFLAGS) -o $@ $(LIB_OBJS) $(LDLIBS)
+
+$(TARGET_CLI): $(CLI_OBJS) $(LIB_OBJS) | $(BIN_DIR)
+	$(CC) -O3 -Wall -Wextra -I$(INCLUDE_DIR) -o $@ $(CLI_OBJS) $(LIB_OBJS) $(LDLIBS)
+
+test-c: $(TARGET_CLI)
+	./$(TARGET_CLI) /bin/bash
+	./$(TARGET_CLI) /bin/bash --json
+
+clean:
+	rm -f $(SRC_DIR)/*.o
+	rm -f $(TARGET_LIB) $(TARGET_CLI)
