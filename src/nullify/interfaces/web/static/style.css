@@ -492,6 +492,8 @@ input, pre, code {
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition: all 0.25s ease;
+  opacity: 0;
+  animation: eyebrow-entrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
 }
 
 .hero-eyebrow:hover {
@@ -535,11 +537,24 @@ input, pre, code {
 .hero-headline .hl-token {
   display: inline-block;
   white-space: nowrap;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  opacity: 0;
+  will-change: transform, opacity, filter;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.28s ease;
 }
 
-.hero-headline .hl-token:hover {
-  transform: translateY(-2px);
+.hero-headline .hl-token.hl-see {
+  animation: token-entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards,
+             token-cycle-see 8.5s ease-in-out 2.8s infinite;
+}
+
+.hero-headline .hl-token.hl-trace {
+  animation: token-entrance 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.62s forwards,
+             token-cycle-trace 8.5s ease-in-out 2.8s infinite;
+}
+
+.hero-headline .hl-token.hl-nullify {
+  animation: token-entrance 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.92s forwards,
+             token-cycle-nullify 8.5s ease-in-out 2.8s infinite;
 }
 
 .hero-headline em,
@@ -554,7 +569,7 @@ input, pre, code {
   color: inherit;
 }
 
-/* Feathered ink underline flourish under 'Nullify it.' */
+/* Feathered ink underline flourish with fluid draw-in animation */
 .hero-headline .hl-token.hl-nullify em::after {
   content: "";
   position: absolute;
@@ -566,12 +581,16 @@ input, pre, code {
     90deg,
     transparent 0%,
     rgba(25, 21, 16, 0.35) 15%,
-    rgba(25, 21, 16, 0.65) 50%,
+    rgba(25, 21, 16, 0.75) 50%,
     rgba(25, 21, 16, 0.35) 85%,
     transparent 100%
   );
   border-radius: 9999px;
   pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: ink-draw 0.75s cubic-bezier(0.22, 1, 0.36, 1) 1.4s forwards,
+             underline-pulse 8.5s ease-in-out 2.8s infinite;
 }
 
 [data-theme="dark"] .hero-headline .hl-token.hl-nullify em::after {
@@ -579,7 +598,7 @@ input, pre, code {
     90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.35) 15%,
-    rgba(255, 255, 255, 0.75) 50%,
+    rgba(255, 255, 255, 0.85) 50%,
     rgba(255, 255, 255, 0.35) 85%,
     transparent 100%
   );
@@ -589,6 +608,109 @@ input, pre, code {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   color: var(--foreground-muted);
+}
+
+/* Entrance Keyframes */
+@keyframes eyebrow-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes token-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(26px) scale(0.96);
+    filter: blur(7px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes ink-draw {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Looping Autonomous Rhythmic Pulse Across Tokens */
+@keyframes token-cycle-see {
+  0%, 10%, 25%, 100% {
+    transform: translateY(0);
+    text-shadow: none;
+  }
+  16% {
+    transform: translateY(-3px);
+    text-shadow: 0 4px 18px rgba(25, 21, 16, 0.14);
+  }
+}
+
+@keyframes token-cycle-trace {
+  0%, 23%, 38%, 100% {
+    transform: translateY(0);
+    text-shadow: none;
+  }
+  29% {
+    transform: translateY(-3px);
+    text-shadow: 0 4px 18px rgba(25, 21, 16, 0.14);
+  }
+}
+
+@keyframes token-cycle-nullify {
+  0%, 36%, 54%, 100% {
+    transform: translateY(0);
+    text-shadow: none;
+  }
+  43% {
+    transform: translateY(-4px) scale(1.02);
+    text-shadow: 0 6px 24px rgba(25, 21, 16, 0.18);
+  }
+}
+
+@keyframes underline-pulse {
+  0%, 36%, 54%, 100% {
+    opacity: 0.85;
+    transform: scaleX(1);
+  }
+  43% {
+    opacity: 1;
+    transform: scaleX(1.06);
+  }
+}
+
+/* Hover Physics */
+.hero-headline .hl-token:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  text-shadow: 0 6px 22px rgba(25, 21, 16, 0.16);
+  cursor: default;
+}
+
+.hero-headline .hl-token.hl-nullify:hover em::after {
+  opacity: 1;
+  transform: scaleX(1.08);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(25, 21, 16, 0.5) 15%,
+    rgba(25, 21, 16, 0.95) 50%,
+    rgba(25, 21, 16, 0.5) 85%,
+    transparent 100%
+  );
 }
 
 /* Curated Typography Presets (Interactive Testing & Customization) */
@@ -621,8 +743,9 @@ input, pre, code {
   font-size: clamp(2.45rem, 5.8vw, 4.15rem) !important;
 }
 
+/* Subtext & CTA Sequential Entrance */
 .hero-subtext {
-  margin-top: 1.15rem;
+  margin-top: 1.25rem;
   font-size: 1.0625rem;
   font-weight: 450;
   line-height: 1.68;
@@ -630,6 +753,8 @@ input, pre, code {
   color: var(--foreground-muted);
   max-width: 44rem;
   text-wrap: pretty;
+  opacity: 0;
+  animation: hero-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.25s forwards;
 }
 
 .hero-cta-group {
@@ -639,6 +764,34 @@ input, pre, code {
   gap: 0.625rem;
   width: 100%;
   max-width: 20rem;
+  opacity: 0;
+  animation: hero-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.45s forwards;
+}
+
+@keyframes hero-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-eyebrow,
+  .hero-headline .hl-token,
+  .hero-headline .hl-token.hl-nullify em::after,
+  .hero-subtext,
+  .hero-cta-group {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
 }
 
 @media (min-width: 640px) {

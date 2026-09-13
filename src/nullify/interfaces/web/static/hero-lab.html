@@ -462,13 +462,14 @@
     </div>
 
     <!-- Typography Studio for 'See it. Trace it. Nullify it.' -->
-    <div class="lab-presets-row" style="margin-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem;">
+    <div class="lab-presets-row" style="margin-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem; align-items: center;">
       <span class="preset-label" style="color: #38bdf8;">Typography:</span>
       <button type="button" class="preset-chip font-chip active" data-font="theme-instrument">Instrument Serif (Default)</button>
       <button type="button" class="preset-chip font-chip" data-font="theme-cormorant">Cormorant Garamond</button>
       <button type="button" class="preset-chip font-chip" data-font="theme-cinzel">Cinzel Roman</button>
       <button type="button" class="preset-chip font-chip" data-font="theme-newsreader">Newsreader Archival</button>
       <button type="button" class="preset-chip font-chip" data-font="theme-mona">Mona Sans Modern</button>
+      <button type="button" id="btn-replay-anim" class="preset-chip" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.45); margin-left: auto;">↻ Replay Animation</button>
     </div>
 
     <!-- Fine Tuning Row -->
@@ -882,7 +883,7 @@
         ambientGlow.style.opacity = "0";
       });
 
-      // Typography Studio Font Switching
+      // Typography Studio Font Switching & Animation Replay
       const fontChips = document.querySelectorAll(".font-chip");
       const headline = document.getElementById("lab-headline");
       fontChips.forEach((chip) => {
@@ -893,6 +894,27 @@
           headline.className = "hero-headline " + fontTheme;
         });
       });
+
+      const btnReplay = document.getElementById("btn-replay-anim");
+      if (btnReplay) {
+        btnReplay.addEventListener("click", () => {
+          const eyebrow = document.querySelector(".hero-eyebrow");
+          const tokens = document.querySelectorAll(".hl-token");
+          const subtext = document.querySelector(".hero-subtext, .hero-subline");
+          const underline = document.querySelector(".hl-token.hl-nullify em");
+          const cta = document.querySelector(".hero-cta-group, .hero-input-card");
+          const elements = [eyebrow, ...tokens, subtext, underline, cta].filter(Boolean);
+          elements.forEach((el) => {
+            el.style.animation = "none";
+          });
+          void headline.offsetWidth;
+          setTimeout(() => {
+            elements.forEach((el) => {
+              el.style.animation = "";
+            });
+          }, 20);
+        });
+      }
 
       // Initialize
       applyStyleTreatment();
