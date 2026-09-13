@@ -872,6 +872,38 @@ function initPipelineTerminal() {
   }
 }
 
+/* ---------- Scroll Reveal Animations Engine ---------- */
+function initScrollReveal() {
+  const revealTargets = document.querySelectorAll(
+    ".console-card, .section-header, .pillars-grid, .terminal-showcase-card, .footer-bottom-row"
+  );
+
+  if (!("IntersectionObserver" in window)) {
+    revealTargets.forEach((el) => el.classList.add("is-revealed"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      rootMargin: "0px 0px -60px 0px",
+      threshold: 0.12,
+    }
+  );
+
+  revealTargets.forEach((el) => {
+    el.classList.add("scroll-reveal");
+    observer.observe(el);
+  });
+}
+
 /* ---------- Init & Boot ---------- */
 probeHealth();
 setInterval(probeHealth, 15000);
@@ -879,6 +911,7 @@ loadSamplesCatalog();
 initNavigation();
 initPipelineTerminal();
 initHeroBackground();
+initScrollReveal();
 
 // Deep link check or start at top (Nullify hero)
 const initial = new URLSearchParams(location.search).get("path");

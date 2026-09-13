@@ -126,6 +126,18 @@ input, pre, code {
   display: flex;
   justify-content: center;
   pointer-events: none;
+  animation: navbar-slide-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
+}
+
+@keyframes navbar-slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ravn-navbar-tab {
@@ -183,6 +195,12 @@ input, pre, code {
   height: 1.25rem;
   filter: brightness(0) invert(1);
   display: block;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+}
+
+.nav-brand:hover .nav-logo-icon {
+  transform: rotate(-10deg) scale(1.12);
+  filter: brightness(0) invert(1) drop-shadow(0 2px 6px rgba(255, 255, 255, 0.35));
 }
 
 .nav-brand-text {
@@ -273,14 +291,31 @@ input, pre, code {
   padding: 0 0.85rem;
   border-radius: 9999px;
   font-size: 0.8125rem;
-  font-weight: 580;
-  letter-spacing: -0.01em;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  font-weight: 550;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-nav-action:hover {
-  transform: scale(1.03);
-  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 21, 16, 0.16);
+}
+
+.btn-nav-action::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(25, 21, 16, 0.15), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s ease;
+}
+
+.btn-nav-action:hover::after {
+  left: 140%;
 }
 
 /* ==========================================================================
@@ -852,6 +887,36 @@ input, pre, code {
   background-color: var(--card-subtle);
   padding: 1.15rem 0;
   overflow: hidden;
+  position: relative;
+  animation: ticker-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+}
+
+@keyframes ticker-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.capability-ticker::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(25, 21, 16, 0.035), transparent);
+  animation: ticker-sheen 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ticker-sheen {
+  0% { left: -100%; }
+  35%, 100% { left: 160%; }
 }
 
 .ticker-content {
@@ -875,6 +940,12 @@ input, pre, code {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.ticker-item:hover {
+  transform: translateY(-2px);
+  color: var(--foreground);
 }
 
 .ticker-item::before {
@@ -915,23 +986,26 @@ input, pre, code {
   cursor: pointer;
   color: var(--foreground-muted);
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   margin-bottom: 1.25rem;
+  position: relative;
 }
 
 .drag-drop-zone:hover, .drag-drop-zone.dragover {
   border-color: var(--foreground);
   background-color: var(--card-hover);
   color: var(--foreground);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(25, 21, 16, 0.04);
 }
 
 .drag-drop-zone svg {
   color: var(--foreground-muted);
-  transition: transform 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .drag-drop-zone:hover svg {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.1);
   color: var(--foreground);
 }
 
@@ -944,12 +1018,13 @@ input, pre, code {
   border: 1px solid var(--border);
   border-radius: 9999px;
   padding: 0.35rem 0.5rem 0.35rem 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .command-input-container:focus-within {
   border-color: var(--foreground);
-  box-shadow: 0 0 0 3px rgba(25, 21, 16, 0.06);
+  box-shadow: 0 0 0 3px rgba(25, 21, 16, 0.08), 0 4px 18px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
 }
 
 .command-prefix-icon {
@@ -1036,11 +1111,14 @@ input, pre, code {
   font-size: 0.875rem;
   font-weight: 550;
   letter-spacing: -0.01em;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-scan-main:hover {
-  transform: scale(1.02);
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(25, 21, 16, 0.16);
   background-color: var(--primary-hover);
 }
 
@@ -1048,6 +1126,17 @@ input, pre, code {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-scan-main .btn-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: transform 0.25s ease;
+}
+
+.btn-scan-main:hover .btn-label {
+  transform: translateX(2px);
 }
 
 .btn-spinner {
@@ -1091,25 +1180,62 @@ input, pre, code {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--foreground-muted);
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .sample-chip:hover {
-  border-color: var(--foreground);
+  border-color: rgba(25, 21, 16, 0.25);
   color: var(--foreground);
   background-color: var(--card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .sample-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  position: relative;
 }
 
-.sample-dot.trojan { background-color: #ef4444; }
-.sample-dot.ransom { background-color: #f97316; }
-.sample-dot.benign { background-color: #22c55e; }
-.sample-dot.log { background-color: #3b82f6; }
+.sample-dot.trojan {
+  background-color: #ef4444;
+  animation: dot-pulse-red 2.4s ease-in-out infinite;
+}
+.sample-dot.ransom {
+  background-color: #f97316;
+  animation: dot-pulse-amber 2.4s ease-in-out infinite 0.6s;
+}
+.sample-dot.benign {
+  background-color: #22c55e;
+  animation: dot-pulse-emerald 2.4s ease-in-out infinite 1.2s;
+}
+.sample-dot.log {
+  background-color: #3b82f6;
+  animation: dot-pulse-blue 2.4s ease-in-out infinite 1.8s;
+}
+
+@keyframes dot-pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+  50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+}
+
+@keyframes dot-pulse-amber {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+  50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+}
+
+@keyframes dot-pulse-emerald {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+  50% { box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+}
+
+@keyframes dot-pulse-blue {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+  50% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+}
 
 .command-hints {
   display: flex;
@@ -1159,6 +1285,15 @@ input, pre, code {
   box-shadow: 0 4px 15px -2px rgba(25, 21, 16, 0.03);
   position: relative;
   overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s ease,
+              border-color 0.25s ease;
+}
+
+.bento-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08);
+  border-color: rgba(25, 21, 16, 0.16);
 }
 
 .card-header-row {
@@ -1678,17 +1813,89 @@ input, pre, code {
   }
 }
 
+/* ==========================================================================
+   SCROLL REVEAL ANIMATIONS & PILLARS GRID
+   ========================================================================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(5px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+.pillars-grid.scroll-reveal {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+.pillars-grid .pillar-card {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s ease,
+              border-color 0.25s ease;
+}
+
+.pillars-grid.is-revealed .pillar-card:nth-child(1) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.08s;
+}
+
+.pillars-grid.is-revealed .pillar-card:nth-child(2) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s;
+}
+
+.pillars-grid.is-revealed .pillar-card:nth-child(3) {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.32s;
+}
+
 .pillar-card {
   background-color: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 1.125rem;
   padding: 2rem;
-  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .pillar-card:hover {
-  border-color: var(--foreground);
-  transform: translateY(-2px);
+  border-color: rgba(25, 21, 16, 0.25);
+  transform: translateY(-5px) !important;
+  box-shadow: 0 16px 36px -8px rgba(25, 21, 16, 0.08);
+}
+
+.pillar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--foreground), transparent);
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pillar-card:hover::before {
+  opacity: 0.7;
+  transform: scaleX(1);
 }
 
 .pillar-step {
@@ -2048,6 +2255,36 @@ input, pre, code {
   height: auto;
   opacity: 0.28;
   user-select: none;
+  animation: watermark-float 12s ease-in-out infinite;
+}
+
+@keyframes watermark-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-6px) scale(1.015);
+  }
+}
+
+.footer-link {
+  position: relative;
+  transition: color 0.25s ease;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 1px;
+  background-color: var(--foreground);
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.footer-link:hover::after {
+  width: 100%;
 }
 
 .footer-bottom-row {
