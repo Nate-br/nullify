@@ -335,7 +335,6 @@ input, pre, code {
   object-fit: cover;
   object-position: center 46%;
   opacity: 0.32;
-  filter: invert(1);
   mix-blend-mode: multiply;
   transform: scale(1.08);
   pointer-events: none;
