@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="/static/assets/icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400;1,6..72,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
   <style>
     /* ==========================================================================
@@ -461,6 +461,16 @@
       <button type="button" class="preset-chip" data-preset="cyber-dark">Cyber Nocturne (Dark)</button>
     </div>
 
+    <!-- Typography Studio for 'See it. Trace it. Nullify it.' -->
+    <div class="lab-presets-row" style="margin-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 0.65rem;">
+      <span class="preset-label" style="color: #38bdf8;">Typography:</span>
+      <button type="button" class="preset-chip font-chip active" data-font="theme-instrument">Instrument Serif (Default)</button>
+      <button type="button" class="preset-chip font-chip" data-font="theme-cormorant">Cormorant Garamond</button>
+      <button type="button" class="preset-chip font-chip" data-font="theme-cinzel">Cinzel Roman</button>
+      <button type="button" class="preset-chip font-chip" data-font="theme-newsreader">Newsreader Archival</button>
+      <button type="button" class="preset-chip font-chip" data-font="theme-mona">Mona Sans Modern</button>
+    </div>
+
     <!-- Fine Tuning Row -->
     <div class="lab-tuning-row">
       <div class="tuning-group">
@@ -589,8 +599,17 @@
 
     <!-- Hero Content -->
     <div class="page-container hero-content">
-      <h1 class="hero-headline">
-        See it. Trace it. Nullify it.
+      <div class="hero-eyebrow" aria-label="Nullify Autonomous Runtime">
+        <span class="eyebrow-dot"></span>
+        <span class="eyebrow-text">Autonomous Threat Pipeline</span>
+        <span class="eyebrow-sep">/</span>
+        <span class="eyebrow-sub">Zero-Day Defense</span>
+      </div>
+
+      <h1 class="hero-headline theme-instrument" id="lab-headline">
+        <span class="hl-token hl-see">See it.</span>
+        <span class="hl-token hl-trace">Trace it.</span>
+        <span class="hl-token hl-nullify"><em>Nullify it.</em></span>
       </h1>
 
       <p class="hero-subline">
@@ -861,6 +880,18 @@
 
       window.addEventListener("mouseleave", () => {
         ambientGlow.style.opacity = "0";
+      });
+
+      // Typography Studio Font Switching
+      const fontChips = document.querySelectorAll(".font-chip");
+      const headline = document.getElementById("lab-headline");
+      fontChips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          fontChips.forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
+          const fontTheme = chip.dataset.font;
+          headline.className = "hero-headline " + fontTheme;
+        });
       });
 
       // Initialize
