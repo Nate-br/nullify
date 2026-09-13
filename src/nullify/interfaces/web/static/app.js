@@ -880,12 +880,15 @@ initNavigation();
 initPipelineTerminal();
 initHeroBackground();
 
-// Auto-scan if deep link has ?path=...
+// Deep link check or start at top (Nullify hero)
 const initial = new URLSearchParams(location.search).get("path");
 if (initial && initial !== "/dev/null") {
   input.value = initial;
   executeScan(initial, scanMode);
-} else {
-  input.focus();
+} else if (!location.hash || location.hash === "#hero") {
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+  window.scrollTo(0, 0);
 }
 
