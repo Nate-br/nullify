@@ -619,6 +619,39 @@ function initNavigation() {
   );
 }
 
+/* ---------- Full-Bleed 3D Particle Wave Hero Background ---------- */
+function initHeroBackground() {
+  const video = $("hero-bg-video");
+  const ambientGlow = $("ambient-cursor-glow");
+  const heroSection = $("hero");
+
+  if (video) {
+    video.playbackRate = 0.7;
+    video.play().catch(() => {});
+  }
+
+  if (heroSection && ambientGlow) {
+    heroSection.addEventListener("mousemove", (e) => {
+      ambientGlow.style.opacity = "1";
+      ambientGlow.style.left = e.clientX + "px";
+      ambientGlow.style.top = (e.clientY + window.scrollY) + "px";
+
+      if (video) {
+        const xPercent = (e.clientX / window.innerWidth - 0.5) * 2;
+        const yPercent = (e.clientY / window.innerHeight - 0.5) * 2;
+        video.style.transform = `translate(${xPercent * 14}px, ${yPercent * 10}px) scale(1.08)`;
+      }
+    });
+
+    heroSection.addEventListener("mouseleave", () => {
+      ambientGlow.style.opacity = "0";
+      if (video) {
+        video.style.transform = "scale(1.08)";
+      }
+    });
+  }
+}
+
 /* ---------- Minimalist Cinematic Pipeline Terminal Showcase ---------- */
 function initPipelineTerminal() {
   const terminal = $("pipeline-terminal") || $("interactive-terminal");
@@ -845,6 +878,7 @@ setInterval(probeHealth, 15000);
 loadSamplesCatalog();
 initNavigation();
 initPipelineTerminal();
+initHeroBackground();
 
 // Auto-scan if deep link has ?path=...
 const initial = new URLSearchParams(location.search).get("path");

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nullify · Hero Background Video & Design Laboratory</title>
+  <link rel="icon" type="image/svg+xml" href="/static/assets/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    /* ==========================================================================
+       HERO FULL-BLEED CANVAS & SEAMLESS BORDER FADING
+       ========================================================================== */
+    .hero-wrapper {
+      position: relative;
+      overflow: hidden;
+      min-height: 52rem;
+    }
+
+    /* Force Art Layer & Inner Container to stretch edge-to-edge (100% full width) */
+    .hero-art-layer {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      overflow: hidden !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+
+    .hero-art-inner {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      transform: none !important;
+    }
+
+    /* Full-Bleed Video Element with feathered edge mask */
+    .hero-bg-art.custom-preview {
+      position: absolute !important;
+      inset: 0 !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      object-fit: cover !important;
+      object-position: center 46% !important;
+      transform: scale(1.08) !important;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease, transform 0.25s ease-out !important;
+      pointer-events: none !important;
+
+      /* Multi-directional edge feathering: eliminates all rectangular boundaries */
+      -webkit-mask-image: radial-gradient(ellipse 92% 82% at 50% 50%, #000 30%, rgba(0, 0, 0, 0.85) 60%, transparent 95%);
+      mask-image: radial-gradient(ellipse 92% 82% at 50% 50%, #000 30%, rgba(0, 0, 0, 0.85) 60%, transparent 95%);
+    }
+
+    /* Seamless Atmospheric Border Vignette */
+    .hero-vignette-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      background:
+        radial-gradient(ellipse 88% 74% at 50% 46%, transparent 35%, var(--background) 95%),
+        linear-gradient(to bottom, var(--background) 0%, transparent 14%, transparent 75%, var(--background) 100%),
+        linear-gradient(to right, var(--background) 0%, transparent 8%, transparent 92%, var(--background) 100%);
+      transition: background 0.4s ease;
+    }
+
+    /* Interactive Cursor Glow */
+    .ambient-cursor-glow {
+      position: absolute;
+      width: 46rem;
+      height: 46rem;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74, 222, 128, 0.09) 0%, rgba(56, 189, 248, 0.04) 40%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    /* Readability Diffusion Shield behind headline */
+    .hero-content {
+      position: relative;
+      z-index: 5;
+    }
+
+    .hero-content::before {
+      content: "";
+      position: absolute;
+      top: -2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(24rem, 80vw, 56rem);
+      height: 24rem;
+      background: radial-gradient(ellipse 65% 55% at 50% 45%, rgba(251, 248, 243, 0.6) 0%, transparent 80%);
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(12px);
+    }
+
+    body.dark-canvas-mode .hero-content::before {
+      background: radial-gradient(ellipse 65% 55% at 50% 45%, rgba(11, 9, 7, 0.65) 0%, transparent 80%);
+    }
+
+    /* ==========================================================================
+       LABORATORY FLOATING DOCK CONTROLS
+       ========================================================================== */
+    .lab-floating-dock {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      width: clamp(20rem, 94vw, 66rem);
+      background: rgba(20, 16, 12, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 1.25rem;
+      box-shadow: 0 25px 65px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      padding: 1rem 1.35rem;
+      color: #f1f5f9;
+      font-family: var(--font-sans);
+    }
+
+    .lab-dock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .lab-dock-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #fafafa;
+    }
+
+    .lab-badge {
+      font-size: 0.6875rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .lab-switcher-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (min-width: 768px) {
+      .lab-switcher-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+
+    .lab-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: rgba(255, 255, 255, 0.7);
+      padding: 0.45rem 0.55rem;
+      border-radius: 0.5rem;
+      font-size: 0.73rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1.25;
+    }
+
+    .lab-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .lab-tab-btn.active {
+      background: rgba(74, 222, 128, 0.16);
+      border-color: rgba(74, 222, 128, 0.6);
+      color: #4ade80;
+      box-shadow: 0 0 12px rgba(74, 222, 128, 0.2);
+    }
+
+    .lab-tab-btn.video-tab {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .lab-tab-btn.video-tab.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(56, 189, 248, 0.75);
+      color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+    }
+
+    .lab-tab-num {
+      font-size: 0.625rem;
+      opacity: 0.65;
+      text-transform: uppercase;
+    }
+
+    .lab-tab-name {
+      font-weight: 600;
+    }
+
+    .concept-meta-banner {
+      margin-bottom: 0.75rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 0.5rem;
+      background: rgba(0, 0, 0, 0.45);
+      border-left: 3px solid #38bdf8;
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .concept-meta-banner b {
+      color: #fafafa;
+    }
+
+    .lab-presets-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.73rem;
+      font-family: var(--font-mono);
+    }
+
+    .preset-label {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .preset-chip {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.2s ease;
+    }
+
+    .preset-chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-color: #38bdf8;
+    }
+
+    .preset-chip.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .lab-tuning-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .tuning-group {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .tuning-group label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tuning-group input[type="range"] {
+      accent-color: #38bdf8;
+      width: 5.5rem;
+      cursor: pointer;
+    }
+
+    .tuning-group select {
+      background: #191510;
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+    .tuning-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tuning-toggle input {
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+
+    /* Radar Scanline Beam */
+    .radar-scanline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent 0%, rgba(74, 222, 128, 0.45) 50%, transparent 100%);
+      box-shadow: 0 0 14px rgba(74, 222, 128, 0.7);
+      top: 0;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .radar-scanline.scanning {
+      animation: sweep-beam 7s infinite ease-in-out;
+    }
+
+    @keyframes sweep-beam {
+      0%   { top: 8%; opacity: 0; }
+      15%  { opacity: 0.85; }
+      85%  { opacity: 0.85; }
+      100% { top: 92%; opacity: 0; }
+    }
+
+    /* Dark Mode Canvas Override */
+    body.dark-canvas-mode {
+      background-color: #0b0907 !important;
+      color: #fafafa !important;
+    }
+
+    body.dark-canvas-mode .hero-headline {
+      color: #fafafa !important;
+    }
+
+    body.dark-canvas-mode .hero-subline {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+
+    body.dark-canvas-mode .hero-input-card {
+      background: rgba(24, 20, 16, 0.9) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.dark-canvas-mode .input-shell {
+      background: rgba(14, 11, 8, 0.85) !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    body.dark-canvas-mode .scan-text-input {
+      color: #ffffff !important;
+    }
+
+    body.dark-canvas-mode .nav-bar {
+      background-color: rgba(11, 9, 7, 0.85) !important;
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    body.dark-canvas-mode .brand-name {
+      color: #ffffff !important;
+    }
+
+    body.dark-canvas-mode .nav-item {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Laboratory Control Dock -->
+  <aside class="lab-floating-dock" aria-label="Hero Background Lab Controls">
+    <div class="lab-dock-header">
+      <div class="lab-dock-title">
+        <span style="color: #38bdf8;">▶ pint art.mp4</span>
+        <span>Hero Background Full-Bleed Lab</span>
+        <span class="lab-badge">Sandbox · Main Untouched</span>
+      </div>
+      <div style="font-size: 0.72rem; color: rgba(255,255,255,0.45); font-family: var(--font-mono);">
+        Stretched to End Borders · Soft Vignette Mask
+      </div>
+    </div>
+
+    <!-- Switcher Tabs -->
+    <div class="lab-switcher-grid" role="tablist">
+      <button type="button" class="lab-tab-btn video-tab active" data-target="video-rot90" role="tab" aria-selected="true">
+        <span class="lab-tab-num">Video 01</span>
+        <span class="lab-tab-name">Pint Art (Rot 90°)</span>
+      </button>
+      <button type="button" class="lab-tab-btn video-tab" data-target="video-rot270" role="tab" aria-selected="false">
+        <span class="lab-tab-num">Video 02</span>
+        <span class="lab-tab-name">Pint Art (Rot 270°)</span>
+      </button>
+      <button type="button" class="lab-tab-btn" data-target="concept-a" role="tab" aria-selected="false">
+        <span class="lab-tab-num">Concept A</span>
+        <span class="lab-tab-name">Intercepted Core</span>
+      </button>
+      <button type="button" class="lab-tab-btn" data-target="concept-b" role="tab" aria-selected="false">
+        <span class="lab-tab-num">Concept B</span>
+        <span class="lab-tab-name">Da Vinci Dissection</span>
+      </button>
+      <button type="button" class="lab-tab-btn" data-target="concept-c" role="tab" aria-selected="false">
+        <span class="lab-tab-num">Concept C</span>
+        <span class="lab-tab-name">Aegis Citadel</span>
+      </button>
+      <button type="button" class="lab-tab-btn" data-target="baseline" role="tab" aria-selected="false">
+        <span class="lab-tab-num">Baseline</span>
+        <span class="lab-tab-name">Current bg.svg</span>
+      </button>
+    </div>
+
+    <!-- Concept Description Banner -->
+    <div id="lab-desc-banner" class="concept-meta-banner">
+      <b>Pint Art Rotated 90° (Full-Bleed Landscape):</b> Stretched seamlessly across the entire browser viewport from edge to edge. Border vignette softly dissolves all edges into cream parchment. Calibrated to an ethereal 32% opacity with gentle 0.70x fluid flow.
+    </div>
+
+    <!-- Quick Touchings / Mood Presets -->
+    <div class="lab-presets-row">
+      <span class="preset-label">Touchings Presets:</span>
+      <button type="button" class="preset-chip active" data-preset="subtle-watermark">Subtle Watermark (32%)</button>
+      <button type="button" class="preset-chip" data-preset="medium-stipple">Medium Stipple (48%)</button>
+      <button type="button" class="preset-chip" data-preset="ghost-stream">Ghost Stream (20%)</button>
+      <button type="button" class="preset-chip" data-preset="cyber-dark">Cyber Nocturne (Dark)</button>
+    </div>
+
+    <!-- Fine Tuning Row -->
+    <div class="lab-tuning-row">
+      <div class="tuning-group">
+        <label for="slider-opacity">Opacity: <span id="val-opacity" style="color: #38bdf8;">32%</span></label>
+        <input type="range" id="slider-opacity" min="10" max="90" value="32" step="2">
+      </div>
+
+      <div class="tuning-group">
+        <label for="select-treatment">Ink Style:</label>
+        <select id="select-treatment">
+          <option value="charcoal-multiply" selected>Charcoal Ink on Cream (Invert + Multiply)</option>
+          <option value="luminous-screen">Luminous White Dots (Screen)</option>
+          <option value="direct-normal">Direct Normal</option>
+        </select>
+      </div>
+
+      <div class="tuning-group" id="speed-group">
+        <label for="select-speed">Speed:</label>
+        <select id="select-speed">
+          <option value="0.5">0.5x (Atmospheric)</option>
+          <option value="0.7" selected>0.7x (Fluid)</option>
+          <option value="1.0">1.0x (Normal)</option>
+        </select>
+      </div>
+
+      <label class="tuning-toggle">
+        <input type="checkbox" id="toggle-ambient-glow" checked>
+        <span>Atmospheric Glow</span>
+      </label>
+
+      <label class="tuning-toggle">
+        <input type="checkbox" id="toggle-dark-mode">
+        <span>Dark Canvas</span>
+      </label>
+
+      <label class="tuning-toggle">
+        <input type="checkbox" id="toggle-parallax" checked>
+        <span>Parallax</span>
+      </label>
+    </div>
+  </aside>
+
+  <!-- Navigation Bar (Identical to production) -->
+  <header class="nav-bar">
+    <div class="page-container nav-container">
+      <a href="/" class="nav-brand" id="nav-brand-logo">
+        <span class="brand-logo-mark">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/>
+          </svg>
+        </span>
+        <span class="brand-name">NULLIFY</span>
+      </a>
+
+      <nav class="nav-links" id="nav-menu-links">
+        <a href="#canvas" class="nav-item">Platform</a>
+        <a href="#intelligence" class="nav-item">Intelligence</a>
+        <a href="#pipeline" class="nav-item">Pipeline</a>
+        <a href="#manifesto" class="nav-item">Manifesto</a>
+      </nav>
+
+      <div class="nav-actions">
+        <span id="health" class="engine-status-pill on" title="Orchestration status">
+          <span class="status-dot"></span>
+          <span id="health-text">Online</span>
+        </span>
+        <a href="/" class="btn-nav-action">Exit Lab</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="hero" class="hero-wrapper">
+    <!-- Ambient Cursor Glow Touch -->
+    <div id="ambient-glow" class="ambient-cursor-glow"></div>
+
+    <!-- Full-Bleed Artwork Layer (Spans 100% width) -->
+    <div class="hero-art-layer" id="art-layer" aria-hidden="true">
+      <div class="hero-art-inner" id="art-inner">
+        <!-- Rotated Pint Art Video -->
+        <video
+          id="lab-hero-video"
+          class="hero-bg-art custom-preview"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="auto"
+          src="/static/assets/previews/pint_art_rot90.mp4"
+          style="opacity: 0.32; filter: invert(1); mix-blend-mode: multiply;"
+        ></video>
+
+        <!-- Static Concept Fallback Previews -->
+        <img
+          id="lab-hero-img"
+          src="/static/assets/previews/concept_a_core.jpg"
+          alt=""
+          class="hero-bg-art custom-preview"
+          style="display: none; opacity: 0.35; mix-blend-mode: multiply;"
+        >
+
+        <!-- Subtle static dot matrix harmonization -->
+        <div class="hero-dot-grid" style="opacity: 0.22;"></div>
+
+        <!-- Radar scanline -->
+        <div id="radar-beam" class="radar-scanline scanning"></div>
+      </div>
+
+      <!-- Edge-Dissolving Vignette (Fades all 4 borders into parchment) -->
+      <div class="hero-vignette-overlay"></div>
+    </div>
+
+    <!-- Corner Engraving Flourishes -->
+    <div class="hero-flourishes" aria-hidden="true">
+      <div class="flourishes-container">
+        <img src="/static/assets/top-left.svg" alt="" class="flourish flourish-tl">
+        <img src="/static/assets/top-right.svg" alt="" class="flourish flourish-tr">
+        <img src="/static/assets/bottom-left.svg" alt="" class="flourish flourish-bl">
+        <img src="/static/assets/bottom-right.svg" alt="" class="flourish flourish-br">
+
+        <span class="crosshair bottom-left"></span>
+        <span class="crosshair bottom-right"></span>
+      </div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="page-container hero-content">
+      <h1 class="hero-headline">
+        Lightning-fast threat intelligence<br>for binaries & logs.
+      </h1>
+
+      <p class="hero-subline">
+        Modern threat actors and exploits are getting stronger. But running automated triage, reverse-engineering malware, and evaluating zero-days across different architectures remains painful. Nullify is the real-time agentic runtime and inspection engine for modern threat defense.
+      </p>
+
+      <!-- Target Input Canvas Form -->
+      <div class="hero-input-card">
+        <form class="scan-form" onsubmit="event.preventDefault();">
+          <div class="input-shell">
+            <span class="input-prompt-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/>
+              </svg>
+            </span>
+            <input
+              type="text"
+              class="scan-text-input"
+              value="/opt/bin/sample.elf"
+              readonly
+            >
+            <div class="input-trailing-actions">
+              <button type="button" class="btn-execute-scan">
+                <span>Quick Scan</span>
+                <span class="btn-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Synthetic Demo Selector Pills -->
+        <div class="demo-pills-row">
+          <span class="demo-label">Synthetic Demos:</span>
+          <button type="button" class="demo-pill active">
+            <span class="pill-dot benign"></span>
+            <span>ELF 64-bit (Benign)</span>
+          </button>
+          <button type="button" class="demo-pill">
+            <span class="pill-dot malicious"></span>
+            <span>PE32 Trojan (Deep)</span>
+          </button>
+          <button type="button" class="demo-pill">
+            <span class="pill-dot suspicious"></span>
+            <span>Sysmon Log Correlation</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Testing Script -->
+  <script>
+    (function () {
+      const heroVideo = document.getElementById("lab-hero-video");
+      const heroImg = document.getElementById("lab-hero-img");
+      const descBanner = document.getElementById("lab-desc-banner");
+      const tabBtns = document.querySelectorAll(".lab-tab-btn");
+      const presetChips = document.querySelectorAll(".preset-chip");
+      const sliderOpacity = document.getElementById("slider-opacity");
+      const valOpacity = document.getElementById("val-opacity");
+      const selectTreatment = document.getElementById("select-treatment");
+      const selectSpeed = document.getElementById("select-speed");
+      const speedGroup = document.getElementById("speed-group");
+      const toggleDarkMode = document.getElementById("toggle-dark-mode");
+      const toggleParallax = document.getElementById("toggle-parallax");
+      const toggleAmbientGlow = document.getElementById("toggle-ambient-glow");
+      const ambientGlow = document.getElementById("ambient-glow");
+
+      const items = {
+        "video-rot90": {
+          type: "video",
+          src: "/static/assets/previews/pint_art_rot90.mp4",
+          desc: "<b>Pint Art Rotated 90° (Full-Bleed Landscape):</b> Stretched seamlessly across the entire browser viewport from edge to edge. Border vignette softly dissolves all edges into cream parchment. Calibrated to an ethereal 32% opacity with gentle 0.70x fluid flow.",
+        },
+        "video-rot270": {
+          type: "video",
+          src: "/static/assets/previews/pint_art_rot270.mp4",
+          desc: "<b>Pint Art Rotated 270° Counter-Clockwise (16:9 Landscape):</b> Alternative rotation angle where the particle mesh descends in a deep canyon basin. Smooth and hypnotic.",
+        },
+        "concept-a": {
+          type: "image",
+          src: "/static/assets/previews/concept_a_core.jpg",
+          desc: "<b>Concept A (The Intercepted Core):</b> Evolves the <i>Creation of Adam</i> robot hands by adding a suspended, quarantined geometric core with the <b>Ø</b> Null glyph in the center.",
+        },
+        "concept-b": {
+          type: "image",
+          src: "/static/assets/previews/concept_b_davinci.jpg",
+          desc: "<b>Concept B (Da Vinci Binary Dissection):</b> <i>'Il Nucleo del Calcolo Binario'</i>. Exploded anatomical dissection of an ELF/PE binary core in Renaissance Codex manuscript style.",
+        },
+        "concept-c": {
+          type: "image",
+          src: "/static/assets/previews/concept_c_aegis.jpg",
+          desc: "<b>Concept C (The Aegis Citadel):</b> <i>'Sovereign Cybernetic Fortress & Unbreachable Sentinel'</i>. Monolithic fortress with obsidian falcon heraldry, defensive bastions, and elevation contours.",
+        },
+        "baseline": {
+          type: "image",
+          src: "/static/assets/bg.svg",
+          desc: "<b>Baseline (Current Production Asset):</b> The current 8.7MB vector halftone recreation of Michelangelo's <i>Creation of Adam</i> robot hands from RAVN.",
+        },
+      };
+
+      let activeKey = "video-rot90";
+
+      // Initial video settings
+      if (heroVideo) {
+        heroVideo.playbackRate = 0.7;
+      }
+
+      function applyStyleTreatment() {
+        const treat = selectTreatment.value;
+        const currentEl = items[activeKey].type === "video" ? heroVideo : heroImg;
+
+        if (treat === "charcoal-multiply") {
+          currentEl.style.filter = "invert(1)";
+          currentEl.style.mixBlendMode = "multiply";
+        } else if (treat === "luminous-screen") {
+          currentEl.style.filter = "none";
+          currentEl.style.mixBlendMode = "screen";
+        } else {
+          currentEl.style.filter = "none";
+          currentEl.style.mixBlendMode = "normal";
+        }
+      }
+
+      function updateOpacity(val) {
+        sliderOpacity.value = val;
+        valOpacity.textContent = val + "%";
+        const targetEl = items[activeKey].type === "video" ? heroVideo : heroImg;
+        targetEl.style.opacity = (val / 100).toString();
+      }
+
+      // Switcher
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach((b) => {
+            b.classList.remove("active");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("active");
+          btn.setAttribute("aria-selected", "true");
+
+          activeKey = btn.getAttribute("data-target");
+          const item = items[activeKey];
+          if (!item) return;
+
+          descBanner.innerHTML = item.desc;
+
+          if (item.type === "video") {
+            heroImg.style.display = "none";
+            heroVideo.style.display = "block";
+            heroVideo.src = item.src;
+            heroVideo.play().catch(() => {});
+            heroVideo.playbackRate = parseFloat(selectSpeed.value) || 0.7;
+            speedGroup.style.display = "flex";
+          } else {
+            heroVideo.style.display = "none";
+            heroVideo.pause();
+            heroImg.style.display = "block";
+            heroImg.src = item.src;
+            speedGroup.style.display = "none";
+          }
+
+          applyStyleTreatment();
+        });
+      });
+
+      // Quick Mood Presets
+      presetChips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          presetChips.forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
+
+          const preset = chip.getAttribute("data-preset");
+          if (preset === "subtle-watermark") {
+            document.body.classList.remove("dark-canvas-mode");
+            toggleDarkMode.checked = false;
+            selectTreatment.value = "charcoal-multiply";
+            selectSpeed.value = "0.7";
+            if (heroVideo) heroVideo.playbackRate = 0.7;
+            updateOpacity(32);
+          } else if (preset === "medium-stipple") {
+            document.body.classList.remove("dark-canvas-mode");
+            toggleDarkMode.checked = false;
+            selectTreatment.value = "charcoal-multiply";
+            selectSpeed.value = "0.7";
+            if (heroVideo) heroVideo.playbackRate = 0.7;
+            updateOpacity(48);
+          } else if (preset === "ghost-stream") {
+            document.body.classList.remove("dark-canvas-mode");
+            toggleDarkMode.checked = false;
+            selectTreatment.value = "charcoal-multiply";
+            selectSpeed.value = "0.5";
+            if (heroVideo) heroVideo.playbackRate = 0.5;
+            updateOpacity(20);
+          } else if (preset === "cyber-dark") {
+            document.body.classList.add("dark-canvas-mode");
+            toggleDarkMode.checked = true;
+            selectTreatment.value = "luminous-screen";
+            selectSpeed.value = "0.7";
+            if (heroVideo) heroVideo.playbackRate = 0.7;
+            updateOpacity(42);
+          }
+          applyStyleTreatment();
+        });
+      });
+
+      // Opacity Slider
+      sliderOpacity.addEventListener("input", (e) => {
+        updateOpacity(e.target.value);
+        presetChips.forEach((c) => c.classList.remove("active"));
+      });
+
+      // Style treatment
+      selectTreatment.addEventListener("change", applyStyleTreatment);
+
+      // Playback speed
+      selectSpeed.addEventListener("change", (e) => {
+        if (heroVideo) {
+          heroVideo.playbackRate = parseFloat(e.target.value) || 0.7;
+        }
+      });
+
+      // Dark canvas toggle
+      toggleDarkMode.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          document.body.classList.add("dark-canvas-mode");
+          selectTreatment.value = "luminous-screen";
+          updateOpacity(42);
+        } else {
+          document.body.classList.remove("dark-canvas-mode");
+          selectTreatment.value = "charcoal-multiply";
+          updateOpacity(32);
+        }
+        applyStyleTreatment();
+      });
+
+      // Parallax & Ambient Glow tracking
+      let parallaxEnabled = true;
+      toggleParallax.addEventListener("change", (e) => {
+        parallaxEnabled = e.target.checked;
+        if (!parallaxEnabled) {
+          heroVideo.style.transform = "scale(1.08)";
+          heroImg.style.transform = "scale(1.08)";
+        }
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        // Ambient cursor glow position
+        if (toggleAmbientGlow.checked) {
+          ambientGlow.style.opacity = "1";
+          ambientGlow.style.left = e.clientX + "px";
+          ambientGlow.style.top = (e.clientY + window.scrollY) + "px";
+        } else {
+          ambientGlow.style.opacity = "0";
+        }
+
+        if (!parallaxEnabled) return;
+        const xPercent = (e.clientX / window.innerWidth - 0.5) * 2;
+        const yPercent = (e.clientY / window.innerHeight - 0.5) * 2;
+
+        const xOffset = xPercent * 14;
+        const yOffset = yPercent * 10;
+
+        const activeEl = items[activeKey].type === "video" ? heroVideo : heroImg;
+        activeEl.style.transform = `translate(${xOffset}px, ${yOffset}px) scale(1.08)`;
+      });
+
+      window.addEventListener("mouseleave", () => {
+        ambientGlow.style.opacity = "0";
+      });
+
+      // Initialize
+      applyStyleTreatment();
+    })();
+  </script>
+</body>
+</html>

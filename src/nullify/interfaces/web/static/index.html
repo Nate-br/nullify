@@ -46,13 +46,26 @@
   </div>
 </header>
 
-<!-- Hero Section (Directly mirroring useravn.com) -->
+<!-- Hero Section (Featuring Full-Bleed 3D Particle Topography) -->
 <section id="hero" class="hero-wrapper">
-  <!-- Halftone Robots Art (Michelangelo Creation of Adam) -->
+  <!-- Atmospheric Cursor Illumination -->
+  <div id="ambient-cursor-glow" class="ambient-cursor-glow"></div>
+
+  <!-- Full-Bleed 3D Particle Wave Background (pint art rot 270°) -->
   <div class="hero-art-layer" aria-hidden="true">
     <div class="hero-art-inner">
-      <img src="/static/assets/bg.svg" alt="" class="hero-bg-art">
+      <video
+        id="hero-bg-video"
+        class="hero-bg-video"
+        autoplay
+        loop
+        muted
+        playsinline
+        preload="auto"
+        src="/static/assets/hero-bg-270.mp4"
+      ></video>
       <div class="hero-dot-grid"></div>
+      <div class="hero-vignette-overlay"></div>
     </div>
   </div>
 
