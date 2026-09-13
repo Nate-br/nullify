@@ -114,3 +114,56 @@ def test_models_file_target_uses_fast_entropy(tmp_path: Path):
     p.write_bytes(b"A" * 5000)
     target = FileTarget(p)
     assert target.entropy() == 0.0
+
+
+def test_c_fast_hashes_parity(tmp_path: Path):
+    sample = b"Nullify Native C Cryptographic Hashing Test Payload 12345"
+    p = tmp_path / "hash_test.bin"
+    p.write_bytes(sample)
+
+    import hashlib
+    py_md5 = hashlib.md5(sample).hexdigest()
+    py_sha1 = hashlib.sha1(sample).hexdigest()
+    py_sha256 = hashlib.sha256(sample).hexdigest()
+
+    c_hashes = c_engine.fast_hashes_file(p)
+    assert c_hashes["md5"] == py_md5
+    assert c_hashes["sha1"] == py_sha1
+    assert c_hashes["sha256"] == py_sha256
+
+
+def test_c_byte_histogram_parity():
+    import numpy as np
+    data = bytes(range(256)) * 4 + b"\x00\x00\x00\xff"
+    py_hist = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256).tolist()
+    c_hist = c_engine.fast_byte_histogram(data)
+    assert py_hist == c_hist
+
+
+def test_c_pe_imports_and_hints():
+    sample = b"MZ" + b"\x00" * 62 + b"CreateRemoteThread\x00WinExec\x00URLDownloadToFile\x00"
+    res = c_engine.fast_parse_pe_imports(sample)
+    assert res is not None
+    assert res["type_votes"]["trojan"] == 3
+    apis = [api for api, _ in res["matched_apis"]]
+    assert "CreateRemoteThread" in apis
+    assert "WinExec" in apis
+    assert "URLDownloadToFile" in apis
+
+
+def test_c_pattern_scanner():
+    sample = (
+        b"MZ\x00\x00"
+        b"Software\\Microsoft\\Windows\\CurrentVersion\\Run\x00"
+        b"powershell.exe -enc aW52b2tl\x00"
+        b"readme for decrypt send btc\x00"
+        b"C:\\Windows\\Temp\\payload.exe\x00"
+    )
+    res = c_engine.fast_scan_patterns(sample)
+    assert res is not None
+    titles = [t for t, _, _ in res["matches"]]
+    assert "Registry Run-key persistence" in titles
+    assert "PowerShell download cradle" in titles
+    assert "Executable drop path" in titles
+    assert "Ransom note string" in titles
+

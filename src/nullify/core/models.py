@@ -91,17 +91,9 @@ class FileTarget:
         return self.path.stat().st_size
 
     def hashes(self) -> dict[str, str]:
-        """Streaming md5/sha1/sha256 — no full-file reads into memory."""
-        md5, sha1, sha256 = hashlib.md5(), hashlib.sha1(), hashlib.sha256()
-        with self.path.open("rb") as fh:
-            for chunk in iter(lambda: fh.read(1024 * 1024), b""):
-                for h in (md5, sha1, sha256):
-                    h.update(chunk)
-        return {
-            "md5": md5.hexdigest(),
-            "sha1": sha1.hexdigest(),
-            "sha256": sha256.hexdigest(),
-        }
+        """Streaming md5/sha1/sha256 — native C streaming with Python fallback."""
+        from nullify.core.c_engine import fast_hashes_file
+        return fast_hashes_file(self.path)
 
     def entropy(self, sample_size: int = 1_048_576) -> float | None:
         """Shannon entropy over up to ``sample_size`` bytes; None if unreadable."""

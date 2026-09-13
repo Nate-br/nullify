@@ -148,6 +148,12 @@ class StaticAnalysisAgent(BaseAgent):
             except Exception as e:  # noqa: BLE001 — any parse failure falls back
                 log.debug("pefile parse failed (%s); using raw-string heuristics", e)
 
+            if pe_imports is None:
+                from nullify.core.c_engine import fast_parse_pe_imports, is_c_accelerated
+                c_imp = fast_parse_pe_imports(blob) if is_c_accelerated() else None
+                if c_imp and c_imp.get("matched_apis"):
+                    pe_imports = set(api for api, _ in c_imp["matched_apis"])
+
             for mal_type, apis in IMPORT_HINTS.items():
                 if pe_imports is not None:
                     hits = [api for api in apis if api in pe_imports]
@@ -206,19 +212,30 @@ class StaticAnalysisAgent(BaseAgent):
                 log.debug("capa unavailable/failed (%s); using string patterns", e)
 
         if not capa_success:
-            # Fallback to suspicious patterns
-            try:
-                text = blob.decode("utf-8", errors="ignore")
-            except Exception:  # noqa: BLE001 — decode is best-effort
-                text = ""
-            for title, pattern, severity in SUSPICIOUS_PATTERNS:
-                match = pattern.search(text)
-                if match:
+            # Native C multi-pattern scanner with pure Python regex fallback
+            from nullify.core.c_engine import fast_scan_patterns, is_c_accelerated
+            c_pats = fast_scan_patterns(blob) if is_c_accelerated() else None
+            if c_pats and c_pats.get("matches"):
+                for title, snippet, sev_str in c_pats["matches"]:
+                    sev = getattr(Severity, sev_str, Severity.MEDIUM)
                     findings.append(Finding(
                         agent=self.name, title=title,
-                        detail=f"matched: …{match.group(0)[:80]}…",
-                        severity=severity,
+                        detail=f"matched: …{snippet}…",
+                        severity=sev,
                     ))
+            else:
+                try:
+                    text = blob.decode("utf-8", errors="ignore")
+                except Exception:  # noqa: BLE001 — decode is best-effort
+                    text = ""
+                for title, pattern, severity in SUSPICIOUS_PATTERNS:
+                    match = pattern.search(text)
+                    if match:
+                        findings.append(Finding(
+                            agent=self.name, title=title,
+                            detail=f"matched: …{match.group(0)[:80]}…",
+                            severity=severity,
+                        ))
 
         data["engine"] = (
             "pefile-capa" if capa_success and pe_imports is not None

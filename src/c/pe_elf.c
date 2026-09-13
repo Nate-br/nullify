@@ -166,6 +166,7 @@ int nullify_triage_buffer(const uint8_t *data, size_t len, nullify_triage_result
 
     /* Hashes */
     nullify_md5(data, len, res->md5);
+    nullify_sha1(data, len, res->sha1);
     nullify_sha256(data, len, res->sha256);
 
     /* Shannon Entropy */

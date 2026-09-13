@@ -40,6 +40,7 @@ typedef struct {
     int32_t num_sections;
     char entry_section[32];
     char md5[33];
+    char sha1[41];
     char sha256[65];
 } nullify_triage_result_t;
 
@@ -53,6 +54,30 @@ typedef struct {
     uint32_t num_registry;      /* Matches for HKEY_ */
     uint32_t num_mz;            /* Matches for MZ */
 } nullify_string_stats_t;
+
+typedef struct {
+    uint32_t total_imports;
+    uint32_t total_libraries;
+    char libraries[32][64];
+    uint32_t trojan_hits;
+    uint32_t spyware_hits;
+    uint32_t ransomware_hits;
+    uint32_t worm_hits;
+    uint32_t rootkit_hits;
+    char matched_apis[64][64];
+    char matched_families[64][16];
+    uint32_t matched_count;
+} nullify_pe_imports_result_t;
+
+typedef struct {
+    uint32_t has_registry_run;
+    uint32_t has_scheduled_task;
+    uint32_t has_powershell_cradle;
+    uint32_t has_hardcoded_ip;
+    uint32_t has_drop_path;
+    uint32_t has_ransom_note;
+    char match_snippets[6][128];
+} nullify_pattern_matches_t;
 
 /* --- Core Functions --- */
 
@@ -70,6 +95,12 @@ NULLIFY_API int nullify_triage_buffer(const uint8_t *data, size_t len, nullify_t
  * Triage file path directly using streaming buffer/mmap.
  */
 NULLIFY_API int nullify_triage_file(const char *path, nullify_triage_result_t *res);
+
+/**
+ * Compute all 3 hashes (MD5, SHA1, SHA256) over buffer or file.
+ */
+NULLIFY_API void nullify_hashes_buffer(const uint8_t *data, size_t len, char md5[33], char sha1[41], char sha256[65]);
+NULLIFY_API int nullify_hashes_file(const char *path, char md5[33], char sha1[41], char sha256[65]);
 
 /**
  * Compute 256-bin byte frequency histogram over raw buffer.
@@ -95,6 +126,24 @@ NULLIFY_API void nullify_extract_strings(
     const uint8_t *data,
     size_t len,
     nullify_string_stats_t *out_stats
+);
+
+/**
+ * Fast native PE import table parsing and malicious capability classification.
+ */
+NULLIFY_API int nullify_parse_pe_imports(
+    const uint8_t *data,
+    size_t len,
+    nullify_pe_imports_result_t *out_imports
+);
+
+/**
+ * Fast native multi-pattern scanner for suspicious strings, registry keys, and drop paths.
+ */
+NULLIFY_API int nullify_scan_suspicious_patterns(
+    const uint8_t *data,
+    size_t len,
+    nullify_pattern_matches_t *out_matches
 );
 
 #ifdef __cplusplus

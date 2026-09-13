@@ -33,14 +33,22 @@ from nullify.core.c_engine import (
     is_c_accelerated,
     fast_entropy,
     fast_byte_entropy_histogram,
+    fast_byte_histogram,
     fast_extract_strings,
+    fast_hashes_file,
+    fast_parse_pe_imports,
+    fast_scan_patterns,
     fast_triage_file,
 )
 ```
 
 - `fast_entropy(bytes) -> float`: Native Shannon entropy computation.
 - `fast_byte_entropy_histogram(bytes, step, window) -> list[int]`: 256-element 2D matrix.
+- `fast_byte_histogram(bytes) -> list[int]`: 256-bin raw byte frequency distribution.
 - `fast_extract_strings(bytes) -> dict`: Single-pass ASCII string statistics.
+- `fast_hashes_file(path) -> dict`: Single-pass concurrent MD5, SHA-1, and SHA-256 calculation.
+- `fast_parse_pe_imports(bytes) -> dict`: Direct PE header/import table traversal and 25+ malicious API classification.
+- `fast_scan_patterns(bytes) -> dict`: Multi-pattern scanner (Registry persistence, PowerShell cradles, IPv4, drop paths).
 - `fast_triage_file(path) -> dict`: Full triage metadata extraction.
 
 ---

@@ -8,7 +8,7 @@ INCLUDE_DIR = src/c/include
 LIB_DIR = lib
 BIN_DIR = bin
 
-LIB_SRCS = $(SRC_DIR)/entropy.c $(SRC_DIR)/ember_fast.c $(SRC_DIR)/hash.c $(SRC_DIR)/pe_elf.c
+LIB_SRCS = $(SRC_DIR)/entropy.c $(SRC_DIR)/ember_fast.c $(SRC_DIR)/hash.c $(SRC_DIR)/pe_elf.c $(SRC_DIR)/pe_imports.c $(SRC_DIR)/patterns.c
 LIB_OBJS = $(LIB_SRCS:.c=.o)
 TARGET_LIB = $(LIB_DIR)/libnullify.so
 

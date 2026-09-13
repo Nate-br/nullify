@@ -246,8 +246,8 @@ class ByteHistogram(FeatureType):
     dim = 256
 
     def raw_features(self, bytez, lief_binary):
-        counts = np.bincount(np.frombuffer(bytez, dtype=np.uint8), minlength=256)
-        return counts.tolist()
+        from nullify.core.c_engine import fast_byte_histogram
+        return fast_byte_histogram(bytez)
 
     def process_raw_features(self, raw_obj):
         counts = np.array(raw_obj, dtype=np.float32)

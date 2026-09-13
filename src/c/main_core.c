@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
         printf("  \"num_sections\": %d,\n", triage.num_sections);
         printf("  \"entry_section\": \"%s\",\n", triage.entry_section);
         printf("  \"md5\": \"%s\",\n", triage.md5);
+        printf("  \"sha1\": \"%s\",\n", triage.sha1);
         printf("  \"sha256\": \"%s\",\n", triage.sha256);
         printf("  \"triage_latency_ms\": %.3f\n", elapsed_ms);
         printf("}\n");
@@ -80,6 +81,7 @@ int main(int argc, char *argv[]) {
         printf("\033[1;34m[+] Architecture:\033[0m %s\n", triage.architecture);
         printf("\033[1;34m[+] Sections:\033[0m     %d (Entry: '%s')\n", triage.num_sections, triage.entry_section);
         printf("\033[1;34m[+] MD5:\033[0m          %s\n", triage.md5);
+        printf("\033[1;34m[+] SHA-1:\033[0m        %s\n", triage.sha1);
         printf("\033[1;34m[+] SHA-256:\033[0m      %s\n", triage.sha256);
 
         if (triage.entropy >= 7.2) {

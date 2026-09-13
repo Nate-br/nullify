@@ -352,3 +352,169 @@ void nullify_md5(const uint8_t *data, size_t len, char out_hex[33]) {
     }
     out_hex[32] = '\0';
 }
+
+/* ========================================================================= */
+/*                          Pure C SHA-1                                     */
+/* ========================================================================= */
+
+typedef struct {
+    uint32_t state[5];
+    uint32_t count[2];
+    uint8_t buffer[64];
+} sha1_ctx_t;
+
+#define SHA1_ROL(val, bits) (((val) << (bits)) | ((val) >> (32 - (bits))))
+
+static void sha1_transform(uint32_t state[5], const uint8_t *buffer) {
+    uint32_t a = state[0], b = state[1], c = state[2], d = state[3], e = state[4];
+    uint32_t w[80];
+
+    for (int i = 0; i < 16; ++i) {
+        w[i] = ((uint32_t)buffer[i * 4] << 24) |
+               ((uint32_t)buffer[i * 4 + 1] << 16) |
+               ((uint32_t)buffer[i * 4 + 2] << 8) |
+               ((uint32_t)buffer[i * 4 + 3]);
+    }
+
+    for (int i = 16; i < 80; ++i) {
+        w[i] = SHA1_ROL(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+    }
+
+    for (int i = 0; i < 20; ++i) {
+        uint32_t temp = SHA1_ROL(a, 5) + ((b & c) | ((~b) & d)) + e + w[i] + 0x5A827999;
+        e = d; d = c; c = SHA1_ROL(b, 30); b = a; a = temp;
+    }
+    for (int i = 20; i < 40; ++i) {
+        uint32_t temp = SHA1_ROL(a, 5) + (b ^ c ^ d) + e + w[i] + 0x6ED9EBA1;
+        e = d; d = c; c = SHA1_ROL(b, 30); b = a; a = temp;
+    }
+    for (int i = 40; i < 60; ++i) {
+        uint32_t temp = SHA1_ROL(a, 5) + ((b & c) | (b & d) | (c & d)) + e + w[i] + 0x8F1BBCDC;
+        e = d; d = c; c = SHA1_ROL(b, 30); b = a; a = temp;
+    }
+    for (int i = 60; i < 80; ++i) {
+        uint32_t temp = SHA1_ROL(a, 5) + (b ^ c ^ d) + e + w[i] + 0xCA62C1D6;
+        e = d; d = c; c = SHA1_ROL(b, 30); b = a; a = temp;
+    }
+
+    state[0] += a;
+    state[1] += b;
+    state[2] += c;
+    state[3] += d;
+    state[4] += e;
+}
+
+static void sha1_init(sha1_ctx_t *ctx) {
+    ctx->state[0] = 0x67452301;
+    ctx->state[1] = 0xEFCDAB89;
+    ctx->state[2] = 0x98BADCFE;
+    ctx->state[3] = 0x10325476;
+    ctx->state[4] = 0xC3D2E1F0;
+    ctx->count[0] = ctx->count[1] = 0;
+}
+
+static void sha1_update(sha1_ctx_t *ctx, const uint8_t *data, size_t len) {
+    size_t i, j;
+    j = (ctx->count[0] >> 3) & 63;
+    if ((ctx->count[0] += (uint32_t)(len << 3)) < (uint32_t)(len << 3)) {
+        ctx->count[1]++;
+    }
+    ctx->count[1] += (uint32_t)(len >> 29);
+
+    if ((j + len) > 63) {
+        memcpy(&ctx->buffer[j], data, (i = 64 - j));
+        sha1_transform(ctx->state, ctx->buffer);
+        for (; i + 63 < len; i += 64) {
+            sha1_transform(ctx->state, &data[i]);
+        }
+        j = 0;
+    } else {
+        i = 0;
+    }
+    memcpy(&ctx->buffer[j], &data[i], len - i);
+}
+
+static void sha1_final(uint8_t digest[20], sha1_ctx_t *ctx) {
+    uint8_t finalcount[8];
+    for (int i = 0; i < 4; ++i) {
+        finalcount[i]     = (uint8_t)((ctx->count[1] >> ((3 - i) * 8)) & 0xFF);
+        finalcount[i + 4] = (uint8_t)((ctx->count[0] >> ((3 - i) * 8)) & 0xFF);
+    }
+    uint8_t c = 0x80;
+    sha1_update(ctx, &c, 1);
+    while ((ctx->count[0] & 504) != 448) {
+        c = 0x00;
+        sha1_update(ctx, &c, 1);
+    }
+    sha1_update(ctx, finalcount, 8);
+    for (int i = 0; i < 20; ++i) {
+        digest[i] = (uint8_t)((ctx->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 0xFF);
+    }
+}
+
+void nullify_sha1(const uint8_t *data, size_t len, char out_hex[41]) {
+    sha1_ctx_t ctx;
+    uint8_t digest[20];
+    sha1_init(&ctx);
+    if (data && len > 0) {
+        sha1_update(&ctx, data, len);
+    }
+    sha1_final(digest, &ctx);
+
+    for (int i = 0; i < 20; ++i) {
+        snprintf(out_hex + (i * 2), 3, "%02x", digest[i]);
+    }
+    out_hex[40] = '\0';
+}
+
+void nullify_hashes_buffer(const uint8_t *data, size_t len, char md5[33], char sha1[41], char sha256[65]) {
+    if (md5) nullify_md5(data, len, md5);
+    if (sha1) nullify_sha1(data, len, sha1);
+    if (sha256) nullify_sha256(data, len, sha256);
+}
+
+int nullify_hashes_file(const char *path, char md5[33], char sha1[41], char sha256[65]) {
+    if (!path) return -1;
+    FILE *f = fopen(path, "rb");
+    if (!f) return -2;
+
+    md5_ctx_t ctx_md5;
+    sha1_ctx_t ctx_sha1;
+    sha256_ctx_t ctx_sha256;
+
+    if (md5) md5_init(&ctx_md5);
+    if (sha1) sha1_init(&ctx_sha1);
+    if (sha256) sha256_init(&ctx_sha256);
+
+    uint8_t buf[65536];
+    size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
+        if (md5) md5_update(&ctx_md5, buf, n);
+        if (sha1) sha1_update(&ctx_sha1, buf, n);
+        if (sha256) sha256_update(&ctx_sha256, buf, n);
+    }
+    fclose(f);
+
+    if (md5) {
+        uint8_t d[16];
+        md5_final(d, &ctx_md5);
+        for (int i = 0; i < 16; ++i) snprintf(md5 + (i * 2), 3, "%02x", d[i]);
+        md5[32] = '\0';
+    }
+    if (sha1) {
+        uint8_t d[20];
+        sha1_final(d, &ctx_sha1);
+        for (int i = 0; i < 20; ++i) snprintf(sha1 + (i * 2), 3, "%02x", d[i]);
+        sha1[40] = '\0';
+    }
+    if (sha256) {
+        uint8_t d[32];
+        sha256_final(&ctx_sha256, d);
+        for (int i = 0; i < 32; ++i) snprintf(sha256 + (i * 2), 3, "%02x", d[i]);
+        sha256[64] = '\0';
+    }
+
+    return 0;
+}
+
+

@@ -4,22 +4,6 @@
     "type": "split",
     "children": [
       {
-        "id": "0577ba1824bf5e88",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "b5622b30621780b0",
-            "type": "leaf",
-            "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
-            }
-          }
-        ]
-      },
-      {
         "id": "e1f0200212bc0391",
         "type": "tabs",
         "children": [
@@ -27,10 +11,14 @@
             "id": "27101651825320b9",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "00 - Master Index/Nullify Master Guide.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Nullify Master Guide"
             }
           }
         ]
@@ -111,6 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "00 - Master Index/Nullify Master Guide.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -129,6 +118,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "00 - Master Index/Nullify Master Guide.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -171,6 +161,7 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "00 - Master Index/Nullify Master Guide.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -197,8 +188,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "b5622b30621780b0",
+  "active": "27101651825320b9",
   "lastOpenFiles": [
+    "00 - Master Index/Dashboard.md",
+    "00 - Master Index/Nullify Master Guide.md",
     "07 - Verification & Runbook/Runbook & Commands.md",
     "07 - Verification & Runbook/Real-World Evaluation Record.md",
     "06 - Interfaces & Design/Interactive CLI & ASCII Art.md",
@@ -221,8 +214,6 @@
     "02 - Architecture & Agents/Multi-Agent Pipeline.md",
     "01 - Overview/Concept & Philosophy.md",
     "Welcome.md",
-    "00 - Master Index/Nullify Master Guide.md",
-    "00 - Master Index/Dashboard.md",
     "07 - Verification & Runbook",
     "06 - Interfaces & Design",
     "05 - Machine Learning",
