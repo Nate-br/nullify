@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-09-13T19:23:10Z",
+  "tests": [
+    {
+      "name": "Health Probe",
+      "status_code": 200,
+      "latency_ms": 3.59,
+      "response": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "Samples Catalog",
+      "samples_count": 4,
+      "samples": {
+        "trojan": "/tmp/nullify_synthetic_samples/synthetic_trojan_dropper.exe",
+        "ransomware": "/tmp/nullify_synthetic_samples/synthetic_ransomware.exe",
+        "benign": "/tmp/nullify_synthetic_samples/synthetic_benign_util.exe",
+        "sysmon": "/tmp/nullify_synthetic_samples/synthetic_sysmon.jsonl"
+      }
+    },
+    {
+      "name": "Real-World Linux ELF (/usr/bin/bash)",
+      "status_code": 200,
+      "latency_ms": 667.7,
+      "verdict": "benign",
+      "confidence": 0.9,
+      "duration_s": 0.665,
+      "findings": [
+        "Linux ELF executable",
+        "No static indicators found",
+        "Heuristic score 0.0"
+      ]
+    },
+    {
+      "name": "Trojan Dropper (synthetic_trojan_dropper.exe)",
+      "status_code": 200,
+      "latency_ms": 698.01,
+      "verdict": "malicious",
+      "malware_type": "trojan",
+      "confidence": 0.99,
+      "mitre_ids": [
+        "T1055",
+        "T1059",
+        "T1105",
+        "T1547.001"
+      ],
+      "duration_s": 0.694
+    },
+    {
+      "name": "Ransomware (synthetic_ransomware.exe)",
+      "status_code": 200,
+      "latency_ms": 681.01,
+      "verdict": "malicious",
+      "malware_type": "ransomware",
+      "confidence": 0.99,
+      "mitre_ids": [
+        "T1083",
+        "T1486"
+      ]
+    },
+    {
+      "name": "Sysmon Behavioral Log (synthetic_sysmon.jsonl)",
+      "status_code": 200,
+      "latency_ms": 128.07,
+      "verdict": "malicious",
+      "confidence": 0.99,
+      "mitre_ids": [
+        "T1003.001",
+        "T1053",
+        "T1059",
+        "T1547.001"
+      ]
+    },
+    {
+      "name": "YARA Rule Synthesis",
+      "status_code": 200,
+      "latency_ms": 2.67,
+      "rule_preview": "rule Gen_Trojan_Sample_1d20a3 {\n    meta:\n        description = \"Auto-generated from a Nullify scan (family: Trojan)\"\n        severity = \"HIGH\"\n        malware_type = \"trojan\"\n    strings:\n        $empty = \"nullify-no-evidence\" ascii wide\n    condition:\n        uint16(0) == 0x5a4d and ($s0)\n}\n"
+    },
+    {
+      "name": "Multipart Binary Upload & Scan",
+      "status_code": 200,
+      "verdict": "suspicious",
+      "confidence": 0.5
+    }
+  ]
+}
