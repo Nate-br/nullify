@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NULLIFY — Presentation to the Judges</title>
+  <title>EGATE &amp; NULLIFY — Presentation to the Judges</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-cream: #fbf8f3;
-      --bg-charcoal: #15120e;
-      --bg-dark-card: #201b15;
+      --bg-charcoal: #14110d;
+      --bg-dark-card: #1f1a14;
       --bg-white: #ffffff;
       --bg-card-subtle: #f5f1ea;
       
-      --text-dark: #15120e;
+      --text-dark: #14110d;
       --text-muted: #555048;
       --text-subtle: #827c73;
       
@@ -52,7 +52,7 @@
     }
 
     body {
-      background-color: #0d0b09;
+      background-color: #0b0907;
       color: var(--text-dark);
       font-family: var(--font-body);
       overflow: hidden;
@@ -71,7 +71,7 @@
       max-width: 1440px;
       max-height: 810px;
       background: var(--bg-cream);
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
       border-radius: 14px;
       overflow: hidden;
       display: flex;
@@ -84,7 +84,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      padding: 3.8rem 4.8rem 4.0rem;
+      padding: 3.5rem 4.5rem 3.8rem;
       display: none;
       flex-direction: column;
       opacity: 0;
@@ -109,9 +109,8 @@
       color: var(--text-dark);
     }
 
-    /* Clean, Large Typography */
     .slide-header {
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
     }
 
     .slide-kicker {
@@ -121,7 +120,7 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--accent-emerald-dark);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -133,7 +132,7 @@
 
     .slide-title {
       font-family: var(--font-display);
-      font-size: 3.2rem;
+      font-size: 3.1rem;
       font-weight: 400;
       line-height: 1.1;
       letter-spacing: -0.02em;
@@ -147,16 +146,15 @@
       color: var(--text-dark);
     }
 
-    /* Footer */
     .slide-footer {
       margin-top: auto;
-      padding-top: 1.2rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--border-light);
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-subtle);
     }
 
@@ -168,7 +166,7 @@
     .footer-motto {
       font-family: var(--font-display);
       font-style: italic;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
     }
 
@@ -176,18 +174,17 @@
       color: var(--text-light-muted);
     }
 
-    /* Grid Layouts with Generous Breathing Room */
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.8rem;
+      gap: 1.6rem;
       flex: 1;
     }
 
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
+      gap: 1.8rem;
       flex: 1;
     }
 
@@ -195,7 +192,7 @@
       background: var(--bg-white);
       border: 1px solid var(--border-light);
       border-radius: 12px;
-      padding: 1.8rem;
+      padding: 1.6rem;
       display: flex;
       flex-direction: column;
       position: relative;
@@ -223,10 +220,10 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       width: fit-content;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
-    .badge-dark    { background: #2a231b; color: var(--accent-emerald); border: 1px solid var(--border-dark); }
+    .badge-dark    { background: #262019; color: var(--accent-emerald); border: 1px solid var(--border-dark); }
     .badge-emerald { background: var(--accent-emerald-bg); color: var(--accent-emerald-dark); border: 1px solid #a7f3d0; }
     .badge-crimson { background: var(--accent-crimson-bg); color: var(--accent-crimson); border: 1px solid #fecaca; }
     .badge-amber   { background: var(--accent-amber-bg); color: var(--accent-amber); border: 1px solid #fde68a; }
@@ -234,18 +231,18 @@
 
     .stat-hero {
       font-family: var(--font-display);
-      font-size: 3.5rem;
+      font-size: 3.2rem;
       font-weight: 400;
       line-height: 1;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
 
     .card-title {
       font-family: var(--font-heading);
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 700;
       letter-spacing: -0.01em;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.5rem;
       color: var(--text-dark);
     }
 
@@ -254,8 +251,8 @@
     }
 
     .card-body {
-      font-size: 1.05rem;
-      line-height: 1.6;
+      font-size: 1.02rem;
+      line-height: 1.55;
       color: var(--text-muted);
     }
 
@@ -263,13 +260,12 @@
       color: var(--text-light-muted);
     }
 
-    /* Comparison rows */
     .comp-row {
       display: grid;
       grid-template-columns: 2.2fr 1.2fr 1.8fr 2fr;
-      padding: 0.9rem 1rem;
+      padding: 0.85rem 1rem;
       font-family: var(--font-mono);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       border-bottom: 1px solid var(--border-light);
       align-items: center;
     }
@@ -289,14 +285,13 @@
 
     pre code {
       font-family: var(--font-mono);
-      font-size: 0.95rem;
-      line-height: 1.55;
+      font-size: 0.92rem;
+      line-height: 1.5;
       color: #cfc8be;
       display: block;
       white-space: pre-wrap;
     }
 
-    /* Toolbar Controls */
     .deck-controls {
       margin-top: 1.2rem;
       display: flex;
@@ -325,15 +320,14 @@
       border-color: #4a4237;
     }
 
-    /* Notes Drawer */
     .notes-drawer {
       position: fixed;
       bottom: 25px;
       right: 25px;
       width: 440px;
       max-height: 380px;
-      background: #191510;
-      border: 1px solid #352f27;
+      background: #14110d;
+      border: 1px solid #322b22;
       border-radius: 10px;
       padding: 1.4rem;
       box-shadow: 0 20px 50px rgba(0,0,0,0.85);
@@ -367,131 +361,191 @@
 
   <div class="deck-container" id="deckContainer">
 
-    <!-- SLIDE 1: COVER (DARK, BOLD, DRAMATIC) -->
+    <!-- SLIDE 1: COVER (WITH EGATE LOGO & CYBER SHIELD) -->
     <div class="slide dark-theme active" data-slide="1">
-      <div style="display: flex; gap: 0.8rem; margin-bottom: 2rem;">
-        <span class="badge badge-dark">● AUTONOMOUS CYBER DEFENSE</span>
-        <span class="badge badge-dark">SUB-15ms C-ENGINE</span>
-        <span class="badge badge-dark">100% AIR-GAPPED</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="background: #ffffff; padding: 0.35rem 0.8rem; border-radius: 8px; display: inline-flex; align-items: center;">
+            <img src="assets/egate_logo_cropped.png" alt="EGATE Logo" style="height: 34px; object-fit: contain;">
+          </div>
+          <span class="badge badge-dark" style="margin-bottom: 0;">● EGATE CYBERSECURITY</span>
+          <span class="badge badge-dark" style="margin-bottom: 0;">PROJECT NULLIFY</span>
+        </div>
       </div>
 
-      <div style="margin-bottom: 2.5rem;">
-        <h1 class="slide-title" style="font-size: 4.6rem; line-height: 1.05;">
-          See it. Trace it.<br>
-          <em style="color: var(--accent-emerald);">Nullify it.</em>
-        </h1>
-        <p style="font-size: 1.4rem; color: var(--text-light-muted); margin-top: 1.2rem; max-width: 950px; line-height: 1.4;">
-          Autonomous AI Threat Defense — From Detection to Immunity in 15 Milliseconds.
-        </p>
-      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+          <h1 class="slide-title" style="font-size: 4.2rem; line-height: 1.05;">
+            See it. Trace it.<br>
+            <em style="color: var(--accent-emerald);">Nullify it.</em>
+          </h1>
+          <p style="font-size: 1.3rem; color: var(--text-light-muted); margin-top: 1.2rem; line-height: 1.4;">
+            Autonomous AI Threat Defense — From Detection to Immunity in Under 15 Milliseconds.
+          </p>
 
-      <div class="grid-3" style="margin-top: auto; margin-bottom: 1.5rem;">
-        <div class="bento-card">
-          <div class="card-title">⚡ 15ms Speed</div>
-          <div class="card-body">Native C11 core analyzes binaries faster than a blink of an eye.</div>
+          <div style="display: flex; gap: 0.8rem; margin-top: 2rem;">
+            <div class="bento-card" style="padding: 0.8rem 1rem; flex: 1;">
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 01 // CORE ]</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-light); margin-top: 0.2rem;">15ms C Engine</div>
+            </div>
+            <div class="bento-card" style="padding: 0.8rem 1rem; flex: 1;">
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 02 // MESH ]</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-light); margin-top: 0.2rem;">6 AI Agents</div>
+            </div>
+            <div class="bento-card" style="padding: 0.8rem 1rem; flex: 1;">
+              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 03 // YARA ]</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-light); margin-top: 0.2rem;">Auto-Immunity</div>
+            </div>
+          </div>
         </div>
-        <div class="bento-card">
-          <div class="card-title">🤖 6 AI Agents</div>
-          <div class="card-body">Specialized agents team up to inspect, explain, and defend.</div>
-        </div>
-        <div class="bento-card">
-          <div class="card-title">🛡️ Auto-YARA</div>
-          <div class="card-body">Writes instant defense rules to protect your whole network.</div>
+
+        <div class="bento-card" style="padding: 0.5rem; overflow: hidden; height: 360px; display: flex; align-items: center; justify-content: center; background: #000;">
+          <img src="assets/cyber_shield_core.jpg" alt="Cyber Shield Core" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
         </div>
       </div>
 
       <div class="slide-footer">
-        <span>PRESENTED TO THE PANEL OF JUDGES &bull; PROJECT NULLIFY</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 01 / 11</span>
+        <span>SLIDE 01 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
-Good morning, judges. Today we are presenting NULLIFY.
+Good morning, judges. Today we present NULLIFY, developed in partnership with EGATE Cybersecurity.
 Our mission is simple: 'See it. Trace it. Nullify it.'
-In cybersecurity, speed is everything. By the time a traditional security tool opens a file and spins up a sandbox, the damage is already done.
+In modern cybersecurity, speed is everything. By the time a traditional security tool opens a file and spins up a sandbox, the damage is already done.
 Nullify combines the raw speed of native C code with six autonomous AI agents. It catches zero-day malware and writes ready-to-use defense rules in under 15 milliseconds.
-Let's show you how.
+Let's start by introducing the vision behind EGATE and Nullify.
       </div>
     </div>
 
-    <!-- SLIDE 2: THE PROBLEM (SIMPLE WORDS, VISIBLE) -->
+    <!-- SLIDE 2: LOGO / BRAND IDENTITY PAGE -->
     <div class="slide light-theme" data-slide="2">
       <div class="slide-header">
-        <div class="slide-kicker">THE PROBLEM</div>
+        <div class="slide-kicker">01 // BRAND IDENTITY</div>
+        <h2 class="slide-title">EGATE &amp; Nullify: Built for Sovereign Security</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="bento-card" style="align-items: center; justify-content: center; padding: 2.5rem; text-align: center;">
+          <img src="assets/egate_logo.png" alt="EGATE Logo Showcase" style="max-width: 320px; width: 100%; object-fit: contain; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-emerald-dark); font-size: 1.1rem;">
+            EGATE CYBERSECURITY GATEWAY
+          </div>
+          <div style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0.3rem;">
+            Next-Generation Autonomous Threat Defense
+          </div>
+        </div>
+
+        <div class="bento-card" style="padding: 2.2rem; justify-content: center; gap: 1.4rem;">
+          <div>
+            <div class="card-title" style="font-size: 1.35rem;">[ 01 ] The Gateway: EGATE</div>
+            <div class="card-body">The zero-trust gatekeeper standing at the perimeter. Every executable, script, and document must pass through the EGATE before execution is permitted.</div>
+          </div>
+          <div>
+            <div class="card-title" style="font-size: 1.35rem;">[ 02 ] The Engine: NULLIFY</div>
+            <div class="card-body">The autonomous algorithmic brain. Built to reduce threat dwell time, attacker lateral movement, and incident triage latency to absolute zero (Nullify).</div>
+          </div>
+          <div>
+            <div class="card-title" style="font-size: 1.35rem;">[ 03 ] Visual Symbology</div>
+            <div class="card-body">Emerald Green represents active immunity and verified execution health. Obsidian Charcoal represents air-gapped sovereign privacy. Precision geometry represents mathematical certainty.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer">
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
+        <span class="footer-motto">See it. Trace it. Nullify it.</span>
+        <span>SLIDE 02 / 12</span>
+      </div>
+
+      <div class="slide-notes-raw" style="display:none;">
+On this slide, we introduce our brand identity: EGATE and Nullify.
+The EGATE logo represents the secure perimeter gateway. In a zero-trust organization, no binary runs until the gateway inspects it.
+Nullify is the autonomous algorithmic engine inside the gateway. It exists to reduce the threat dwell time to zero.
+Our design uses emerald green for active health and obsidian charcoal for air-gapped privacy.
+Now let's examine the acute problem modern security teams face.
+      </div>
+    </div>
+
+    <!-- SLIDE 3: THE PROBLEM -->
+    <div class="slide light-theme" data-slide="3">
+      <div class="slide-header">
+        <div class="slide-kicker">02 // THE PROBLEM</div>
         <h2 class="slide-title">Traditional Antivirus Can't Keep Up</h2>
       </div>
 
       <div class="grid-3" style="margin-bottom: 1.5rem;">
         <div class="bento-card">
-          <div class="stat-hero" style="color: var(--accent-crimson);">01</div>
+          <span class="badge badge-crimson">[ CHALLENGE 01 ]</span>
           <div class="card-title">New Malware is Invisible</div>
-          <div class="card-body">Traditional antivirus checks for known hashes. But attackers constantly change their code, so signatures fail on day one.</div>
+          <div class="card-body">Traditional antivirus checks for known hashes. But attackers constantly change their code, so signature blacklists fail on day one.</div>
           <div style="margin-top: auto; padding-top: 1rem;">
-            <span class="badge badge-crimson">450,000+ daily attacks</span>
+            <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-crimson); font-weight: 600;">450,000+ new attacks every day</div>
           </div>
         </div>
 
         <div class="bento-card">
-          <div class="stat-hero" style="color: var(--accent-amber);">02</div>
+          <span class="badge badge-amber">[ CHALLENGE 02 ]</span>
           <div class="card-title">Sandboxes are Too Slow</div>
-          <div class="card-body">Testing a file in a virtual machine takes 5 to 15 minutes. Firewalls and email filters cannot put traffic on hold that long.</div>
+          <div class="card-body">Testing a file in a virtual machine takes 5 to 15 minutes. Firewalls and email filters cannot put live traffic on hold that long.</div>
           <div style="margin-top: auto; padding-top: 1rem;">
-            <span class="badge badge-amber">15-minute delay is risky</span>
+            <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-amber); font-weight: 600;">15-minute delay is dangerous</div>
           </div>
         </div>
 
         <div class="bento-card">
-          <div class="stat-hero" style="color: var(--accent-blue);">03</div>
+          <span class="badge badge-blue">[ CHALLENGE 03 ]</span>
           <div class="card-title">Security Tools Crash</div>
           <div class="card-body">Most open-source security tools are written in Python. When thousands of files hit at once, they lag, freeze, and run out of memory.</div>
           <div style="margin-top: auto; padding-top: 1rem;">
-            <span class="badge badge-blue">Python runtime limits</span>
+            <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-blue); font-weight: 600;">Python runtime bottlenecks</div>
           </div>
         </div>
       </div>
 
-      <div class="bento-card" style="background: var(--bg-card-subtle); padding: 1.1rem 1.6rem; flex: none;">
-        <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-crimson); font-size: 0.95rem;">THE RESULT: </span>
+      <div class="bento-card" style="background: var(--bg-card-subtle); padding: 1rem 1.5rem; flex: none;">
+        <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-crimson); font-size: 0.95rem;">THE REALITY: </span>
         <span style="font-size: 1.05rem; color: var(--text-dark); font-weight: 600;">Organizations are forced to choose between fast but blind antivirus, or slow 15-minute sandboxes.</span>
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 02 / 11</span>
+        <span>SLIDE 03 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
-Every security team faces the same dilemma:
-1. Attackers release 450,000 new files a day. Traditional antivirus only knows old files.
-2. Sandboxes take 15 minutes to run a single test. That is too slow for real-time networks.
+Every security team faces three huge problems today:
+1. New malware is invisible: 450,000 variants a day make static hashes obsolete.
+2. Sandboxes take 15 minutes to run a single test. Real-time traffic can't wait that long.
 3. Most modern tools use Python, which locks up and crashes under heavy traffic.
 Nullify changes this completely.
       </div>
     </div>
 
-    <!-- SLIDE 3: THE SOLUTION -->
-    <div class="slide light-theme" data-slide="3">
+    <!-- SLIDE 4: THE SOLUTION -->
+    <div class="slide light-theme" data-slide="4">
       <div class="slide-header">
-        <div class="slide-kicker">THE SOLUTION</div>
+        <div class="slide-kicker">03 // THE SOLUTION</div>
         <h2 class="slide-title">Nullify: Real-Time Autonomous Defense</h2>
       </div>
 
       <div class="grid-2">
-        <div class="bento-card" style="padding: 2.2rem;">
-          <div style="margin-bottom: 1.8rem;">
-            <div class="card-title" style="font-size: 1.5rem; margin-bottom: 0.4rem;">⚡ Sub-Millisecond Speed</div>
-            <div class="card-body">We rewrote the heavy file inspection in pure C. It analyzes binaries in under 15 milliseconds — fast enough for live network firewalls.</div>
+        <div class="bento-card" style="padding: 2.2rem; justify-content: space-around;">
+          <div>
+            <span class="badge badge-emerald">[ SPEED ]</span>
+            <div class="card-title" style="font-size: 1.45rem;">Sub-Millisecond Native C Triage</div>
+            <div class="card-body">We rewrote heavy file inspection in pure C. It analyzes binaries in under 15 milliseconds — fast enough for live network firewalls.</div>
           </div>
-
-          <div style="margin-bottom: 1.8rem;">
-            <div class="card-title" style="font-size: 1.5rem; margin-bottom: 0.4rem;">🤖 6 Specialized AI Agents</div>
+          <div>
+            <span class="badge badge-blue">[ COGNITION ]</span>
+            <div class="card-title" style="font-size: 1.45rem;">6 Specialized Autonomous Agents</div>
             <div class="card-body">Instead of a single clumsy chatbot, six focused agents handle file headers, code patterns, behavioral logs, and threat reasoning.</div>
           </div>
-
           <div>
-            <div class="card-title" style="font-size: 1.5rem; margin-bottom: 0.4rem;">🛡️ Instant Auto-Defense</div>
+            <span class="badge badge-amber">[ ACTION ]</span>
+            <div class="card-title" style="font-size: 1.45rem;">Instant Auto-Defense &amp; YARA</div>
             <div class="card-body">Nullify doesn't just alert you. It automatically writes an enterprise YARA rule so you can block the threat across your entire network.</div>
           </div>
         </div>
@@ -499,13 +553,13 @@ Nullify changes this completely.
         <div style="display: flex; flex-direction: column; gap: 1.4rem;">
           <div class="bento-card" style="flex: 1; justify-content: center;">
             <div class="stat-hero" style="color: var(--accent-emerald-dark);">&lt; 15 ms</div>
-            <div class="card-title">Triage Speed</div>
-            <div class="card-body">Full static inspection and hashing in milliseconds.</div>
+            <div class="card-title">Full Triage Speed</div>
+            <div class="card-body">Analysis completed in milliseconds.</div>
           </div>
           <div class="bento-card" style="flex: 1; justify-content: center;">
             <div class="stat-hero" style="color: var(--accent-blue);">500x Faster</div>
             <div class="card-title">C-Core Performance</div>
-            <div class="card-body">Native executable import parsing vs standard Python.</div>
+            <div class="card-body">Native C engine vs standard Python libraries.</div>
           </div>
           <div class="bento-card" style="flex: 1; justify-content: center;">
             <div class="stat-hero" style="color: var(--accent-amber);">100% Local</div>
@@ -516,9 +570,9 @@ Nullify changes this completely.
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 03 / 11</span>
+        <span>SLIDE 04 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -530,103 +584,95 @@ No waiting 15 minutes for a sandbox. No leaking sensitive files to cloud APIs.
       </div>
     </div>
 
-    <!-- SLIDE 4: THE 6 AGENTS (CLEAN 2 STAGES) -->
-    <div class="slide light-theme" data-slide="4">
+    <!-- SLIDE 5: HOW THE 6 AGENTS WORK (WITH NEURAL MESH ASSET) -->
+    <div class="slide light-theme" data-slide="5">
       <div class="slide-header">
-        <div class="slide-kicker">ARCHITECTURE</div>
+        <div class="slide-kicker">04 // ARCHITECTURE</div>
         <h2 class="slide-title">How the 6 AI Agents Work Together</h2>
       </div>
 
       <div class="grid-2">
-        <div class="bento-card" style="padding: 2.2rem;">
-          <span class="badge badge-emerald">STAGE 1: NATIVE C SPEED</span>
-          <div style="margin-bottom: 2rem;">
-            <div class="card-title" style="font-size: 1.4rem;">Agent 1: Triage Agent</div>
-            <div class="card-body">Checks file type, verifies headers, and streams MD5, SHA-1, and SHA-256 hashes in a single pass in under 1 millisecond.</div>
+        <div class="bento-card" style="padding: 2rem; justify-content: space-between;">
+          <div>
+            <div class="slide-kicker" style="color: var(--accent-emerald-dark);">[ STAGE 1: NATIVE C SPEED ]</div>
+            <div style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.6rem;">
+              <div class="card-body"><strong>• Agent 1 (Triage):</strong> Checks magic bytes, headers, and streams MD5/SHA-1/SHA-256 in &lt; 1ms.</div>
+              <div class="card-body"><strong>• Agent 2 (Static):</strong> Traverses PE imports in memory, detecting dangerous APIs and backdoor keys in 0.1ms.</div>
+            </div>
           </div>
 
-          <div>
-            <div class="card-title" style="font-size: 1.4rem;">Agent 2: Static Analysis Agent</div>
-            <div class="card-body">Parses executable imports directly in memory. Detects dangerous APIs (memory injection, keylogging) and backdoor registry keys in 0.1ms.</div>
+          <div style="margin-top: 1.2rem;">
+            <div class="slide-kicker" style="color: var(--accent-blue);">[ STAGE 2: AI COGNITION &amp; DEFENSE ]</div>
+            <div style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.6rem;">
+              <div class="card-body"><strong>• Agent 3 (Behavioral):</strong> Traces process trees and correlates Sysmon JSONL logs.</div>
+              <div class="card-body"><strong>• Agent 4 (Classification):</strong> Evaluates 2,381 features via EMBER 2017 machine learning.</div>
+              <div class="card-body"><strong>• Agent 5 (Reasoning):</strong> Synthesizes plain-English explanations with MITRE ATT&amp;CK tags.</div>
+              <div class="card-body"><strong>• Agent 6 (Defense):</strong> Auto-generates syntax-validated YARA rules ready for deployment.</div>
+            </div>
           </div>
         </div>
 
-        <div class="bento-card" style="padding: 2.2rem;">
-          <span class="badge badge-blue">STAGE 2: AI INTELLIGENCE</span>
-          <div style="display: flex; flex-direction: column; gap: 1.2rem;">
-            <div>
-              <div class="card-title" style="font-size: 1.25rem;">Agent 3: Behavioral Agent</div>
-              <div class="card-body" style="font-size: 0.98rem;">Traces process execution trees and correlates Windows Sysmon logs.</div>
-            </div>
-            <div>
-              <div class="card-title" style="font-size: 1.25rem;">Agent 4: Classification Agent</div>
-              <div class="card-body" style="font-size: 0.98rem;">Scores 2,381 features using an ML model trained on 1.1 million binaries.</div>
-            </div>
-            <div>
-              <div class="card-title" style="font-size: 1.25rem;">Agent 5: Reasoning Agent</div>
-              <div class="card-body" style="font-size: 0.98rem;">Explains *why* the file is malicious in plain English for security analysts.</div>
-            </div>
-            <div>
-              <div class="card-title" style="font-size: 1.25rem;">Agent 6: Defense Agent</div>
-              <div class="card-body" style="font-size: 0.98rem;">Automatically writes a clean, syntax-validated YARA rule to block it.</div>
-            </div>
-          </div>
+        <div class="bento-card" style="padding: 0.5rem; overflow: hidden; background: #000; align-items: center; justify-content: center;">
+          <img src="assets/neural_agent_mesh.jpg" alt="Neural Agent Mesh" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
         </div>
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 04 / 11</span>
+        <span>SLIDE 05 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
 Notice how our agents are structured:
 Stage 1 handles raw speed: Triage and Static Analysis run in native C code. They take less than a millisecond to dissect headers, hashes, and imports.
 Stage 2 handles intelligence: Behavioral analysis, 2,381-feature machine learning, human-readable reasoning, and automatic YARA rule generation.
-Each agent does one job perfectly.
+Each agent does one job perfectly, connected in a collaborative intelligence mesh.
       </div>
     </div>
 
-    <!-- SLIDE 5: NATIVE C ENGINE -->
-    <div class="slide light-theme" data-slide="5">
+    <!-- SLIDE 6: NATIVE C CODE -->
+    <div class="slide light-theme" data-slide="6">
       <div class="slide-header">
-        <div class="slide-kicker">PERFORMANCE BREAKTHROUGH</div>
+        <div class="slide-kicker">05 // PERFORMANCE BREAKTHROUGH</div>
         <h2 class="slide-title">The Secret to Our Speed: Native C Code</h2>
       </div>
 
       <div class="grid-3" style="margin-bottom: 1.5rem;">
         <div class="bento-card">
+          <span class="badge badge-emerald">[ ENGINE // 01 ]</span>
           <div class="stat-hero" style="color: var(--accent-emerald-dark);">500x</div>
           <div class="card-title">PE Import Parsing</div>
-          <div class="badge badge-emerald" style="margin: 0.4rem 0 0.8rem;">Python: 50ms &rarr; C: 0.1ms</div>
+          <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-emerald-dark); font-weight: 700; margin-bottom: 0.6rem;">Python: 50ms &rarr; C: 0.1ms</div>
           <div class="card-body">Reads executable import tables directly in memory without slow Python libraries.</div>
         </div>
 
         <div class="bento-card">
+          <span class="badge badge-blue">[ ENGINE // 02 ]</span>
           <div class="stat-hero" style="color: var(--accent-blue);">18x</div>
           <div class="card-title">Pattern Scanner</div>
-          <div class="badge badge-blue" style="margin: 0.4rem 0 0.8rem;">Python: 15.4ms &rarr; C: 0.8ms</div>
+          <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-blue); font-weight: 700; margin-bottom: 0.6rem;">Python: 15.4ms &rarr; C: 0.8ms</div>
           <div class="card-body">Finds hidden registry keys, download cradles, and backdoor strings in a single pass.</div>
         </div>
 
         <div class="bento-card">
+          <span class="badge badge-amber">[ ENGINE // 03 ]</span>
           <div class="stat-hero" style="color: var(--accent-amber);">8x</div>
           <div class="card-title">File Multi-Hashing</div>
-          <div class="badge badge-amber" style="margin: 0.4rem 0 0.8rem;">Python: 8.9ms &rarr; C: 1.1ms</div>
+          <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-amber); font-weight: 700; margin-bottom: 0.6rem;">Python: 8.9ms &rarr; C: 1.1ms</div>
           <div class="card-body">Streams 64KB blocks, updating MD5, SHA-1, and SHA-256 at the exact same time.</div>
         </div>
       </div>
 
-      <div class="bento-card" style="background: var(--bg-card-subtle); padding: 1.1rem 1.6rem; flex: none;">
-        <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-emerald-dark); font-size: 0.95rem;">ZERO DEPENDENCIES: </span>
-        <span style="font-size: 1.05rem; color: var(--text-dark);">Runs anywhere. Pure C11 with no external OpenSSL headers required, plus automatic Python fallback.</span>
+      <div class="bento-card" style="background: var(--bg-card-subtle); padding: 1rem 1.5rem; flex: none;">
+        <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-emerald-dark); font-size: 0.95rem;">ZERO EXTERNAL DEPENDENCIES: </span>
+        <span style="font-size: 1.02rem; color: var(--text-dark);">Pure C11 (-O3) with built-in RFC 3174 SHA-1 and MD5. No OpenSSL link errors, plus automatic Python fallback.</span>
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 05 / 11</span>
+        <span>SLIDE 06 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -638,37 +684,37 @@ And we built it with zero external C dependencies — no OpenSSL link issues, no
       </div>
     </div>
 
-    <!-- SLIDE 6: MACHINE LEARNING -->
-    <div class="slide light-theme" data-slide="6">
+    <!-- SLIDE 7: MACHINE LEARNING -->
+    <div class="slide light-theme" data-slide="7">
       <div class="slide-header">
-        <div class="slide-kicker">MACHINE LEARNING</div>
+        <div class="slide-kicker">06 // MACHINE LEARNING</div>
         <h2 class="slide-title">Trained on 1.1 Million Real Binaries</h2>
       </div>
 
       <div class="grid-3">
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="stat-hero" style="color: var(--accent-emerald-dark);">2,381</div>
-          <div class="card-title" style="font-size: 1.5rem;">Features Analyzed</div>
-          <div class="card-body" style="font-size: 1.05rem;">Nullify analyzes 2,381 unique characteristics of each file: byte randomness (entropy), printable strings, section sizes, and header anomalies.</div>
+          <span class="badge badge-emerald">[ FEATURE SPACE ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.6rem;">2,381 Features Analyzed</div>
+          <div class="card-body" style="font-size: 1.05rem; margin-top: 0.8rem;">Nullify analyzes 2,381 unique characteristics of each file: byte randomness (entropy), printable strings, section sizes, and header anomalies.</div>
         </div>
 
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="stat-hero" style="color: var(--accent-blue);">99.9%</div>
-          <div class="card-title" style="font-size: 1.5rem;">Proven Accuracy</div>
-          <div class="card-body" style="font-size: 1.05rem;">Trained on 1.1 million verified files from the industry benchmark EMBER dataset. Our gradient-boosted trees deliver reliable classification without hallucinating.</div>
+          <span class="badge badge-blue">[ VALIDATION ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.6rem;">99.9% Proven Accuracy</div>
+          <div class="card-body" style="font-size: 1.05rem; margin-top: 0.8rem;">Trained on 1.1 million verified benign and malicious files from the EMBER benchmark. Gradient-boosted trees classify threats without hallucinating.</div>
         </div>
 
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="stat-hero" style="color: var(--accent-amber);">Zero</div>
-          <div class="card-title" style="font-size: 1.5rem;">False Alarms</div>
-          <div class="card-body" style="font-size: 1.05rem;">Most antivirus tools trigger false alarms on Linux files because they try to force Windows rules. Nullify detects file types accurately so safe code isn't flagged.</div>
+          <span class="badge badge-amber">[ SMART GUARD ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.6rem;">Zero False Alarms on Linux</div>
+          <div class="card-body" style="font-size: 1.05rem; margin-top: 0.8rem;">Most antivirus tools trigger false alarms on Linux files because they try to force Windows rules. Nullify detects file types accurately so safe code isn't flagged.</div>
         </div>
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 06 / 11</span>
+        <span>SLIDE 07 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -678,19 +724,19 @@ We look at 2,381 structural features. And we engineered a specific Linux guard s
       </div>
     </div>
 
-    <!-- SLIDE 7: ACTIVE DEFENSE & YARA -->
-    <div class="slide light-theme" data-slide="7">
+    <!-- SLIDE 8: ACTIVE DEFENSE & YARA -->
+    <div class="slide light-theme" data-slide="8">
       <div class="slide-header">
-        <div class="slide-kicker">ACTIVE DEFENSE</div>
+        <div class="slide-kicker">07 // ACTIVE DEFENSE</div>
         <h2 class="slide-title">From Threat Detection to Immunity in Seconds</h2>
       </div>
 
       <div class="grid-2">
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="slide-kicker" style="color: var(--accent-crimson); margin-bottom: 0.4rem;">NOT JUST AN ALERT — ACTIVE IMMUNITY</div>
-          <div class="card-title" style="font-size: 1.6rem; margin-bottom: 1.2rem;">Tells You What Happened &amp; Blocks It Everywhere</div>
+          <span class="badge badge-crimson">[ AUTOMATED IMMUNITY ]</span>
+          <div class="card-title" style="font-size: 1.55rem; margin-bottom: 1.2rem;">Tells You What Happened &amp; Blocks It Everywhere</div>
           
-          <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
             <div>
               <div style="font-weight: 700; color: var(--text-dark); margin-bottom: 0.2rem;">• Explains the Threat Clearly</div>
               <div class="card-body">Identifies the exact techniques the attacker used (e.g. injecting code into processes or setting up secret auto-run keys).</div>
@@ -707,7 +753,7 @@ We look at 2,381 structural features. And we engineered a specific Linux guard s
         </div>
 
         <div class="bento-card dark-card" style="padding: 2rem;">
-          <div class="slide-kicker" style="color: var(--accent-emerald); margin-bottom: 0.5rem;">AUTO-GENERATED YARA DEFENSE RULE</div>
+          <div class="slide-kicker" style="color: var(--accent-emerald); margin-bottom: 0.4rem;">AUTO-GENERATED YARA DEFENSE RULE</div>
           <pre><code>rule Nullify_AutoDefense_Trojan {
     meta:
         description = "Auto-generated by Nullify"
@@ -729,9 +775,9 @@ We look at 2,381 structural features. And we engineered a specific Linux guard s
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 07 / 11</span>
+        <span>SLIDE 08 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -742,10 +788,10 @@ You can copy this rule and deploy it to your firewalls and endpoints in seconds.
       </div>
     </div>
 
-    <!-- SLIDE 8: BENCHMARKS -->
-    <div class="slide light-theme" data-slide="8">
+    <!-- SLIDE 9: BENCHMARKS -->
+    <div class="slide light-theme" data-slide="9">
       <div class="slide-header">
-        <div class="slide-kicker">BENCHMARKS</div>
+        <div class="slide-kicker">08 // BENCHMARKS</div>
         <h2 class="slide-title">How Nullify Compares to the Rest</h2>
       </div>
 
@@ -801,9 +847,9 @@ You can copy this rule and deploy it to your firewalls and endpoints in seconds.
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 08 / 11</span>
+        <span>SLIDE 09 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -815,28 +861,28 @@ Nullify gives you the best of both: 13.2 millisecond speed, zero-day machine lea
       </div>
     </div>
 
-    <!-- SLIDE 9: USER EXPERIENCE -->
-    <div class="slide light-theme" data-slide="9">
+    <!-- SLIDE 10: USER EXPERIENCE -->
+    <div class="slide light-theme" data-slide="10">
       <div class="slide-header">
-        <div class="slide-kicker">USER EXPERIENCE</div>
+        <div class="slide-kicker">09 // USER EXPERIENCE</div>
         <h2 class="slide-title">Two Intuitive Ways to Use Nullify</h2>
       </div>
 
       <div class="grid-2">
         <div class="bento-card" style="padding: 2.2rem;">
-          <span class="badge badge-emerald">OPTION 1: WEB CONSOLE</span>
-          <div class="card-title" style="font-size: 1.6rem; margin-bottom: 1.2rem;">Luxury Web Dashboard (localhost:8000)</div>
+          <span class="badge badge-emerald">[ WEB INTERFACE ]</span>
+          <div class="card-title" style="font-size: 1.55rem; margin-bottom: 1.2rem;">Luxury Web Dashboard (localhost:8000)</div>
           
           <div style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="card-body" style="font-size: 1.05rem;"><strong>• Drag-and-Drop Scanning:</strong> Drop any file to see real-time analysis in milliseconds.</div>
-            <div class="card-body" style="font-size: 1.05rem;"><strong>• Live Confidence Radar:</strong> See risk percentage and threat family classification clearly.</div>
-            <div class="card-body" style="font-size: 1.05rem;"><strong>• Built-in Demo Samples:</strong> One-click buttons to test safe trojans, ransomware, and benign files.</div>
-            <div class="card-body" style="font-size: 1.05rem;"><strong>• 1-Click YARA Copy:</strong> Instantly copy auto-generated rules to your clipboard.</div>
+            <div class="card-body" style="font-size: 1.02rem;"><strong>• Drag-and-Drop Scanning:</strong> Drop any file to see real-time analysis in milliseconds.</div>
+            <div class="card-body" style="font-size: 1.02rem;"><strong>• Live Confidence Radar:</strong> See risk percentage and threat family classification clearly.</div>
+            <div class="card-body" style="font-size: 1.02rem;"><strong>• Built-in Demo Samples:</strong> One-click buttons to test safe trojans, ransomware, and benign files.</div>
+            <div class="card-body" style="font-size: 1.02rem;"><strong>• 1-Click YARA Copy:</strong> Instantly copy auto-generated rules to your clipboard.</div>
           </div>
         </div>
 
         <div class="bento-card dark-card" style="padding: 2rem;">
-          <span class="badge badge-dark">OPTION 2: TERMINAL CLI</span>
+          <span class="badge badge-dark">[ TERMINAL CLI ]</span>
           <div class="card-title" style="font-size: 1.4rem; color: var(--text-light); margin-bottom: 0.8rem;">Single-Command CLI ($ nullify)</div>
           <pre><code>$ nullify
 ========================================
@@ -857,9 +903,9 @@ Select option: 1
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 09 / 11</span>
+        <span>SLIDE 10 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -869,37 +915,40 @@ On the right: A single-command terminal interface. Just type 'nullify' with no c
       </div>
     </div>
 
-    <!-- SLIDE 10: PRIVACY & AIR-GAPPED -->
-    <div class="slide light-theme" data-slide="10">
+    <!-- SLIDE 11: PRIVACY & AIR-GAPPED -->
+    <div class="slide light-theme" data-slide="11">
       <div class="slide-header">
-        <div class="slide-kicker">SECURITY &amp; PRIVACY</div>
+        <div class="slide-kicker">10 // SECURITY &amp; PRIVACY</div>
         <h2 class="slide-title">Your Data Never Leaves Your Network</h2>
       </div>
 
       <div class="grid-3">
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="card-title" style="font-size: 1.6rem; color: var(--accent-emerald-dark);">🔒 100% Local</div>
-          <div style="font-weight: 700; color: var(--text-dark); margin: 0.5rem 0 1rem;">Zero Cloud Telemetry Leakage</div>
+          <span class="badge badge-emerald">[ PRIVACY ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.4rem;">100% Local Execution</div>
+          <div style="font-weight: 700; color: var(--text-dark); margin: 0.4rem 0 0.8rem;">Zero Cloud Telemetry Leakage</div>
           <div class="card-body">Hospitals, defense contractors, and banks cannot upload confidential files to public cloud APIs. Nullify runs 100% on your hardware. Not a single byte is sent over the internet.</div>
         </div>
 
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="card-title" style="font-size: 1.6rem; color: var(--accent-blue);">🔌 SIEM Ready</div>
-          <div style="font-weight: 700; color: var(--text-dark); margin: 0.5rem 0 1rem;">Production REST API Built In</div>
+          <span class="badge badge-blue">[ INTEGRATION ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.4rem;">SIEM &amp; SOAR Ready</div>
+          <div style="font-weight: 700; color: var(--text-dark); margin: 0.4rem 0 0.8rem;">Production REST API Built In</div>
           <div class="card-body">Built with FastAPI and OpenAPI. Exposes clean REST endpoints so your security operations team can integrate it with Splunk, Microsoft Sentinel, or Cortex XSOAR in minutes.</div>
         </div>
 
         <div class="bento-card" style="padding: 2.2rem;">
-          <div class="card-title" style="font-size: 1.6rem; color: var(--accent-amber);">📦 Offline Ready</div>
-          <div style="font-weight: 700; color: var(--text-dark); margin: 0.5rem 0 1rem;">Docker &amp; Air-Gapped Networks</div>
-          <div class="card-body">Ships as a lightweight Docker container or standalone binary. Operates seamlessly inside secure, offline, air-gapped data centers.</div>
+          <span class="badge badge-amber">[ DEPLOYMENT ]</span>
+          <div class="card-title" style="font-size: 1.5rem; margin-top: 0.4rem;">Air-Gapped &amp; Offline</div>
+          <div style="font-weight: 700; color: var(--text-dark); margin: 0.4rem 0 0.8rem;">Docker &amp; Containerized Core</div>
+          <div class="card-body">Ships as a lightweight Docker container or standalone binary. Operates seamlessly inside secure, offline, air-gapped data centers with zero external dependencies.</div>
         </div>
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 10 / 11</span>
+        <span>SLIDE 11 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -909,32 +958,41 @@ Nullify runs 100% on-premise. It works in air-gapped environments with zero inte
       </div>
     </div>
 
-    <!-- SLIDE 11: ENDING / LIVE DEMO (DARK, HIGH-IMPACT, MEMORABLE) -->
-    <div class="slide dark-theme" data-slide="11">
-      <div style="display: flex; gap: 0.8rem; margin-bottom: 2rem;">
-        <span class="badge badge-dark">● READY FOR LIVE DEMO</span>
+    <!-- SLIDE 12: ENDING / LIVE DEMO (DARK, WITH EGATE LOGO) -->
+    <div class="slide dark-theme" data-slide="12">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="background: #ffffff; padding: 0.35rem 0.8rem; border-radius: 8px; display: inline-flex; align-items: center;">
+            <img src="assets/egate_logo_cropped.png" alt="EGATE Logo" style="height: 34px; object-fit: contain;">
+          </div>
+          <span class="badge badge-dark" style="margin-bottom: 0;">● READY FOR LIVE DEMO</span>
+          <span class="badge badge-dark" style="margin-bottom: 0;">EGATE &amp; NULLIFY</span>
+        </div>
       </div>
 
-      <div style="margin-bottom: 2.5rem;">
-        <h1 class="slide-title" style="font-size: 4.8rem; line-height: 1.05;">
+      <div style="margin-bottom: 2rem;">
+        <h1 class="slide-title" style="font-size: 4.5rem; line-height: 1.05;">
           Let's Run a Live Test.
         </h1>
-        <p style="font-size: 1.4rem; color: var(--text-light-muted); margin-top: 1rem; max-width: 900px; line-height: 1.4;">
+        <p style="font-size: 1.35rem; color: var(--text-light-muted); margin-top: 1rem; max-width: 900px; line-height: 1.4;">
           Pick any file. Watch Nullify inspect, classify, and neutralize it in milliseconds.
         </p>
       </div>
 
       <div class="grid-3" style="margin-top: auto; margin-bottom: 1.5rem;">
         <div class="bento-card">
-          <div class="card-title" style="color: var(--accent-emerald);">✓ Fully Functional Now</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 01 // PRODUCTION ]</div>
+          <div class="card-title" style="color: var(--accent-emerald); font-size: 1.25rem; margin-top: 0.3rem;">Fully Functional Now</div>
           <div class="card-body">Web console, CLI, and C-engine are compiled and running live right now.</div>
         </div>
         <div class="bento-card">
-          <div class="card-title" style="color: var(--accent-emerald);">✓ 62 / 62 Tests Green</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 02 // QUALITY ]</div>
+          <div class="card-title" style="color: var(--accent-emerald); font-size: 1.25rem; margin-top: 0.3rem;">62 / 62 Tests Green</div>
           <div class="card-body">Comprehensive automated test suite guarantees zero regressions.</div>
         </div>
         <div class="bento-card">
-          <div class="card-title" style="color: var(--accent-emerald);">✓ Open Source Code</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-emerald);">[ 03 // OPEN CODE ]</div>
+          <div class="card-title" style="color: var(--accent-emerald); font-size: 1.25rem; margin-top: 0.3rem;">Verified on GitHub</div>
           <div class="card-body">Clean, documented, production-ready codebase ready for inspection.</div>
         </div>
       </div>
@@ -945,9 +1003,9 @@ Nullify runs 100% on-premise. It works in air-gapped environments with zero inte
       </div>
 
       <div class="slide-footer">
-        <span>NULLIFY &bull; AUTONOMOUS CYBER DEFENSE</span>
+        <span>EGATE &bull; NULLIFY AUTONOMOUS DEFENSE</span>
         <span class="footer-motto">See it. Trace it. Nullify it.</span>
-        <span>SLIDE 11 / 11</span>
+        <span>SLIDE 12 / 12</span>
       </div>
 
       <div class="slide-notes-raw" style="display:none;">
@@ -959,16 +1017,14 @@ Thank you, and we welcome your questions!
 
   </div>
 
-  <!-- Deck Controls -->
   <div class="deck-controls">
     <button class="ctrl-btn" onclick="prevSlide()">◀ Previous (Left Arrow)</button>
-    <span id="slideIndicator">Slide 1 of 11</span>
+    <span id="slideIndicator">Slide 1 of 12</span>
     <button class="ctrl-btn" onclick="nextSlide()">Next (Right Arrow / Space) ▶</button>
     <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ Fullscreen (F)</button>
     <button class="ctrl-btn" onclick="toggleNotes()">📝 Speaker Notes (N)</button>
   </div>
 
-  <!-- Floating Notes Modal -->
   <div class="notes-drawer" id="notesDrawer">
     <div class="notes-header">
       <span>SPEAKER NOTES / TALKING POINTS</span>
@@ -979,7 +1035,7 @@ Thank you, and we welcome your questions!
 
   <script>
     let currentSlide = 1;
-    const totalSlides = 11;
+    const totalSlides = 12;
     const slides = document.querySelectorAll('.slide');
     const indicator = document.getElementById('slideIndicator');
     const notesContent = document.getElementById('notesContent');
