@@ -784,6 +784,8 @@ name = "nullify"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "rich" },
     { name = "typer" },
 ]
@@ -825,6 +827,7 @@ dev = [
 requires-dist = [
     { name = "fastapi", marker = "extra == 'web'", specifier = ">=0.111" },
     { name = "flare-capa", marker = "extra == 'static'", specifier = ">=7.0.0" },
+    { name = "numpy", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'ml'", specifier = ">=1.26" },
     { name = "pandas", marker = "extra == 'ml'", specifier = ">=2.2" },
     { name = "pefile", marker = "extra == 'static'", specifier = ">=2023.2.7" },

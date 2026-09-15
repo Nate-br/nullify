@@ -35,6 +35,16 @@ from sklearn.feature_extraction import FeatureHasher
 # pefile-backed LIEF shim (duck-typed subset used by the feature blocks)
 # --------------------------------------------------------------------------
 
+_SECTION_FLAGS = {
+    "MEM_EXECUTE": 0x20000000,
+    "MEM_READ": 0x40000000,
+    "MEM_WRITE": 0x80000000,
+    "CNT_CODE": 0x00000020,
+    "CNT_INITIALIZED_DATA": 0x00000040,
+    "CNT_UNINITIALIZED_DATA": 0x00000080,
+}
+
+
 class _ShimSection:
     """LIEF-like view of a pefile PE section."""
 
@@ -46,14 +56,8 @@ class _ShimSection:
         self.entropy = float(section.get_entropy()) if raw else 0.0
         chars = int(section.Characteristics)
         self.characteristics_lists = [
-            flag for flag in _SECTION_FLAGS if chars & getattr(pefile.SECTION_CHARACTERISTICS, flag).value
+            flag for flag, val in _SECTION_FLAGS.items() if chars & val
         ]
-
-
-_SECTION_FLAGS = [
-    "MEM_EXECUTE", "MEM_READ", "MEM_WRITE",
-    "CNT_CODE", "CNT_INITIALIZED_DATA", "CNT_UNINITIALIZED_DATA",
-]
 
 
 class _ShimImportEntry:
@@ -76,9 +80,71 @@ class _ShimImportLib:
 
 class _ShimDataDirectory:
     def __init__(self, name: str, entry: pefile.DataDirectory):
+        self.name = name
         self.type_name = name
         self.size = int(entry.Size or 0)
         self.rva = int(entry.VirtualAddress or 0)
+
+
+_COFF_CHARS = {
+    "RELOCS_STRIPPED": 0x0001,
+    "EXECUTABLE_IMAGE": 0x0002,
+    "LINE_NUMS_STRIPPED": 0x0004,
+    "LOCAL_SYMS_STRIPPED": 0x0008,
+    "AGGRESIVE_WS_TRIM": 0x0010,
+    "LARGE_ADDRESS_AWARE": 0x0020,
+    "BYTES_REVERSED_LO": 0x0080,
+    "32BIT_MACHINE": 0x0100,
+    "DEBUG_STRIPPED": 0x0200,
+    "REMOVABLE_RUN_FROM_SWAP": 0x0400,
+    "NET_RUN_FROM_SWAP": 0x0800,
+    "SYSTEM": 0x1000,
+    "DLL": 0x2000,
+    "UP_SYSTEM_ONLY": 0x4000,
+    "BYTES_REVERSED_HI": 0x8000,
+}
+
+_DLL_CHARS = {
+    "HIGH_ENTROPY_VA": 0x0020,
+    "DYNAMIC_BASE": 0x0040,
+    "FORCE_INTEGRITY": 0x0080,
+    "NX_COMPAT": 0x0100,
+    "NO_ISOLATION": 0x0200,
+    "NO_SEH": 0x0400,
+    "NO_BIND": 0x0800,
+    "APPCONTAINER": 0x1000,
+    "WDM_DRIVER": 0x2000,
+    "GUARD_CF": 0x4000,
+    "TERMINAL_SERVER_AWARE": 0x8000,
+}
+
+_MACHINE_NAMES = {
+    0x014c: "I386", 0x8664: "AMD64", 0x01c0: "ARM", 0xaa64: "ARM64",
+    0x0200: "IA64", 0x01f0: "POWERPC", 0x01c2: "THUMB",
+}
+
+_SUBSYSTEM_NAMES = {1: "NATIVE", 2: "WINDOWS_CUI", 3: "WINDOWS_CE", 5: "OS2_CUI",
+                    7: "POSIX_CUI", 9: "WINDOWS_CE_GUI", 10: "EFI_APPLICATION", 14: "XBOX"}
+_PE_MAGIC_NAMES = {0x10b: "PE32", 0x20b: "PE32_PLUS"}
+_DATA_DIR_NAMES = [
+    "EXPORT_TABLE", "IMPORT_TABLE", "RESOURCE_TABLE", "EXCEPTION_TABLE", "CERTIFICATE_TABLE",
+    "BASE_RELOCATION_TABLE", "DEBUG", "ARCHITECTURE", "GLOBAL_PTR", "TLS_TABLE", "LOAD_CONFIG_TABLE",
+    "BOUND_IMPORT", "IAT", "DELAY_IMPORT_DESCRIPTOR", "CLR_RUNTIME_HEADER",
+]
+
+_OPTIONAL_HEADER_MAP = {
+    "major_image_version": "MajorImageVersion",
+    "minor_image_version": "MinorImageVersion",
+    "major_linker_version": "MajorLinkerVersion",
+    "minor_linker_version": "MinorLinkerVersion",
+    "major_operating_system_version": "MajorOperatingSystemVersion",
+    "minor_operating_system_version": "MinorOperatingSystemVersion",
+    "major_subsystem_version": "MajorSubsystemVersion",
+    "minor_subsystem_version": "MinorSubsystemVersion",
+    "sizeof_code": "SizeOfCode",
+    "sizeof_headers": "SizeOfHeaders",
+    "sizeof_heap_commit": "SizeOfHeapCommit",
+}
 
 
 class _LiefShim:
@@ -105,13 +171,15 @@ class _LiefShim:
         fh = self._pe.FILE_HEADER
         machine = _MACHINE_NAMES.get(int(fh.Machine), "UNKNOWN_MACHINE")
         characteristics = [
-            flag for flag in _COFF_CHARS if int(fh.Characteristics) & getattr(pefile.FILE_CHARACTERISTICS, flag).value
+            flag for flag, val in _COFF_CHARS.items() if int(fh.Characteristics) & val
         ]
         self.header = _Header(coff_ts=int(fh.TimeDateStamp), machine=machine,
                               characteristics=characteristics, oh=oh)
+        self.optional_header = self.header.optional_header
         self.data_directories = [
             _ShimDataDirectory(name, oh.DATA_DIRECTORY[i])
             for i, name in enumerate(_DATA_DIR_NAMES)
+            if i < len(oh.DATA_DIRECTORY)
         ]
 
         self.has_debug = any(d.name == "DEBUG" and d.size > 0 for d in self.data_directories)
@@ -181,40 +249,17 @@ class _OptionalHeader:
     @property
     def dll_characteristics_lists(self):
         flags = []
-        for flag in _DLL_CHARS:
-            try:
-                if int(self._oh.DllCharacteristics) & getattr(pefile.DLL_CHARACTERISTICS, flag).value:
-                    flags.append(_EnumName("PE_DLL_CHARACTERISTICS", flag))
-            except AttributeError:  # pragma: no cover - pefile constant set changed
-                continue
+        for flag, val in _DLL_CHARS.items():
+            if int(self._oh.DllCharacteristics) & val:
+                flags.append(_EnumName("PE_DLL_CHARACTERISTICS", flag))
         return flags
 
     def __getattr__(self, item: str):
-        # major_image_version etc. pass through to pefile's optional header
+        pe_attr = _OPTIONAL_HEADER_MAP.get(item, item)
         try:
-            return self.__dict__["_oh"].__getattribute__(item)
+            return getattr(self._oh, pe_attr)
         except AttributeError:
             raise AttributeError(item)
-
-
-_MACHINE_NAMES = {
-    0x014c: "I386", 0x8664: "AMD64", 0x01c0: "ARM", 0xaa64: "ARM64",
-    0x0200: "IA64", 0x01f0: "POWERPC", 0x01c2: "THUMB",
-}
-_COFF_CHARS = ["RELOCS_STRIPPED", "EXECUTABLE_IMAGE", "LINE_NUMS_STRIPPED", "LOCAL_SYMS_STRIPPED",
-               "AGGRESIVE_WS_TRIM", "LARGE_ADDRESS_AWARE", "BYTES_REVERSED_LO", "32BIT_MACHINE",
-               "DEBUG_STRIPPED", "REMOVABLE_RUN_FROM_SWAP", "NET_RUN_FROM_SWAP", "SYSTEM", "DLL",
-               "UP_SYSTEM_ONLY", "BYTES_REVERSED_HI"]
-_DLL_CHARS = ["HIGH_ENTROPY_VA", "DYNAMIC_BASE", "FORCE_INTEGRITY", "NX_COMPAT", "NO_ISOLATION",
-              "NO_SEH", "NO_BIND", "APPCONTAINER", "WDM_DRIVER", "GUARD_CF", "TERMINAL_SERVER_AWARE"]
-_SUBSYSTEM_NAMES = {1: "NATIVE", 2: "WINDOWS_CUI", 3: "WINDOWS_CE", 5: "OS2_CUI",
-                    7: "POSIX_CUI", 9: "WINDOWS_CE_GUI", 10: "EFI_APPLICATION", 14: "XBOX"}
-_PE_MAGIC_NAMES = {0x10b: "PE32", 0x20b: "PE32_PLUS"}
-_DATA_DIR_NAMES = [
-    "EXPORT_TABLE", "IMPORT_TABLE", "RESOURCE_TABLE", "EXCEPTION_TABLE", "CERTIFICATE_TABLE",
-    "BASE_RELOCATION_TABLE", "DEBUG", "ARCHITECTURE", "GLOBAL_PTR", "TLS_TABLE", "LOAD_CONFIG_TABLE",
-    "BOUND_IMPORT", "IAT", "DELAY_IMPORT_DESCRIPTOR", "CLR_RUNTIME_HEADER",
-]
 
 
 def _parse_pe(bytez: bytes):
