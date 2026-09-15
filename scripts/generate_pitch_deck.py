@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Generate an executive, high-impact, visual PowerPoint presentation for Nullify & EGATE.
-Features:
-- Integrated EGATE logo on the Cover Page & dedicated Brand Identity Page
-- High-resolution cybersecurity visual assets embedded directly into slides
-- ZERO cheap emojis; replaced with clean, professional technical badges and glyphs
-- BIG, BOLD, highly readable text with simple, jargon-free words
-- Generous whitespace, luxury RAVN aesthetic, and eye-catching visual composition
+Generate an executive, high-impact PowerPoint presentation for Nullify & EGATE.
+Strictly following user requirements:
+- EXACT proportional scaling for all logo images (zero distortion)
+- REMOVED all other photos (no AI graphics, no extra images)
+- Uses ONLY the EGATE logo on the cover page and logo page
+- Big, bold, readable text with simple, jargon-free words
+- Generous whitespace and luxury RAVN minimalist aesthetic
 """
 
 import os
@@ -15,6 +15,7 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
+from PIL import Image
 
 # ==========================================
 # DESIGN SYSTEM TOKENS (RAVN Minimalist Luxury)
@@ -54,11 +55,10 @@ FONT_HEADING = "Segoe UI"
 FONT_BODY = "Segoe UI"
 FONT_MONO = "Consolas"
 
-# Assets
-LOGO_CROPPED = "presentation/assets/egate_logo_cropped.png"
-LOGO_RAW = "presentation/assets/egate_logo.png"
-IMG_SHIELD = "presentation/assets/cyber_shield_core.jpg"
-IMG_MESH = "presentation/assets/neural_agent_mesh.jpg"
+# Only the user's provided logo
+LOGO_PATH = "/home/nate/Pictures/Screenshots/egate logo.png"
+if not os.path.exists(LOGO_PATH):
+    LOGO_PATH = "presentation/assets/egate_logo.png"
 
 
 def set_flat(shape, fill_color, border_color=None, border_width_pt=1):
@@ -151,33 +151,60 @@ def add_pill(slide, left, top, width, height, text, bg_color, text_color, border
     return pill
 
 
+def add_image_proportional(slide, img_path, box_left, box_top, box_w, box_h):
+    """
+    Inserts an image centered inside a bounding box, preserving EXACT aspect ratio.
+    Never stretches or distorts the image.
+    """
+    if not os.path.exists(img_path):
+        return None
+
+    im = Image.open(img_path)
+    orig_w, orig_h = im.size
+    aspect = orig_w / orig_h
+
+    # Fit within box
+    target_w = box_w
+    target_h = target_w / aspect
+    if target_h > box_h:
+        target_h = box_h
+        target_w = target_h * aspect
+
+    # Center within box
+    final_left = box_left + (box_w - target_w) / 2
+    final_top = box_top + (box_h - target_h) / 2
+
+    # Add picture with ONLY width specified to guarantee exact aspect ratio
+    pic = slide.shapes.add_picture(img_path, Inches(final_left), Inches(final_top), width=Inches(target_w))
+    return pic
+
+
 def set_notes(slide, text):
     slide.notes_slide.notes_text_frame.text = text.strip()
 
 
 # ==========================================
-# SLIDE BUILDERS (12 HIGH-IMPACT SLIDES)
+# SLIDE BUILDERS (12 SLIDES, ZERO EXTRA PHOTOS)
 # ==========================================
 
 def build_slide_01_cover(prs):
-    """Slide 1: High-Impact Hero Cover with EGATE Logo & Cyber Shield Graphic."""
+    """Slide 1: High-Impact Hero Cover with ONLY the EGATE Logo (Exact Proportion)."""
     slide = create_slide(prs, is_dark=True)
 
-    # Frame border
+    # Ambient border frame
     frame = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(0.6), Inches(12.133), Inches(6.3))
     set_flat(frame, BG_CHARCOAL, BORDER_DARK, border_width_pt=1.5)
 
-    # Left Column: Brand & Hero Headline
-    # EGATE Logo Pill Card
-    logo_card = add_card(slide, 1.1, 1.0, 2.4, 0.9, BG_WHITE, None)
-    if os.path.exists(LOGO_CROPPED):
-        slide.shapes.add_picture(LOGO_CROPPED, Inches(1.2), Inches(1.05), width=Inches(2.2))
+    # Top Brand Bar: EGATE Logo Card (Exact Proportion)
+    card_logo = add_card(slide, 1.1, 1.0, 2.6, 1.1, BG_WHITE, None)
+    add_image_proportional(slide, LOGO_PATH, 1.2, 1.05, 2.4, 1.0)
 
-    add_pill(slide, 3.65, 1.25, 2.6, 0.4, "●  EGATE CYBERSECURITY", BG_DARK_CARD, ACCENT_EMERALD, BORDER_DARK)
-    add_pill(slide, 6.4, 1.25, 2.2, 0.4, "PROJECT NULLIFY", BG_DARK_CARD, TEXT_LIGHT_MUTED, BORDER_DARK)
+    add_pill(slide, 3.9, 1.35, 2.8, 0.4, "●  EGATE CYBERSECURITY", BG_DARK_CARD, ACCENT_EMERALD, BORDER_DARK)
+    add_pill(slide, 6.85, 1.35, 2.4, 0.4, "PROJECT NULLIFY", BG_DARK_CARD, TEXT_LIGHT_MUTED, BORDER_DARK)
+    add_pill(slide, 9.4, 1.35, 2.8, 0.4, "READY FOR LIVE DEMO", BG_DARK_CARD, TEXT_LIGHT_MUTED, BORDER_DARK)
 
-    # Headline
-    tx = slide.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(6.0), Inches(2.8))
+    # Massive Headline (Dramatic, Clean, Uncluttered)
+    tx = slide.shapes.add_textbox(Inches(1.1), Inches(2.5), Inches(11.0), Inches(2.6))
     tf = tx.text_frame
     tf.word_wrap = True
     tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
@@ -185,7 +212,7 @@ def build_slide_01_cover(prs):
     p1 = tf.paragraphs[0]
     p1.text = "See it. Trace it."
     p1.font.name = FONT_DISPLAY
-    p1.font.size = Pt(50)
+    p1.font.size = Pt(56)
     p1.font.bold = True
     p1.font.color.rgb = TEXT_LIGHT
 
@@ -193,31 +220,45 @@ def build_slide_01_cover(prs):
     p2.text = "Nullify it."
     p2.font.name = FONT_DISPLAY
     p2.font.italic = True
-    p2.font.size = Pt(50)
+    p2.font.size = Pt(56)
     p2.font.bold = True
     p2.font.color.rgb = ACCENT_EMERALD
 
     p3 = tf.add_paragraph()
     p3.text = "Autonomous AI Threat Defense — From Detection to Immunity in Under 15 Milliseconds."
     p3.font.name = FONT_HEADING
-    p3.font.size = Pt(17)
+    p3.font.size = Pt(19)
     p3.font.color.rgb = TEXT_LIGHT_MUTED
     p3.space_before = Pt(14)
 
-    # 3 Sleek Technical Badges
-    badges = [
-        ("[ 01 // CORE ]", "15ms Native C Engine"),
-        ("[ 02 // MESH ]", "6 Collaborative AI Agents"),
-        ("[ 03 // YARA ]", "Instant Enterprise Rules")
+    # 3 High-Impact Capability Cards
+    capabilities = [
+        ("[ 01 // SPEED ]", "Sub-15ms Native C Engine", "C11 core analyzes binaries faster than a blink of an eye."),
+        ("[ 02 // COGNITION ]", "6 Collaborative AI Agents", "Specialized agents team up to inspect, explain, and defend."),
+        ("[ 03 // DEFENSE ]", "Instant Auto-YARA Immunity", "Writes instant defense rules to protect your whole network.")
     ]
-    for idx, (bcode, bdesc) in enumerate(badges):
-        bx = 1.1 + idx * 2.05
-        add_pill(slide, bx, 5.3, 1.95, 0.65, f"{bcode}\n{bdesc}", BG_DARK_CARD, TEXT_LIGHT, BORDER_DARK)
+    for i, (bcode, btitle, bdesc) in enumerate(capabilities):
+        c_left = 1.1 + i * 3.8
+        add_card(slide, c_left, 5.1, 3.6, 1.35, BG_DARK_CARD, BORDER_DARK)
 
-    # Right Column: Stunning Cyber Shield Visualization
-    card_img = add_card(slide, 7.3, 1.1, 5.0, 4.95, BG_DARK_CARD, BORDER_DARK)
-    if os.path.exists(IMG_SHIELD):
-        slide.shapes.add_picture(IMG_SHIELD, Inches(7.4), Inches(1.2), width=Inches(4.8))
+        tx_c = slide.shapes.add_textbox(Inches(c_left + 0.25), Inches(5.2), Inches(3.1), Inches(1.15))
+        tfc = tx_c.text_frame
+        tfc.word_wrap = True
+        tfc.margin_left = tfc.margin_top = tfc.margin_right = tfc.margin_bottom = 0
+
+        p_ct = tfc.paragraphs[0]
+        p_ct.text = f"{bcode}  {btitle}"
+        p_ct.font.name = FONT_HEADING
+        p_ct.font.size = Pt(14.5)
+        p_ct.font.bold = True
+        p_ct.font.color.rgb = TEXT_LIGHT
+
+        p_cd = tfc.add_paragraph()
+        p_cd.text = bdesc
+        p_cd.font.name = FONT_BODY
+        p_cd.font.size = Pt(12)
+        p_cd.font.color.rgb = TEXT_LIGHT_MUTED
+        p_cd.space_before = Pt(3)
 
     add_footer(slide, 1, 12, is_dark=True)
     set_notes(slide, """
@@ -230,17 +271,16 @@ Let's start by introducing the vision behind EGATE and Nullify.
 
 
 def build_slide_02_logo_page(prs):
-    """Slide 2: Dedicated Brand Identity & Logo Page."""
+    """Slide 2: Dedicated Brand Identity & Logo Page (Exact Proportion)."""
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "BRAND IDENTITY", "EGATE & Nullify: Built for Sovereign Security", is_dark=False)
 
-    # Left: Large Showcase Card with EGATE Logo
+    # Left: Showcase Card with EGATE Logo (Centered, 100% Proportional)
     card_logo = add_card(slide, 0.9, 1.8, 4.8, 4.85, BG_WHITE, BORDER_LIGHT)
-    if os.path.exists(LOGO_RAW):
-        slide.shapes.add_picture(LOGO_RAW, Inches(1.3), Inches(2.2), width=Inches(4.0))
+    add_image_proportional(slide, LOGO_PATH, 1.2, 2.1, 4.2, 3.2)
 
     # Caption below logo
-    tx_lc = slide.shapes.add_textbox(Inches(1.2), Inches(5.6), Inches(4.2), Inches(0.8))
+    tx_lc = slide.shapes.add_textbox(Inches(1.2), Inches(5.65), Inches(4.2), Inches(0.8))
     tflc = tx_lc.text_frame
     tflc.margin_left = tflc.margin_top = tflc.margin_right = tflc.margin_bottom = 0
     plc = tflc.paragraphs[0]
@@ -292,7 +332,7 @@ def build_slide_02_logo_page(prs):
     set_notes(slide, """
 On this slide, we introduce our brand identity: EGATE and Nullify.
 The EGATE logo represents the secure perimeter gateway. In a zero-trust organization, no binary runs until the gateway inspects it.
-Nullify is the autonomous algorithmic engine inside the gateway. It exists to reduce the threat dwell time to zero.
+Nullify is the autonomous algorithmic engine inside the gateway. It exists to reduce threat dwell time to zero.
 Our design uses emerald green for active health and obsidian charcoal for air-gapped privacy.
 Now let's examine the acute problem modern security teams face.
 """)
@@ -334,7 +374,6 @@ def build_slide_03_problem(prs):
         left = 0.9 + i * 3.95
         add_card(slide, left, 1.8, 3.7, 4.0, BG_WHITE, BORDER_LIGHT)
 
-        # Technical Badge
         add_pill(slide, left + 0.3, 2.05, 2.2, 0.35, badge_text, acc_bg, acc)
 
         tx_b = slide.shapes.add_textbox(Inches(left + 0.3), Inches(2.55), Inches(3.1), Inches(2.4))
@@ -356,10 +395,8 @@ def build_slide_03_problem(prs):
         pd.font.color.rgb = TEXT_MUTED
         pd.space_before = Pt(8)
 
-        # Bottom pill tag
         add_pill(slide, left + 0.3, 5.2, 3.1, 0.38, tag, acc_bg, acc)
 
-    # Bottom Takeaway
     add_card(slide, 0.9, 6.0, 11.533, 0.65, BG_CARD_SUBTLE, BORDER_LIGHT)
     tx_t = slide.shapes.add_textbox(Inches(1.15), Inches(6.12), Inches(11.0), Inches(0.4))
     tft = tx_t.text_frame
@@ -393,7 +430,6 @@ def build_slide_04_solution(prs):
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "THE SOLUTION", "Nullify: Real-Time Autonomous Defense", is_dark=False)
 
-    # Left: 3 Big Pillars
     add_card(slide, 0.9, 1.8, 6.8, 4.85, BG_WHITE, BORDER_LIGHT)
     tx_l = slide.shapes.add_textbox(Inches(1.2), Inches(2.1), Inches(6.2), Inches(4.3))
     tfl = tx_l.text_frame
@@ -423,7 +459,6 @@ def build_slide_04_solution(prs):
         p_d.font.color.rgb = TEXT_MUTED
         p_d.space_before = Pt(4)
 
-    # Right: 3 Big Bold Stat Callouts
     stats = [
         ("< 15 ms", "FULL TRIAGE SPEED", "Analysis completed in milliseconds", ACCENT_EMERALD_DARK),
         ("500x", "FASTER IN C", "Native C engine vs standard Python", ACCENT_BLUE),
@@ -464,72 +499,78 @@ No waiting 15 minutes for a sandbox. No leaking sensitive files to cloud APIs.
 
 
 def build_slide_05_agents(prs):
-    """Slide 5: The 6 AI Agents (With Visual Neural Mesh Asset)."""
+    """Slide 5: The 6 AI Agents (Clean 2-Stage Flow, Generous Space, Zero Extra Photos)."""
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "ARCHITECTURE", "How the 6 AI Agents Work Together", is_dark=False)
 
-    # Left: 2 Clean Stages (Width: ~6.8 in)
-    add_card(slide, 0.9, 1.8, 6.8, 4.85, BG_WHITE, BORDER_LIGHT)
-    tx = slide.shapes.add_textbox(Inches(1.2), Inches(2.05), Inches(6.2), Inches(4.4))
-    tf = tx.text_frame
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
+    # Left Card: Stage 1 Fast C Inspection
+    add_card(slide, 0.9, 1.8, 5.6, 4.85, BG_WHITE, BORDER_LIGHT)
+    add_pill(slide, 1.2, 2.05, 3.2, 0.38, "[ STAGE 1: NATIVE C SPEED ]", ACCENT_EMERALD_BG, ACCENT_EMERALD_DARK)
 
-    stages = [
-        ("STAGE 1: NATIVE C SPEED", [
-            ("Agent 1: Triage Agent", "Checks magic bytes, headers, and streams MD5/SHA-1/SHA-256 in < 1ms."),
-            ("Agent 2: Static Analysis Agent", "Traverses PE imports in memory, detecting dangerous APIs and backdoor keys.")
-        ]),
-        ("STAGE 2: AI COGNITION & DEFENSE", [
-            ("Agent 3: Behavioral Agent", "Traces process trees and correlates Sysmon JSONL logs."),
-            ("Agent 4: Classification Agent", "Evaluates 2,381 features via EMBER 2017 machine learning."),
-            ("Agent 5: Reasoning Agent", "Synthesizes plain-English explanations with MITRE ATT&CK tags."),
-            ("Agent 6: Defense Agent", "Auto-generates syntax-validated YARA rules ready for deployment.")
-        ])
+    tx_s1 = slide.shapes.add_textbox(Inches(1.2), Inches(2.6), Inches(5.0), Inches(3.8))
+    tf1 = tx_s1.text_frame
+    tf1.word_wrap = True
+    tf1.margin_left = tf1.margin_top = tf1.margin_right = tf1.margin_bottom = 0
+
+    s1_items = [
+        ("Agent 1: Triage Agent", "Checks magic bytes, verifies PE/ELF headers, and streams MD5, SHA-1, and SHA-256 hashes in a single pass in under 1 millisecond."),
+        ("Agent 2: Static Analysis Agent", "Traverses Windows PE Import Directory directly in memory. Detects dangerous APIs (memory injection, keylogging) and backdoor registry keys in 0.1ms.")
     ]
+    for idx, (atitle, adesc) in enumerate(s1_items):
+        p_t = tf1.paragraphs[0] if idx == 0 else tf1.add_paragraph()
+        p_t.text = atitle
+        p_t.font.name = FONT_HEADING
+        p_t.font.size = Pt(17)
+        p_t.font.bold = True
+        p_t.font.color.rgb = TEXT_DARK
+        if idx > 0:
+            p_t.space_before = Pt(22)
 
-    is_first = True
-    for stg_title, stg_agents in stages:
-        p_stg = tf.paragraphs[0] if is_first else tf.add_paragraph()
-        is_first = False
-        p_stg.text = f"[ {stg_title} ]"
-        p_stg.font.name = FONT_MONO
-        p_stg.font.size = Pt(11)
-        p_stg.font.bold = True
-        p_stg.font.color.rgb = ACCENT_EMERALD_DARK if "C SPEED" in stg_title else ACCENT_BLUE
-        if not is_first:
-            p_stg.space_before = Pt(14)
+        p_d = tf1.add_paragraph()
+        p_d.text = adesc
+        p_d.font.name = FONT_BODY
+        p_d.font.size = Pt(14)
+        p_d.font.color.rgb = TEXT_MUTED
+        p_d.space_before = Pt(6)
 
-        for aname, adesc in stg_agents:
-            pa = tf.add_paragraph()
-            pa.text = f"• {aname}: {adesc}"
-            pa.font.name = FONT_BODY
-            pa.font.size = Pt(12)
-            pa.font.color.rgb = TEXT_DARK
-            pa.space_before = Pt(4)
+    # Right Card: Stage 2 Deep AI Intelligence
+    add_card(slide, 6.83, 1.8, 5.6, 4.85, BG_WHITE, BORDER_LIGHT)
+    add_pill(slide, 7.13, 2.05, 3.4, 0.38, "[ STAGE 2: AI COGNITION & DEFENSE ]", ACCENT_BLUE_BG, ACCENT_BLUE)
 
-    # Right: Neural Agent Mesh Visual Asset
-    card_img = add_card(slide, 7.95, 1.8, 4.48, 4.85, BG_DARK_CARD, BORDER_DARK)
-    if os.path.exists(IMG_MESH):
-        slide.shapes.add_picture(IMG_MESH, Inches(8.05), Inches(1.9), width=Inches(4.28))
+    tx_s2 = slide.shapes.add_textbox(Inches(7.13), Inches(2.6), Inches(5.0), Inches(3.8))
+    tf2 = tx_s2.text_frame
+    tf2.word_wrap = True
+    tf2.margin_left = tf2.margin_top = tf2.margin_right = tf2.margin_bottom = 0
 
-    tx_mc = slide.shapes.add_textbox(Inches(8.15), Inches(5.85), Inches(4.1), Inches(0.6))
-    tfmc = tx_mc.text_frame
-    tfmc.margin_left = tfmc.margin_top = tfmc.margin_right = tfmc.margin_bottom = 0
-    pmc = tfmc.paragraphs[0]
-    pmc.text = "COLLABORATIVE AGENT LATTICE"
-    pmc.alignment = PP_ALIGN.CENTER
-    pmc.font.name = FONT_MONO
-    pmc.font.size = Pt(10)
-    pmc.font.bold = True
-    pmc.font.color.rgb = ACCENT_EMERALD
+    s2_items = [
+        ("Agent 3: Behavioral Agent", "Traces process execution trees and correlates Windows Sysmon logs."),
+        ("Agent 4: Classification Agent", "Scores 2,381 features using an ML model trained on 1.1 million binaries."),
+        ("Agent 5: Reasoning Agent", "Explains *why* the file is malicious in plain English for security analysts."),
+        ("Agent 6: Defense Agent", "Automatically writes a clean, syntax-validated YARA rule to block it.")
+    ]
+    for jdx, (btitle, bdesc) in enumerate(s2_items):
+        p_bt = tf2.paragraphs[0] if jdx == 0 else tf2.add_paragraph()
+        p_bt.text = btitle
+        p_bt.font.name = FONT_HEADING
+        p_bt.font.size = Pt(15.5)
+        p_bt.font.bold = True
+        p_bt.font.color.rgb = TEXT_DARK
+        if jdx > 0:
+            p_bt.space_before = Pt(10)
+
+        p_bd = tf2.add_paragraph()
+        p_bd.text = bdesc
+        p_bd.font.name = FONT_BODY
+        p_bd.font.size = Pt(13)
+        p_bd.font.color.rgb = TEXT_MUTED
+        p_bd.space_before = Pt(3)
 
     add_footer(slide, 5, 12, is_dark=False)
     set_notes(slide, """
 Notice how our agents are structured:
 Stage 1 handles raw speed: Triage and Static Analysis run in native C code. They take less than a millisecond to dissect headers, hashes, and imports.
 Stage 2 handles intelligence: Behavioral analysis, 2,381-feature machine learning, human-readable reasoning, and automatic YARA rule generation.
-Each agent does one job perfectly, connected in a collaborative intelligence mesh.
+Each agent does one job perfectly.
 """)
 
 
@@ -569,24 +610,20 @@ def build_slide_06_c_engine(prs):
         left = 0.9 + i * 3.95
         add_card(slide, left, 1.8, 3.7, 4.0, BG_WHITE, BORDER_LIGHT)
 
-        tx = slide.shapes.add_textbox(Inches(left + 0.3), Inches(2.0), Inches(3.1), Inches(3.6))
+        add_pill(slide, left + 0.3, 2.0, 2.0, 0.32, badge_text, BG_CARD_SUBTLE, color)
+
+        tx = slide.shapes.add_textbox(Inches(left + 0.3), Inches(2.4), Inches(3.1), Inches(3.2))
         tf = tx.text_frame
         tf.word_wrap = True
         tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
 
-        # Technical badge
-        add_pill(slide, left + 0.3, 2.0, 2.0, 0.32, badge_text, BG_CARD_SUBTLE, color)
-
-        # Big Speedup
         p_sp = tf.paragraphs[0]
         p_sp.text = speedup
         p_sp.font.name = FONT_DISPLAY
         p_sp.font.size = Pt(38)
         p_sp.font.bold = True
         p_sp.font.color.rgb = color
-        p_sp.space_before = Pt(18)
 
-        # Component Title
         p_t = tf.add_paragraph()
         p_t.text = title
         p_t.font.name = FONT_HEADING
@@ -595,7 +632,6 @@ def build_slide_06_c_engine(prs):
         p_t.font.color.rgb = TEXT_DARK
         p_t.space_before = Pt(4)
 
-        # Benchmark Times
         p_time = tf.add_paragraph()
         p_time.text = times
         p_time.font.name = FONT_MONO
@@ -604,7 +640,6 @@ def build_slide_06_c_engine(prs):
         p_time.font.color.rgb = color
         p_time.space_before = Pt(6)
 
-        # Description
         p_d = tf.add_paragraph()
         p_d.text = desc
         p_d.font.name = FONT_BODY
@@ -612,7 +647,6 @@ def build_slide_06_c_engine(prs):
         p_d.font.color.rgb = TEXT_MUTED
         p_d.space_before = Pt(8)
 
-    # Bottom Callout: Standalone & Zero Dependencies
     add_card(slide, 0.9, 6.0, 11.533, 0.65, BG_CARD_SUBTLE, BORDER_LIGHT)
     tx_b = slide.shapes.add_textbox(Inches(1.15), Inches(6.12), Inches(11.0), Inches(0.4))
     tfb = tx_b.text_frame
@@ -671,7 +705,6 @@ def build_slide_07_ml(prs):
         left = 0.9 + i * 3.95
         add_card(slide, left, 1.8, 3.7, 4.85, BG_WHITE, BORDER_LIGHT)
 
-        # Badge
         add_pill(slide, left + 0.3, 2.1, 2.2, 0.35, badge_text, BG_CARD_SUBTLE, color)
 
         tx = slide.shapes.add_textbox(Inches(left + 0.3), Inches(2.65), Inches(3.1), Inches(3.8))
@@ -706,14 +739,13 @@ def build_slide_08_defense(prs):
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "ACTIVE DEFENSE", "From Threat Detection to Immunity in Seconds", is_dark=False)
 
-    # Left: Explanation
     add_card(slide, 0.9, 1.8, 5.6, 4.85, BG_WHITE, BORDER_LIGHT)
-    tx_l = slide.shapes.add_textbox(Inches(1.2), Inches(2.1), Inches(5.0), Inches(4.3))
+    add_pill(slide, 1.2, 2.05, 3.4, 0.35, "[ AUTOMATED IMMUNITY ]", ACCENT_CRIMSON_BG, ACCENT_CRIMSON)
+
+    tx_l = slide.shapes.add_textbox(Inches(1.2), Inches(2.55), Inches(5.0), Inches(3.9))
     tfl = tx_l.text_frame
     tfl.word_wrap = True
     tfl.margin_left = tfl.margin_top = tfl.margin_right = tfl.margin_bottom = 0
-
-    add_pill(slide, 1.2, 2.1, 3.4, 0.35, "[ AUTOMATED IMMUNITY ]", ACCENT_CRIMSON_BG, ACCENT_CRIMSON)
 
     p_title = tfl.paragraphs[0]
     p_title.text = "Tells You What Happened & Blocks It Everywhere"
@@ -721,7 +753,6 @@ def build_slide_08_defense(prs):
     p_title.font.size = Pt(20)
     p_title.font.bold = True
     p_title.font.color.rgb = TEXT_DARK
-    p_title.space_before = Pt(22)
 
     bullets = [
         ("Explains the Threat Clearly", "Identifies the exact techniques the attacker used (e.g. injecting code into processes or setting up secret auto-run keys)."),
@@ -744,7 +775,6 @@ def build_slide_08_defense(prs):
         pb_d.font.color.rgb = TEXT_MUTED
         pb_d.space_before = Pt(2)
 
-    # Right: Auto-generated YARA rule
     add_card(slide, 6.83, 1.8, 5.6, 4.85, BG_CHARCOAL, BORDER_DARK)
     tx_r = slide.shapes.add_textbox(Inches(7.13), Inches(2.1), Inches(5.0), Inches(4.3))
     tfr = tx_r.text_frame
@@ -801,7 +831,6 @@ def build_slide_09_comparison(prs):
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "BENCHMARKS", "How Nullify Compares to the Rest", is_dark=False)
 
-    # 3 Big Benchmark Numbers
     benchmarks = [
         ("13.2 ms", "FULL TRIAGE TIME", "Complete static inspection & hashing", ACCENT_EMERALD_DARK),
         ("75 files / sec", "SINGLE-CORE THROUGHPUT", "Millions of files processed daily", ACCENT_BLUE),
@@ -837,7 +866,6 @@ def build_slide_09_comparison(prs):
         p3.font.size = Pt(11)
         p3.font.color.rgb = TEXT_MUTED
 
-    # Clean Big Comparison Rows
     add_card(slide, 0.9, 3.65, 11.533, 3.0, BG_WHITE, BORDER_LIGHT)
     tx_t = slide.shapes.add_textbox(Inches(1.2), Inches(3.85), Inches(11.0), Inches(2.6))
     tft = tx_t.text_frame
@@ -882,14 +910,13 @@ def build_slide_10_ux(prs):
     slide = create_slide(prs, is_dark=False)
     add_header(slide, "USER EXPERIENCE", "Two Intuitive Ways to Use Nullify", is_dark=False)
 
-    # Left: Web Console
     add_card(slide, 0.9, 1.8, 5.6, 4.85, BG_WHITE, BORDER_LIGHT)
-    tx_w = slide.shapes.add_textbox(Inches(1.2), Inches(2.1), Inches(5.0), Inches(4.3))
+    add_pill(slide, 1.2, 2.05, 3.2, 0.35, "[ WEB INTERFACE ]", ACCENT_EMERALD_BG, ACCENT_EMERALD_DARK)
+
+    tx_w = slide.shapes.add_textbox(Inches(1.2), Inches(2.55), Inches(5.0), Inches(3.9))
     tfw = tx_w.text_frame
     tfw.word_wrap = True
     tfw.margin_left = tfw.margin_top = tfw.margin_right = tfw.margin_bottom = 0
-
-    add_pill(slide, 1.2, 2.1, 3.2, 0.35, "[ WEB INTERFACE ]", ACCENT_EMERALD_BG, ACCENT_EMERALD_DARK)
 
     pw_t = tfw.paragraphs[0]
     pw_t.text = "Luxury Web Dashboard (localhost:8000)"
@@ -897,7 +924,6 @@ def build_slide_10_ux(prs):
     pw_t.font.size = Pt(20)
     pw_t.font.bold = True
     pw_t.font.color.rgb = TEXT_DARK
-    pw_t.space_before = Pt(20)
 
     w_features = [
         ("Drag-and-Drop Scanning", "Drop any file to see real-time analysis in milliseconds."),
@@ -913,7 +939,6 @@ def build_slide_10_ux(prs):
         p_item.font.color.rgb = TEXT_MUTED
         p_item.space_before = Pt(10)
 
-    # Right: CLI Terminal
     add_card(slide, 6.83, 1.8, 5.6, 4.85, BG_CHARCOAL, BORDER_DARK)
     tx_c = slide.shapes.add_textbox(Inches(7.13), Inches(2.1), Inches(5.0), Inches(4.3))
     tfc = tx_c.text_frame
@@ -999,7 +1024,6 @@ def build_slide_11_privacy(prs):
         left = 0.9 + i * 3.95
         add_card(slide, left, 1.8, 3.7, 4.85, BG_WHITE, BORDER_LIGHT)
 
-        # Technical badge
         add_pill(slide, left + 0.3, 2.1, 2.2, 0.35, badge_text, BG_CARD_SUBTLE, color)
 
         tx = slide.shapes.add_textbox(Inches(left + 0.3), Inches(2.65), Inches(3.1), Inches(3.8))
@@ -1038,22 +1062,21 @@ Nullify runs 100% on-premise. It works in air-gapped environments with zero inte
 
 
 def build_slide_12_ending(prs):
-    """Slide 12: High-Impact Action-Oriented Ending with EGATE Logo."""
+    """Slide 12: High-Impact Action-Oriented Ending with EGATE Logo (Exact Proportion)."""
     slide = create_slide(prs, is_dark=True)
 
     frame = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(0.6), Inches(12.133), Inches(6.3))
     set_flat(frame, BG_CHARCOAL, BORDER_DARK, border_width_pt=1.5)
 
-    # Top Brand Bar
-    logo_card = add_card(slide, 1.1, 1.0, 2.4, 0.9, BG_WHITE, None)
-    if os.path.exists(LOGO_CROPPED):
-        slide.shapes.add_picture(LOGO_CROPPED, Inches(1.2), Inches(1.05), width=Inches(2.2))
+    # Top Brand Bar with EGATE Logo (Exact Proportion)
+    card_logo = add_card(slide, 1.1, 1.0, 2.6, 1.1, BG_WHITE, None)
+    add_image_proportional(slide, LOGO_PATH, 1.2, 1.05, 2.4, 1.0)
 
-    add_pill(slide, 3.65, 1.25, 2.6, 0.4, "●  READY FOR LIVE DEMO", BG_DARK_CARD, ACCENT_EMERALD, BORDER_DARK)
-    add_pill(slide, 6.4, 1.25, 2.4, 0.4, "EGATE & NULLIFY", BG_DARK_CARD, TEXT_LIGHT_MUTED, BORDER_DARK)
+    add_pill(slide, 3.9, 1.35, 2.8, 0.4, "●  READY FOR LIVE DEMO", BG_DARK_CARD, ACCENT_EMERALD, BORDER_DARK)
+    add_pill(slide, 6.85, 1.35, 2.4, 0.4, "EGATE & NULLIFY", BG_DARK_CARD, TEXT_LIGHT_MUTED, BORDER_DARK)
 
     # Big Dramatic Title
-    tx = slide.shapes.add_textbox(Inches(1.1), Inches(2.2), Inches(11.0), Inches(1.8))
+    tx = slide.shapes.add_textbox(Inches(1.1), Inches(2.35), Inches(11.0), Inches(1.8))
     tf = tx.text_frame
     tf.word_wrap = True
     tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
@@ -1142,7 +1165,7 @@ def main():
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
 
-    print("Building 12-slide executive deck with EGATE logo and visual assets...")
+    print("Building 12-slide executive deck with ONLY EGATE logo (exact proportions, zero extra photos)...")
     build_slide_01_cover(prs)
     build_slide_02_logo_page(prs)
     build_slide_03_problem(prs)
