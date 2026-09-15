@@ -27,7 +27,8 @@ from typing import Any
 # Resolve repo root and library path
 _CORE_DIR = Path(__file__).resolve().parent
 _REPO_ROOT = _CORE_DIR.parent.parent.parent
-_LIB_PATH = _REPO_ROOT / "lib" / "libnullify.so"
+_LIB_NAME = "nullify.dll" if sys.platform == "win32" else "libnullify.so"
+_LIB_PATH = _REPO_ROOT / "lib" / _LIB_NAME
 
 
 class _NullifyTriageResult(ctypes.Structure):

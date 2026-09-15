@@ -418,31 +418,52 @@ def system_scan(
         border_style="cyan"
     ))
 
-    excluded_dirs = {
-        "/proc", "/sys", "/dev", "/run", "/snap", "/var/lib/docker", "/var/lib/containerd",
-        "/lost+found", "/tmp/.X11-unix", "/tmp/.ICE-unix"
-    }
-
+    is_windows = os.name == "nt"
     home = Path.home()
-    if quick:
-        candidates = [
-            home / "Downloads",
-            home / "Desktop",
-            home / ".local" / "bin",
-            home / ".config" / "autostart",
-            home / ".config" / "systemd" / "user",
-            Path("/tmp"),
-            Path("/var/tmp"),
-            Path("/dev/shm"),
-            Path("/etc/cron.d"),
-            Path("/etc/cron.daily"),
-            Path("/etc/cron.hourly"),
-            Path("/etc/systemd/system"),
-            Path("/usr/local/bin"),
-        ]
-        scan_paths = [p for p in candidates if p.exists() and p.is_dir()]
+
+    if is_windows:
+        excluded_dirs = {
+            "$Recycle.Bin", "System Volume Information", "WinSxS"
+        }
+        if quick:
+            candidates = [
+                home / "Downloads",
+                home / "Desktop",
+                Path(os.environ.get("TEMP", "C:\\Windows\\Temp")),
+                Path(os.environ.get("APPDATA", "C:\\Users\\Default\\AppData\\Roaming")),
+                Path(os.environ.get("LOCALAPPDATA", "C:\\Users\\Default\\AppData\\Local")),
+                home / "AppData" / "Roaming" / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup",
+                Path("C:\\Windows\\Temp"),
+                Path("C:\\ProgramData"),
+            ]
+            scan_paths = [p for p in candidates if p.exists() and p.is_dir()]
+        else:
+            sys_drive = os.environ.get("SystemDrive", "C:")
+            scan_paths = [Path(f"{sys_drive}\\")]
     else:
-        scan_paths = [Path("/")]
+        excluded_dirs = {
+            "/proc", "/sys", "/dev", "/run", "/snap", "/var/lib/docker", "/var/lib/containerd",
+            "/lost+found", "/tmp/.X11-unix", "/tmp/.ICE-unix"
+        }
+        if quick:
+            candidates = [
+                home / "Downloads",
+                home / "Desktop",
+                home / ".local" / "bin",
+                home / ".config" / "autostart",
+                home / ".config" / "systemd" / "user",
+                Path("/tmp"),
+                Path("/var/tmp"),
+                Path("/dev/shm"),
+                Path("/etc/cron.d"),
+                Path("/etc/cron.daily"),
+                Path("/etc/cron.hourly"),
+                Path("/etc/systemd/system"),
+                Path("/usr/local/bin"),
+            ]
+            scan_paths = [p for p in candidates if p.exists() and p.is_dir()]
+        else:
+            scan_paths = [Path("/")]
 
     files_to_scan: list[Path] = []
     console.print("[dim]Collecting target files...[/dim]")
