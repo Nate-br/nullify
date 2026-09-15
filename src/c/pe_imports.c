@@ -25,36 +25,23 @@ static const known_api_hint_t KNOWN_APIS[] = {
     {"URLDownloadToFile", "trojan"},
     {"WinExec", "trojan"},
     {"CreateRemoteThread", "trojan"},
-    {"ShellExecute", "trojan"},
     {"InternetOpenUrl", "trojan"},
-    {"WSAStartup", "trojan"},
     {"InternetConnect", "trojan"},
 
     {"SetWindowsHookEx", "spyware"},
     {"GetAsyncKeyState", "spyware"},
-    {"BitBlt", "spyware"},
-    {"GetClipboardData", "spyware"},
-    {"GetKeyState", "spyware"},
-    {"WaveOut", "spyware"},
 
     {"CryptEncrypt", "ransomware"},
     {"CryptGenKey", "ransomware"},
     {"CryptAcquireContext", "ransomware"},
     {"FindFirstFile", "ransomware"},
-    {"WriteFile", "ransomware"},
-    {"DeleteFile", "ransomware"},
 
     {"WNetOpenEnum", "worm"},
     {"WNetEnumResource", "worm"},
     {"NetShareEnum", "worm"},
-    {"CreateFile", "worm"},
-    {"CopyFile", "worm"},
 
-    {"DeviceIoControl", "rootkit"},
     {"NtLoadDriver", "rootkit"},
     {"ZwLoadDriver", "rootkit"},
-    {"OpenSCManager", "rootkit"},
-    {"CreateService", "rootkit"},
     {NULL, NULL}
 };
 

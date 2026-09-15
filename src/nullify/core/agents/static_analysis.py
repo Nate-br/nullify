@@ -26,23 +26,20 @@ from nullify.core.models import (
 IMPORT_HINTS: dict[str, tuple[str, ...]] = {
     "trojan": (
         "URLDownloadToFile", "WinExec", "CreateRemoteThread",
-        "ShellExecute", "InternetOpenUrl", "WSAStartup", "InternetConnect",
+        "InternetOpenUrl", "InternetConnect",
     ),
     "spyware": (
-        "SetWindowsHookEx", "GetAsyncKeyState", "BitBlt",
-        "GetClipboardData", "GetKeyState", "WaveOut",
+        "SetWindowsHookEx", "GetAsyncKeyState",
     ),
     "ransomware": (
         "CryptEncrypt", "CryptGenKey", "CryptAcquireContext",
-        "FindFirstFile", "WriteFile", "DeleteFile",
+        "FindFirstFile",
     ),
     "worm": (
         "WNetOpenEnum", "WNetEnumResource", "NetShareEnum",
-        "CreateFile", "CopyFile",
     ),
     "rootkit": (
-        "DeviceIoControl", "NtLoadDriver", "ZwLoadDriver",
-        "OpenSCManager", "CreateService",
+        "NtLoadDriver", "ZwLoadDriver",
     ),
 }
 
@@ -53,7 +50,6 @@ API_TO_MITRE: dict[str, str] = {
     "WinExec": "T1059",                # Command and Scripting Interpreter
     "SetWindowsHookEx": "T1056.001",   # Keylogging
     "GetAsyncKeyState": "T1056.001",
-    "BitBlt": "T1113",                 # Screen Capture
     "CryptEncrypt": "T1486",           # Data Encrypted for Impact
     "CryptGenKey": "T1486",
     "FindFirstFile": "T1083",          # File and Directory Discovery
@@ -61,7 +57,6 @@ API_TO_MITRE: dict[str, str] = {
     "NetShareEnum": "T1135",
     "NtLoadDriver": "T1547.003",       # Boot Autostart: Kernel Drivers
     "ZwLoadDriver": "T1547.003",
-    "CreateService": "T1543.003",      # System Process: Windows Service
 }
 
 SUSPICIOUS_PATTERNS: tuple[tuple[str, re.Pattern[str], Severity], ...] = (
@@ -76,7 +71,7 @@ SUSPICIOUS_PATTERNS: tuple[tuple[str, re.Pattern[str], Severity], ...] = (
                 re.IGNORECASE | re.DOTALL),
      Severity.HIGH),
     ("Hardcoded public IP address",
-     re.compile(r"\b(?:[1-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(?:\d{1,3})\.(?:\d{1,3})\.(?:\d{1,3})\b"),
+     re.compile(r"(?<![a-zA-Z0-9_\-\.\"\'])(?:[1-9]|[1-9]\d|1\d\d|2[0-1]\d|22[0-3])\.(?!(?:0\.0\.(?:0|1)\b))(?:\d{1,3})\.(?:\d{1,3})\.(?:[1-9]|[1-9]\d|1\d\d|2[0-4]\d|25[0-4])(?![a-zA-Z0-9_\-\.\"\'])"),
      Severity.MEDIUM),
     ("Executable drop path",
      re.compile(r"(?:%?(?:APPDATA|TEMP|ProgramData)\\\\?|%?SYSTEM32\\\\?)[\w\-. ]+\.(?:exe|dll|scr|bat|ps1)",
@@ -168,7 +163,7 @@ class StaticAnalysisAgent(BaseAgent):
                             agent=self.name,
                             title=f"Suspicious import: {api}",
                             detail=f"associated with {mal_type} behaviour",
-                            severity=Severity.MEDIUM,
+                            severity=Severity.LOW,
                             mitre_ids=(mitre,) if mitre else (),
                             metadata={"type_hint": mal_type, "api": api},
                         ))

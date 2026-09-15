@@ -149,7 +149,21 @@ int nullify_scan_suspicious_patterns(
                 valid = 0;
             }
 
-            if (valid && octets[0] >= 1 && octets[0] <= 255 && octets[0] != 127) {
+            /* Check if preceded by 'version' or 'ver' within 16 bytes */
+            int is_version = 0;
+            if (i >= 4) {
+                size_t v_start = (i >= 16) ? i - 16 : 0;
+                if (iequals_substr(data + v_start, i - v_start, "version") >= 0 ||
+                    iequals_substr(data + v_start, i - v_start, "assembly") >= 0) {
+                    is_version = 1;
+                }
+            }
+
+            /* Valid unicast host IP: 1..223 (excluding 127 loopback), last octet 1..254, not X.0.0.0 */
+            if (valid && !is_version &&
+                octets[0] >= 1 && octets[0] <= 223 && octets[0] != 127 &&
+                octets[3] >= 1 && octets[3] <= 254 &&
+                !(octets[1] == 0 && octets[2] == 0)) {
                 out->has_hardcoded_ip = 1;
                 save_snippet(out->match_snippets[3], data, len, i, k - i);
                 break;

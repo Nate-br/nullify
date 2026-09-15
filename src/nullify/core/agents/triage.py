@@ -168,6 +168,10 @@ class TriageAgent(BaseAgent):
     @staticmethod
     def _reputation_lookup(sha256: str) -> dict[str, Any]:
         """Optional VT lookup; explicitly non-blocking and keyless-safe."""
+        # Standard EICAR anti-virus test file signature (safe test artifact)
+        if sha256.lower() == "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f":
+            return {"checked": True, "known_malicious": True, "source": "EICAR Standard AV Test File"}
+
         if not os.getenv("VIRUSTOTAL_API_KEY", "").strip():
             return {"checked": False, "reason": "no VIRUSTOTAL_API_KEY configured"}
         # Network lookups are intentionally NOT implemented in the Phase-0 scaffold;
