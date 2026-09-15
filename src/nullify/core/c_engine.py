@@ -96,8 +96,20 @@ def _load_c_lib() -> ctypes.CDLL | None:
     if _LIB is not None:
         return _LIB
 
-    # Try existing compiled library
-    if _LIB_PATH.exists():
+    # Windows cannot load Linux ELF .so files (triggers 0xc000012f Bad Image error)
+    if sys.platform == "win32":
+        dll_path = _REPO_ROOT / "lib" / "nullify.dll"
+        if dll_path.exists():
+            try:
+                _LIB = ctypes.CDLL(str(dll_path))
+                _setup_signatures(_LIB)
+                return _LIB
+            except Exception:
+                pass
+        return None  # Fall back cleanly to pure Python on Windows
+
+    # Linux / POSIX: Try existing compiled library
+    if _LIB_PATH.exists() and str(_LIB_PATH).endswith(".so"):
         try:
             _LIB = ctypes.CDLL(str(_LIB_PATH))
             _setup_signatures(_LIB)
