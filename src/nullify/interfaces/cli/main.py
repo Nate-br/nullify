@@ -178,6 +178,9 @@ def interactive_menu() -> None:
     menu_table.add_row(
         "[6]", "Test Synthetic Demos", "Scan safe built-in fixtures (Trojan, Ransomware, etc.)"
     )
+    menu_table.add_row(
+        "[7]", "System PC Scan", "Audit PC drop locations, autostarts & persistence hotspots"
+    )
     menu_table.add_row("[0]", "Exit", "Quit Nullify console")
 
     console.print(menu_table)
@@ -186,7 +189,7 @@ def interactive_menu() -> None:
     try:
         choice = Prompt.ask(
             "[bold green]Select an action[/bold green]",
-            choices=["1", "2", "3", "4", "5", "6", "0", "q"],
+            choices=["1", "2", "3", "4", "5", "6", "7", "0", "q"],
             default="1",
         )
     except (KeyboardInterrupt, EOFError):
@@ -298,6 +301,13 @@ def interactive_menu() -> None:
             res = orch.run(LogTarget(p), ScanMode.STATIC_ONLY)
             _render_result(res)
 
+        elif choice == "7":
+            console.print("\n[bold]Select scan scope:[/bold]")
+            console.print("  [1] Quick Scan (User Downloads/Desktop, /tmp, autostarts, cron, systemd)")
+            console.print("  [2] Full PC Scan (All storage drives, excluding kernel pseudo-filesystems)")
+            scope = Prompt.ask("Choose mode", choices=["1", "2"], default="1")
+            system_scan(quick=(scope == "1"))
+
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context) -> None:
@@ -387,6 +397,137 @@ def batch(
     if output:
         report = {"generated_by": f"nullify {__version__}", "results": results}
         output.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        console.print(f"Report written to [bold]{output}[/bold]")
+
+
+@app.command("system-scan")
+def system_scan(
+    quick: bool = typer.Option(
+        True, "--quick/--full", help="Quick scan (drop & persistence hotspots) vs Full PC scan"
+    ),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Write JSON report here"),
+) -> None:
+    """Scan the PC for threats and malicious persistence mechanisms."""
+    import os
+    from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
+
+    console.print()
+    console.print(Panel.fit(
+        f"[bold cyan]NULLIFY SYSTEM THREAT SCAN // {'QUICK AUDIT' if quick else 'FULL PC SCAN'}[/bold cyan]\n"
+        f"[dim]{'Auditing primary execution hotspots, autostarts, and persistence directories.' if quick else 'Auditing storage volumes (excluding virtual/kernel pseudo-filesystems).'}[/dim]",
+        border_style="cyan"
+    ))
+
+    excluded_dirs = {
+        "/proc", "/sys", "/dev", "/run", "/snap", "/var/lib/docker", "/var/lib/containerd",
+        "/lost+found", "/tmp/.X11-unix", "/tmp/.ICE-unix"
+    }
+
+    home = Path.home()
+    if quick:
+        candidates = [
+            home / "Downloads",
+            home / "Desktop",
+            home / ".local" / "bin",
+            home / ".config" / "autostart",
+            home / ".config" / "systemd" / "user",
+            Path("/tmp"),
+            Path("/var/tmp"),
+            Path("/dev/shm"),
+            Path("/etc/cron.d"),
+            Path("/etc/cron.daily"),
+            Path("/etc/cron.hourly"),
+            Path("/etc/systemd/system"),
+            Path("/usr/local/bin"),
+        ]
+        scan_paths = [p for p in candidates if p.exists() and p.is_dir()]
+    else:
+        scan_paths = [Path("/")]
+
+    files_to_scan: list[Path] = []
+    console.print("[dim]Collecting target files...[/dim]")
+
+    for root_dir in scan_paths:
+        if quick:
+            for p in root_dir.rglob("*"):
+                try:
+                    if p.is_file() and not p.is_symlink():
+                        files_to_scan.append(p)
+                except (PermissionError, OSError):
+                    continue
+        else:
+            for dirpath, dirnames, filenames in os.walk(str(root_dir), followlinks=False):
+                dirnames[:] = [
+                    d for d in dirnames
+                    if os.path.join(dirpath, d) not in excluded_dirs
+                    and not any(os.path.join(dirpath, d).startswith(ex + "/") for ex in excluded_dirs)
+                ]
+                for fn in filenames:
+                    fp = Path(dirpath) / fn
+                    try:
+                        if fp.is_file() and not fp.is_symlink():
+                            files_to_scan.append(fp)
+                    except (PermissionError, OSError):
+                        continue
+
+    if not files_to_scan:
+        console.print("[yellow]No files found to scan.[/yellow]")
+        return
+
+    console.print(f"[bold]Identified [cyan]{len(files_to_scan)}[/cyan] target files to inspect.[/bold]\n")
+
+    threats = []
+    suspicious = []
+    scanned_count = 0
+    mode = ScanMode.STATIC_ONLY
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        console=console,
+    ) as progress:
+        task = progress.add_task("[cyan]Scanning...", total=len(files_to_scan))
+        for p in files_to_scan:
+            disp_name = p.name if len(p.name) <= 30 else p.name[:27] + "..."
+            progress.update(task, description=f"[cyan]Scanning: [dim]{disp_name}[/dim]")
+            try:
+                res = _run_file_scan(p, mode, stream=False)
+                scanned_count += 1
+                if res.verdict == Verdict.MALICIOUS:
+                    threats.append((p, res))
+                elif res.verdict == Verdict.SUSPICIOUS:
+                    suspicious.append((p, res))
+            except Exception:
+                pass
+            progress.advance(task)
+
+    console.print("\n[bold]Scan Complete.[/bold]")
+    if threats:
+        console.print(f"\n[bold red]CRITICAL: Found {len(threats)} MALICIOUS threat(s)![/bold red]")
+        threat_table = Table(title="Detected Threats", header_style="bold red")
+        threat_table.add_column("File", style="bold white")
+        threat_table.add_column("Type", style="red")
+        threat_table.add_column("Confidence", style="yellow")
+        threat_table.add_column("Key Finding", style="dim")
+        for tp, tr in threats:
+            key_finding = tr.findings[0].title if tr.findings else "Malicious patterns"
+            threat_table.add_row(str(tp), tr.malware_type or "unknown", f"{int(tr.confidence * 100)}%", key_finding)
+        console.print(threat_table)
+    elif suspicious:
+        console.print(f"\n[bold yellow]Notice: Found {len(suspicious)} suspicious file(s).[/bold yellow]")
+    else:
+        console.print("\n[bold green]✓ Clean: No active malware or suspicious threats detected on this system.[/bold green]")
+
+    if output:
+        out_data = {
+            "mode": "quick" if quick else "full",
+            "scanned": scanned_count,
+            "threats": [{"path": str(p), "verdict": r.verdict.value, "type": r.malware_type} for p, r in threats],
+            "suspicious": [{"path": str(p), "verdict": r.verdict.value} for p, r in suspicious],
+        }
+        output.write_text(json.dumps(out_data, indent=2), encoding="utf-8")
         console.print(f"Report written to [bold]{output}[/bold]")
 
 
