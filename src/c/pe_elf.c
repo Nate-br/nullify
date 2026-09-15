@@ -187,8 +187,12 @@ int nullify_triage_buffer(const uint8_t *data, size_t len, nullify_triage_result
         snprintf(res->architecture, sizeof(res->architecture), "Data / Unknown");
     }
 
-    /* Entropy heuristic for packed binary */
-    if (res->is_executable && res->entropy >= 7.2) {
+    /* Check if target is an AppImage (Type 1 or 2 magic 'AI\x01' or 'AI\x02' in ELF e_ident) */
+    int is_appimage = (len >= 11 && data[0] == 0x7F && data[1] == 'E' && data[2] == 'L' && data[3] == 'F' &&
+                       data[8] == 'A' && data[9] == 'I' && (data[10] == 0x01 || data[10] == 0x02));
+
+    /* Entropy heuristic for packed binary (exclude compressed AppImage application bundles) */
+    if (res->is_executable && res->entropy >= 7.2 && !is_appimage) {
         res->is_packed = 1;
     }
 

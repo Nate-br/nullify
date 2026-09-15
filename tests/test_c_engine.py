@@ -167,3 +167,20 @@ def test_c_pattern_scanner():
     assert "Executable drop path" in titles
     assert "Ransom note string" in titles
 
+
+def test_c_pattern_scanner_no_false_positives():
+    # Standalone 3-letter sequence 'xmr' and single word 'encrypted' must not trigger ransom note
+    sample = b"This is unencrypted normal data with a variable named xmr and monero in comments."
+    res = c_engine.fast_scan_patterns(sample)
+    assert res is not None
+    titles = [t for t, _, _ in res["matches"]]
+    assert "Ransom note string" not in titles
+
+    # Real ransom note phrase must trigger
+    ransom_sample = b"Attention: all your files have been encrypted! Send btc to recover."
+    res2 = c_engine.fast_scan_patterns(ransom_sample)
+    assert res2 is not None
+    titles2 = [t for t, _, _ in res2["matches"]]
+    assert "Ransom note string" in titles2
+
+

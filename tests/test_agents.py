@@ -20,6 +20,28 @@ def test_triage_pe_detection(pe_like_file) -> None:
     assert res.data["entropy"] is not None
 
 
+def test_triage_appimage_not_flagged_as_packed(tmp_path) -> None:
+    # Construct synthetic AppImage Type 2 file with high entropy compressed-like data
+    import os
+    appimage_file = tmp_path / "test_app.AppImage"
+    # ELF header + 'AI\x02' at offset 8
+    header = bytearray(b"\x7fELF\x02\x01\x01\x00AI\x02\x00\x00\x00\x00\x00")
+    # Random bytes to simulate compressed SquashFS (high entropy > 7.8)
+    data = bytes(header) + os.urandom(64 * 1024)
+    appimage_file.write_bytes(data)
+
+    target = FileTarget(appimage_file)
+    res = TriageAgent().run(target, ScanMode.STATIC_ONLY)
+    assert res.ok
+    assert res.data["is_appimage"] is True
+    assert res.data["packed"] is False
+    # Verify no MITRE T1027 or high severity packing findings
+    titles = [f.title for f in res.findings]
+    assert "Very high entropy — likely packed/encrypted" not in titles
+    assert any("AppImage" in t for t in titles)
+
+
+
 def test_triage_missing_file_fails_gracefully(missing_file) -> None:
     res = TriageAgent().run(missing_file, ScanMode.STATIC_ONLY)
     assert res.status.value == "failed"

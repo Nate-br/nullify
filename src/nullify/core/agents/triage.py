@@ -71,6 +71,9 @@ class TriageAgent(BaseAgent):
             if c_res.get("num_sections", 0) > 0:
                 data["num_sections"] = c_res["num_sections"]
 
+        is_appimage = self._is_appimage(target)
+        data["is_appimage"] = is_appimage
+
         # Magic-byte sniff for extension-less or mislabelled files.
         magic = self._sniff_magic(target)
         data["file_magic"] = magic
@@ -82,15 +85,24 @@ class TriageAgent(BaseAgent):
             ))
         elif magic == "elf":
             looks_executable = True
+            title = "AppImage application bundle" if is_appimage else "Linux ELF executable"
+            detail = "ELF runtime with embedded compressed SquashFS filesystem detected" if is_appimage else "ELF header detected (non-Windows target)"
             findings.append(Finding(
-                agent=self.name, title="Linux ELF executable",
-                detail="ELF header detected (non-Windows target)", severity=Severity.INFO,
+                agent=self.name, title=title,
+                detail=detail, severity=Severity.INFO,
             ))
 
         entropy = target.entropy()
         data["entropy"] = entropy
         packed = False
-        if entropy is not None and looks_executable:
+        if is_appimage:
+            findings.append(Finding(
+                agent=self.name, title="Compressed application bundle",
+                detail=f"SquashFS bundle entropy={entropy} (compression expected)",
+                severity=Severity.INFO,
+                metadata={"entropy": entropy},
+            ))
+        elif entropy is not None and looks_executable:
             if entropy >= HIGH_ENTROPY_THRESHOLD:
                 packed = True
                 findings.append(Finding(
@@ -125,6 +137,21 @@ class TriageAgent(BaseAgent):
                            findings=findings, data=data)
 
     # -- internals -----------------------------------------------------------
+    @staticmethod
+    def _is_appimage(target: Target) -> bool:
+        if not hasattr(target, "path"):
+            return False
+        if target.path.suffix.lower() == ".appimage":
+            return True
+        try:
+            with target.path.open("rb") as fh:
+                head = fh.read(16)
+                if len(head) >= 11 and head[:4] == b"\x7fELF" and head[8:11] in (b"AI\x01", b"AI\x02"):
+                    return True
+        except OSError:
+            pass
+        return False
+
     @staticmethod
     def _sniff_magic(target: FileTarget) -> str | None:
         try:
